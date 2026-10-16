@@ -259,7 +259,20 @@ function cleanMeta(x){
 /* Mode du stockage : cloud Studio Prism, démo, ou « sur cet appareil » (règles Firestore de SPECTRA Writer pas encore publiées) */
 let cloudMode = FIREBASE_CONFIG ? 'firebase' : 'demo';
 const Cloud = () => cloudMode === 'demo' ? DemoCloud : cloudMode === 'local' ? LocalCloud : FirebaseCloud;
-function goLocal(){ if (cloudMode !== 'firebase') return; cloudMode = 'local'; console.info('[SPECTRA Writer] Cloud non activé (règles Firestore) : stockage sur cet appareil.'); }
+let cloudErr = '';
+function goLocal(e){ if (cloudMode !== 'firebase') return; cloudMode = 'local'; cloudErr = (e?.code || '') + (e?.message ? ' · ' + e.message : ''); console.warn('[SPECTRA Writer] Cloud refusé, stockage sur cet appareil :', e); }
+/* Documents gardés sur l'appareil (cloud pas encore activé) : envoyés au cloud dès qu'il répond */
+function localDocs(){ try { const d = LocalCloud.db(); return Object.values(d.docs).filter(p => p.ownerUid === me?.uid).map(p => ({...p, data:d.content[p.id] || ''})); } catch(e){ return []; } }
+async function migrateLocal(){
+  const list = localDocs(); if (!list.length || cloudMode !== 'firebase') return;
+  showBusy(`Envoi de ${list.length} document${list.length > 1 ? 's' : ''} au cloud…`); let ok = 0, fail = 0;
+  for (const p of list){
+    try { const m = await withTimeout(FirebaseCloud.create({name:p.name, folderId:'', data:p.data, meta:pickMeta(p)}), 20000); H.mine?.docs.push(m); if (H.usage != null) H.usage += byteLen(p.data);
+      const d = LocalCloud.db(); delete d.docs[p.id]; delete d.content[p.id]; LocalCloud.put(d); ok++; }
+    catch(e){ fail++; console.warn('[SPECTRA Writer] envoi au cloud impossible', p.name, e); }
+  }
+  hideBusy(); renderHome(); toastA(fail ? `${ok} envoyé${ok > 1 ? 's' : ''}, ${fail} en échec (espace cloud plein ?)` : `${ok} document${ok > 1 ? 's' : ''} envoyé${ok > 1 ? 's' : ''} dans le cloud`);
+}
 
 /* Bibliothèque personnelle (modèles enregistrés), partagée avec l'éditeur */
 let libTimer = 0;
@@ -267,7 +280,7 @@ window.SWLib = {
   save(lib){ clearTimeout(libTimer); libTimer = setTimeout(async () => { try { await withTimeout(Cloud().saveLib(lib), 15000); } catch(e){ toastA(e?.code === 'app/too-big' ? 'Bibliothèque personnelle trop volumineuse' : 'Bibliothèque non synchronisée (hors ligne ?)'); } }, 800); },
 };
 let userLib = {};
-async function loadUserLib(){ try { userLib = (await withTimeout(Cloud().loadLib(), 12000)) || {}; } catch(e){ if (e?.code === 'permission-denied'){ goLocal(); try { userLib = (await LocalCloud.loadLib()) || {}; } catch(x){} } }
+async function loadUserLib(){ try { userLib = (await withTimeout(Cloud().loadLib(), 12000)) || {}; } catch(e){ if (e?.code === 'permission-denied'){ goLocal(e); try { userLib = (await LocalCloud.loadLib()) || {}; } catch(x){} } }
   try { await withTimeout(editorReady, 20000); window.SWEditor.setUserLib(userLib); } catch(e){} if (typeof renderHome === 'function') renderHome(); }
 
 /* ---------- Enregistrement automatique du document ouvert ---------- */
@@ -373,8 +386,9 @@ async function loadHome(){
     await accessReady;
     let mine, shared;
     try { [mine, shared] = await withTimeout(Promise.all([canCloud() ? Cloud().listMine() : Promise.resolve({docs:[], folders:[]}), Cloud().listShared()]), 15000); }
-    catch(e){ if (e?.code === 'permission-denied' && cloudMode === 'firebase'){ goLocal(); [mine, shared] = await Promise.all([Cloud().listMine(), Cloud().listShared()]); } else throw e; }
+    catch(e){ if (e?.code === 'permission-denied' && cloudMode === 'firebase'){ goLocal(e); [mine, shared] = await Promise.all([Cloud().listMine(), Cloud().listShared()]); } else throw e; }
     H.mine = mine; H.shared = shared;
+    if (cloudMode === 'firebase' && localDocs().length && !H.migrated){ H.migrated = true; setTimeout(migrateLocal, 300); }
     try { H.usage = (await withTimeout(Cloud().usage(mine.docs), 10000)).bytes; } catch(e){ H.usage = mine.docs.reduce((s, p) => s + (p.size || 0), 0); }
   } catch(e){ H.err = e?.code === 'app/timeout' ? 'Le cloud ne répond pas. Vérifiez votre connexion.' : errMsg(e); }
   H.loading = false; renderHome();
@@ -430,7 +444,10 @@ function myTplCards(){ const l = userLib?.templates || []; return l.map(t => ({.
 function renderOffer(){
   const el = $a('#homeOffer'); if (!el) return;
   if (cloudMode === 'local'){ el.hidden = false; el.className = 'h-offer local';
-    el.innerHTML = `<div class="ho-in"><div><b>Enregistrement sur cet appareil</b><span>Le cloud SPECTRA Writer n'est pas encore activé sur le serveur Studio Prism : vos documents sont gardés dans ce navigateur, rattachés à votre compte. Ils pourront être envoyés au cloud dès son activation.</span></div></div>`; return; }
+    el.innerHTML = `<div class="ho-in"><div><b>Enregistrement sur cet appareil</b><span>Le serveur Studio Prism refuse encore l'accès au cloud SPECTRA Writer (règles Firestore non publiées) : vos documents sont gardés dans ce navigateur, rattachés à votre compte. Ils partiront dans le cloud tout seuls dès son activation.${cloudErr ? `<br><small style="opacity:.7">Détail : ${esc(cloudErr.slice(0, 160))}</small>` : ''}</span></div><div class="ho-a"><button type="button" class="ho-b" data-hact="retry-cloud">Réessayer</button></div></div>`; return; }
+  const pend = cloudMode === 'firebase' && me ? localDocs().length : 0;
+  if (pend){ el.hidden = false; el.className = 'h-offer';
+    el.innerHTML = `<div class="ho-in"><div><b>Le cloud SPECTRA Writer est activé</b><span>${pend} document${pend > 1 ? 's sont restés' : ' est resté'} sur cet appareil. Envoyez-le${pend > 1 ? 's' : ''} dans le cloud pour le${pend > 1 ? 's' : ''} retrouver partout.</span></div><div class="ho-a"><button type="button" class="ho-b" data-hact="migrate">Envoyer au cloud</button></div></div>`; return; }
   el.className = 'h-offer';
   const hide = planKey() !== 'free' || access.level === 'pending' || !me || store.get('sw.offerHide.' + me.uid);
   el.hidden = !!hide; if (hide) return;
@@ -534,7 +551,7 @@ async function newDoc(tplId, opts = {}){
   try {
     const meta = window.SWEditor.metaOf(json);
     let m; try { m = await withTimeout(Cloud().create({name, folderId, data:json, meta}), 20000); }
-    catch(e){ if ((e?.code === 'permission-denied' || e?.code === 'app/quota-or-denied') && cloudMode === 'firebase' && !H.mine?.docs.length){ goLocal(); m = await Cloud().create({name, folderId:'', data:json, meta}); renderOffer(); } else throw e; }
+    catch(e){ if ((e?.code === 'permission-denied' || e?.code === 'app/quota-or-denied') && cloudMode === 'firebase' && !H.mine?.docs.length){ goLocal(e); m = await Cloud().create({name, folderId:'', data:json, meta}); renderOffer(); } else throw e; }
     hideBusy();
     if (m.ownerUid === me.uid){ H.mine?.docs.push(m); if (H.usage != null) H.usage += byteLen(json); if (folderId){ const f = H.mine?.folders.find(x => x.id === folderId); if (f) f.pids = [...(f.pids || []), m.id]; } }
     await openInEditor(json, m, m.ownerUid === me.uid ? 'owner' : 'edit');
@@ -768,7 +785,7 @@ $a('#homeNew').addEventListener('click', () => { H.tab = 'templates'; H.cat = 'T
 $a('#homeFile').addEventListener('change', e => { const f = e.target.files[0]; e.target.value = ''; importFile(f); });
 $a('#homeLic').addEventListener('click', () => show('licence'));
 $a('#homeQuota').addEventListener('click', e => { if (e.target.closest('[data-hact="upgrade"]')) show('licence'); });
-$a('#homeOffer').addEventListener('click', e => { const a = e.target.closest('[data-hact]'); if (!a) return; if (a.dataset.hact === 'key') show('licence'); if (a.dataset.hact === 'offer-hide'){ store.set('sw.offerHide.' + me.uid, 1); renderOffer(); } });
+$a('#homeOffer').addEventListener('click', e => { const a = e.target.closest('[data-hact]'); if (!a) return; if (a.dataset.hact === 'key') show('licence'); if (a.dataset.hact === 'retry-cloud'){ cloudMode = FIREBASE_CONFIG ? 'firebase' : 'demo'; cloudErr = ''; H.mine = H.shared = null; loadHome(); } if (a.dataset.hact === 'migrate') migrateLocal(); if (a.dataset.hact === 'offer-hide'){ store.set('sw.offerHide.' + me.uid, 1); renderOffer(); } });
 $a('#homeHero').addEventListener('click', e => { const t = e.target.closest('[data-tpl]'); if (t) newDoc(t.dataset.tpl); const a = e.target.closest('[data-hact="import"]'); if (a) $a('#homeFile').click(); const h = e.target.closest('[data-htab]'); if (h){ H.tab = h.dataset.htab; H.cat = 'Tous'; renderHome(); } });
 $a('#homeMain').addEventListener('input', e => { if (e.target.id === 'homeQ'){ H.q = e.target.value; renderHome(); } });
 $a('#homeMain').addEventListener('change', e => { if (e.target.id === 'homeSort'){ H.sort = e.target.value; renderHome(); } });
