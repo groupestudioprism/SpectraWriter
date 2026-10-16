@@ -490,11 +490,7 @@ function renderHome(){
         : H.view === 'list' ? `<div class="hlist" role="table"><div class="hrow head" role="row"><span></span><span>Nom</span><span>Modifié</span><span>Mots</span><span>Taille</span><span></span><span></span></div>${list.map(p => rowHtml(p, !!p._sh)).join('')}</div>` : `<div class="hgrid">${list.map(p => cardHtml(p, !!p._sh)).join('')}</div>`; }
     h += '</section>';
   } else if (H.tab === 'templates'){
-    const cats = ['Tous', ...new Set(TPL().filter(t => t.id !== 'blank').map(t => t.cat))], mt = myTplCards();
-    if (mt.length) cats.splice(1, 0, 'Mes modèles');
-    const list = H.cat === 'Mes modèles' ? mt : TPL().filter(t => H.cat === 'Tous' || t.cat === H.cat || t.id === 'blank');
-    h += `<div class="hcats" role="tablist">${cats.map(c => `<button type="button" role="tab" data-cat="${esc(c)}" aria-selected="${c === H.cat}">${esc(c)}</button>`).join('')}</div>
-      <div class="tgrid">${list.map(t => tplCard(t, true)).join('')}</div>`;
+    h += renderTemplatesTab();
   } else if (H.tab === 'mine'){
     if (H.loading && !H.mine) h = loadingSk;
     else if (H.err) h = `<div class="hempty"><p>${esc(H.err)}</p><button type="button" class="ap-btn alt" data-hact="reload">Réessayer</button></div>`;
@@ -558,7 +554,7 @@ async function newDoc(tplId, opts = {}){
     if (!opts.data) setTimeout(() => window.SWEditor.focusTitle?.(tplId === 'blank'), 60);
   } catch(e){ hideBusy(); toastA(e?.code === 'app/too-big' ? 'Document trop volumineux pour le cloud.' : e?.code === 'app/quota' || e?.code === 'app/quota-or-denied' ? 'Espace cloud plein (ou accès refusé) : libérez de la place.' : e?.code === 'permission-denied' ? 'Création refusée.' : errMsg(e)); }
 }
-window.SWHome = {newDoc, show:showHome, saveTemplate, flush:() => Save.flush(true), canExport:() => fullAccess(), licence:reason => show('licence', {reason}), duplicateCurrent};
+window.SWHome = {newDoc, show:showHome, publishCurrent:() => publishCurrent(), saveTemplate, flush:() => Save.flush(true), canExport:() => fullAccess(), licence:reason => show('licence', {reason}), duplicateCurrent};
 function showBusy(t){ const b = $a('#homeBusy'); b.querySelector('span').textContent = t; b.hidden = false; }
 function hideBusy(){ $a('#homeBusy').hidden = true; }
 async function duplicateCurrent(){
@@ -827,7 +823,8 @@ function askDraw(){
   const words = q.split(/\s+/);
   const tpl = TPL().filter(t => t.id !== 'blank').map(t => ({k:'tpl', id:t.id, t:t.name, s:t.desc || t.cat, hay:nrm(t.name + ' ' + t.cat + ' ' + (t.desc || '') + ' ' + t.id.replace(/-/g, ' '))})).filter(x => words.every(w => x.hay.includes(w)));
   const docs = allMine().map(p => ({k:'doc', id:p.id, t:p.name, s:'Ouvrir · ' + ago(p.updatedAt), hay:nrm(p.name)})).filter(x => words.every(w => x.hay.includes(w))).slice(0, 4);
-  ASK.items = [...tpl.slice(0, 5), ...docs, {k:'blank', t:`Page blanche « ${$a('#homeAsk').value.trim().slice(0, 50)} »`, s:'Un document vide, avec ce titre'}];
+  const typed = $a('#homeAsk').value.trim(), aiIt = window.SWAI?.available() && typed.length > 3 ? [{k:'ai', t:`Créer avec l'IA : « ${typed.slice(0, 60)} »`, s:'Spectra rédige et met en page tout le document'}] : [];
+  ASK.items = [...(words.length >= 3 ? aiIt : []), ...tpl.slice(0, 5), ...(words.length < 3 ? aiIt : []), ...docs, {k:'blank', t:`Page blanche « ${$a('#homeAsk').value.trim().slice(0, 50)} »`, s:'Un document vide, avec ce titre'}];
   ASK.i = Math.min(ASK.i, ASK.items.length - 1);
   box.hidden = false;
   box.innerHTML = ASK.items.map((x, i) => `<button type="button" data-ask="${i}" class="${i === ASK.i ? 'on' : ''} k-${x.k}" role="option"><b>${x.k === 'tpl' ? 'Nouveau : ' : ''}${esc(x.t)}</b><span>${esc(x.s.replace(' · ', ', '))}</span></button>`).join('');
@@ -836,6 +833,7 @@ async function askRun(i){
   const x = ASK.items[i]; if (!x) return; const typed = $a('#homeAsk').value.trim();
   $a('#homeAsk').value = ''; $a('#homeAskRes').hidden = true;
   if (x.k === 'tpl') return newDoc(x.id);
+  if (x.k === 'ai'){ await newDoc('blank'); setTimeout(() => window.SWEditor?.ai('Crée un document complet et bien mis en page : ' + typed), 250); return; }
   if (x.k === 'doc'){ const p = findP(x.id, false); if (p) return openDoc(p); }
   if (x.k === 'blank'){ await newDoc('blank'); if (typed && window.SWEditor){ const h = document.querySelector('#sheet h1'); if (h){ h.textContent = typed; document.querySelector('#sheet').dispatchEvent(new Event('input', {bubbles:true})); } } }
 }

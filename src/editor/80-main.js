@@ -92,12 +92,12 @@ function toolsPop(anchor){
     <button type="button" data-o="page"><b>Mise en page</b><span>Format, marges, en-tête, pied de page, numéros, filigrane</span></button>
     <button type="button" data-o="focus"><b>Mode concentration</b><span>Seulement vous et votre texte (Échap pour sortir)</span></button>
     <hr><button type="button" data-o="insert-file"><b>Insérer le contenu d'un fichier</b><span>Word, Markdown, texte ou SPECTRA, à l'endroit du curseur</span></button>
-    <button type="button" data-o="save-tpl"><b>Enregistrer comme modèle</b><span>Réutilisez ce document comme point de départ</span></button>
+    <button type="button" data-o="spectre"><b>Spectre et IA</b><span>Ctrl + K : tapez ce que vous voulez faire, en français</span></button>
     <button type="button" data-o="shortcuts"><b>Raccourcis et astuces</b><span>Commande /, Markdown, clavier</span></button></div>`, p => {
     $('#optTypo', p).onchange = e => { E.frTypo = e.target.checked; lsSet('sw.frTypo', E.frTypo); toast(E.frTypo ? 'Typographie automatique activée' : 'Typographie automatique désactivée'); };
     p.onclick = e => { const b = e.target.closest('[data-o]'); if (!b) return; closePop(); const k = b.dataset.o;
       if (k === 'strike') { restoreSel(); cmd('strikeThrough'); } else if (k === 'clear'){ restoreSel(); clearFormat(); } else if (k === 'history') historyDlg(); else if (k === 'typo') frenchTypo(); else if (k === 'find') openFind(true); else if (k === 'page') pageDlg(); else if (k === 'focus') toggleFocus(true);
-      else if (k === 'insert-file') $('#edInsFile').click(); else if (k === 'save-tpl') saveTplDlg(); else if (k === 'shortcuts') shortcutsDlg(); };
+      else if (k === 'insert-file') $('#edInsFile').click(); else if (k === 'spectre') openSpectre(); else if (k === 'shortcuts') shortcutsDlg(); };
   }, 'menu');
 }
 function filePop(anchor){
@@ -106,6 +106,8 @@ function filePop(anchor){
     <button type="button" data-f="dup"><b>Dupliquer</b><span>Une copie, ouverte tout de suite</span></button>
     <button type="button" data-f="import"><b>Importer un fichier</b><span>Word (.docx), Markdown, texte, SPECTRA → nouveau document</span></button>
     <button type="button" data-f="share"><b>Partager…</b><span>Par email ou par lien, en lecture ou modification</span></button>
+    <button type="button" data-f="tpl"><b>Enregistrer comme modèle</b><span>Dans vos modèles personnels</span></button>
+    <button type="button" data-f="publish"><b>Publier dans la Communauté</b><span>Proposez ce document comme modèle public, vérifié par Studio Prism</span></button>
     <hr><button type="button" data-f="page"><b>Mise en page</b><span>Format, marges, en-tête et pied de page</span></button>
     <button type="button" data-f="print"><b>Imprimer</b><span>Ctrl + P</span></button>
     <button type="button" data-f="history"><b>Historique des versions</b><span>Revenir à une version précédente</span></button>
@@ -113,7 +115,7 @@ function filePop(anchor){
     <hr><button type="button" data-f="home"><b>Retour à l'accueil</b><span>Vos documents et modèles</span></button></div>`, p => {
     p.onclick = e => { const b = e.target.closest('[data-f]'); if (!b) return; closePop(); const k = b.dataset.f;
       if (k === 'new') window.SWHome?.show('templates'); else if (k === 'dup') window.SWHome?.duplicateCurrent(); else if (k === 'import') $('#homeFile').click();
-      else if (k === 'share') window.SWShareCurrent?.(); else if (k === 'page') pageDlg(); else if (k === 'print') printDoc(); else if (k === 'info') infoDlg(); else if (k === 'history') historyDlg(); else if (k === 'home') window.SWHome?.show('home'); };
+      else if (k === 'share') window.SWShareCurrent?.(); else if (k === 'page') pageDlg(); else if (k === 'print') printDoc(); else if (k === 'info') infoDlg(); else if (k === 'history') historyDlg(); else if (k === 'home') window.SWHome?.show('home'); else if (k === 'tpl') saveTplDlg(); else if (k === 'publish') window.SWHome?.publishCurrent?.(); };
   }, 'menu');
 }
 function saveTplDlg(){ SWAsk('Enregistrer comme modèle', 'Nom du modèle', E.doc.title, 'Enregistrer', async v => { await SWHome.saveTemplate(v); }); }
@@ -127,7 +129,7 @@ function infoDlg(){
 function shortcutsDlg(){
   const k = (a, b) => `<tr><td>${a}</td><td>${b}</td></tr>`;
   SWDlg.open(`<h3>Raccourcis et astuces</h3><div class="sc-wrap"><table class="sc">${k('<kbd>/</kbd> en début de ligne', 'Insérer un bloc, un titre, un tableau…')}${k('<kbd>#</kbd> <kbd>##</kbd> <kbd>###</kbd> + espace', 'Titre 1, 2, 3')}${k('<kbd>-</kbd> ou <kbd>*</kbd> + espace', 'Liste à puces')}${k('<kbd>1.</kbd> + espace', 'Liste numérotée')}${k('<kbd>[]</kbd> + espace', 'Liste de tâches')}${k('<kbd>&gt;</kbd> + espace', 'Citation')}${k('<kbd>---</kbd> + Entrée', 'Séparateur')}
-    ${k('<kbd>Ctrl</kbd> <kbd>B</kbd> / <kbd>I</kbd> / <kbd>U</kbd>', 'Gras, italique, souligné')}${k('<kbd>Ctrl</kbd> <kbd>Alt</kbd> <kbd>1</kbd> <kbd>2</kbd> <kbd>3</kbd> · <kbd>0</kbd>', 'Titre 1, 2, 3 · texte normal')}${k('<kbd>Ctrl</kbd> <kbd>K</kbd>', 'Chercher une action (le Spectre)')}${k('<kbd>:</kbd> + un mot', 'Émoji (:idee, :ok, :date…)')}${k('<kbd>Ctrl</kbd> <kbd>Entrée</kbd>', 'Saut de page')}${k('<kbd>Ctrl</kbd> <kbd>F</kbd> · <kbd>H</kbd>', 'Rechercher · remplacer')}${k('<kbd>Ctrl</kbd> <kbd>Maj</kbd> <kbd>V</kbd>', 'Coller sans mise en forme')}${k('<kbd>Ctrl</kbd> <kbd>P</kbd>', 'Imprimer ou PDF')}${k('<kbd>Ctrl</kbd> <kbd>S</kbd>', 'Enregistrer tout de suite (sinon automatique)')}
+    ${k('<kbd>Ctrl</kbd> <kbd>B</kbd> / <kbd>I</kbd> / <kbd>U</kbd>', 'Gras, italique, souligné')}${k('<kbd>Ctrl</kbd> <kbd>Alt</kbd> <kbd>1</kbd> <kbd>2</kbd> <kbd>3</kbd> · <kbd>0</kbd>', 'Titre 1, 2, 3 · texte normal')}${k('<kbd>Ctrl</kbd> <kbd>K</kbd>', 'Le Spectre : tapez une action en français (« tableau 4 × 3 », « mets en bleu », « passe en paysage puis exporte en PDF ») ou demandez à l\'IA (« résume ce texte », « rédige une introduction »)')}${k('<kbd>:</kbd> + un mot', 'Émoji (:idee, :ok, :date…)')}${k('<kbd>Ctrl</kbd> <kbd>Entrée</kbd>', 'Saut de page')}${k('<kbd>Ctrl</kbd> <kbd>F</kbd> · <kbd>H</kbd>', 'Rechercher · remplacer')}${k('<kbd>Ctrl</kbd> <kbd>Maj</kbd> <kbd>V</kbd>', 'Coller sans mise en forme')}${k('<kbd>Ctrl</kbd> <kbd>P</kbd>', 'Imprimer ou PDF')}${k('<kbd>Ctrl</kbd> <kbd>S</kbd>', 'Enregistrer tout de suite (sinon automatique)')}
     ${k('Poignée <b>⋮⋮</b> à gauche d\'un bloc', 'Glisser pour déplacer, cliquer pour dupliquer, supprimer…')}${k('Glisser une image sur la page', 'Elle s\'insère à cet endroit')}</table></div><div class="dlg-acts"><button type="button" class="ap-btn" data-dlg="close">Compris</button></div>`, null, 'wide');
 }
 function toggleFocus(on){ document.body.classList.toggle('focus-mode', on ?? !document.body.classList.contains('focus-mode')); setTimeout(() => { sizeStage(); placeTools(); }, 50); if (document.body.classList.contains('focus-mode')) toast('Mode concentration · Échap pour sortir'); }
@@ -211,8 +213,10 @@ function wire(){
   $('#edRail').addEventListener('click', e => { const b = e.target.closest('[data-panel]'); if (b) openPanel(b.dataset.panel); });
   $('#edThread').addEventListener('click', e => { const b = e.target.closest('[data-tk]'); if (!b) return; const hs = $$('h1, h2, h3', sheet()).filter(h => h.textContent.trim() && !h.closest('.sw-toc, .sw-cover')); hs[+b.dataset.tk]?.scrollIntoView({behavior:'smooth', block:'start'}); });
   $('#spQ').addEventListener('input', () => { SPX.i = 0; drawSpectre(); });
-  $('#spQ').addEventListener('keydown', e => { if (e.key === 'ArrowDown'){ e.preventDefault(); SPX.i = Math.min(SPX.items.length - 1, SPX.i + 1); drawSpectre(); } else if (e.key === 'ArrowUp'){ e.preventDefault(); SPX.i = Math.max(0, SPX.i - 1); drawSpectre(); } else if (e.key === 'Enter'){ e.preventDefault(); runSpectre(SPX.i); } else if (e.key === 'Escape'){ e.preventDefault(); closeSpectre(); restoreSel(); } });
-  $('#spList').addEventListener('click', e => { const b = e.target.closest('[data-sp]'); if (b) runSpectre(+b.dataset.sp); });
+  $('#spQ').addEventListener('keydown', e => { if ($('#spectre').classList.contains('ai')){ if (e.key === 'Enter'){ e.preventDefault(); const b = [...$$('#spList [data-ai="apply"]')].pop() || $('#spList [data-ai="retry"]'); if (b && !AIS.busy) b.click(); } else if (e.key === 'Escape'){ e.preventDefault(); e.stopPropagation(); drawSpectre(); } return; } if (e.key === 'ArrowDown'){ e.preventDefault(); SPX.i = Math.min(SPX.items.length - 1, SPX.i + 1); drawSpectre(); } else if (e.key === 'ArrowUp'){ e.preventDefault(); SPX.i = Math.max(0, SPX.i - 1); drawSpectre(); } else if (e.key === 'Enter'){ e.preventDefault(); runSpectre(SPX.i); } else if (e.key === 'Escape'){ e.preventDefault(); e.stopPropagation(); closeSpectre(); restoreSel(); } });
+  $('#spList').addEventListener('click', e => { const b = e.target.closest('[data-sp]'); if (b) return runSpectre(+b.dataset.sp);
+    const x = e.target.closest('[data-ai]'); if (!x) return; const k = x.dataset.ai;
+    if (k === 'back'){ drawSpectre(); $('#spQ').focus(); } else if (k === 'retry') aiAsk(AIS.prompt, {doc:AIS.ctx?.wantDoc}); else if (k === 'apply') aiApply(x.dataset.tgt); });
   $('#spectre').addEventListener('mousedown', e => { if (e.target.id === 'spectre') closeSpectre(); });
   $('#edPanelClose').addEventListener('click', () => openPanel(panel));
   const PB = $('#edPanelBody');
@@ -340,7 +344,7 @@ function mdShortcut(){
 function globalKeys(e){
   if ($('#app').hidden || !$('#auth').hidden) return;
   const mod = e.ctrlKey || e.metaKey, lk = e.key.toLowerCase();
-  if (e.key === 'Escape'){ if (!$('#spectre').hidden){ closeSpectre(); return restoreSel(); } if (!$('#edPop').hidden) return closePop(); if (panel) return openPanel(panel); if (!$('#findBar').hidden) return closeFind(); if (document.body.classList.contains('focus-mode')) return toggleFocus(false); if (selFig) return selectFigure(null); }
+  if (e.key === 'Escape'){ if (!$('#spectre').hidden){ if ($('#spectre').classList.contains('ai') && document.activeElement !== $('#spQ')){ drawSpectre(); return $('#spQ').focus(); } closeSpectre(); return restoreSel(); } if (!$('#edPop').hidden) return closePop(); if (panel) return openPanel(panel); if (!$('#findBar').hidden) return closeFind(); if (document.body.classList.contains('focus-mode')) return toggleFocus(false); if (selFig) return selectFigure(null); }
   if (!mod) return;
   if (lk === 'k' || e.key === '/'){ e.preventDefault(); return $('#spectre').hidden ? openSpectre() : closeSpectre(); }
   if (lk === 's'){ e.preventDefault(); window.SWHome?.flush(); toast('Enregistré'); }
@@ -388,6 +392,7 @@ function onPaste(e){
     metaOf, fromTemplate, importFile, setReadOnly, restoreSel, setUserLib(l){ E.userLib = l || {}; if (panel === 'templates') renderPanel(); },
     focusTitle(blank){ if (blank){ const h = sheet().querySelector('h1'); if (h){ sheet().focus(); caretToStart(h); return; } } sheet().focus({preventScroll:true}); },
     paginate, doExport,
+    ai(p, o){ openSpectre(); $('#spQ').value = p; aiAsk(p, o || {}); },
   };
   window.__swReady = true;
   window.dispatchEvent(new Event('sw:ready'));

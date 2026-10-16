@@ -346,18 +346,36 @@ function spectreActions(){
 }
 const SP_START = ['Titre 1', 'Titre 2', 'Image', 'Tableau 3 × 3', 'Lien', 'Rechercher', 'Exporter en PDF', 'Exporter en Word (.docx)', 'Historique des versions', 'Mode concentration'];
 function openSpectre(){ saveSel(); closePop(); $('#spectre').hidden = false; const q = $('#spQ'); q.value = ''; SPX.all = spectreActions(); SPX.i = 0; drawSpectre(); setTimeout(() => q.focus(), 10); }
-function closeSpectre(){ $('#spectre').hidden = true; }
+function closeSpectre(){ $('#spectre').hidden = true; $('#spectre').classList.remove('ai'); AIS.ctl++; AIS.busy = false; }
 function drawSpectre(){
-  const q = norm($('#spQ').value.trim()), words = q.split(/\s+/).filter(Boolean);
-  let l;
-  if (words.length) l = SPX.all.map(a => { const hay = norm(a.t + ' ' + a.g + ' ' + a.k); if (!words.every(w => hay.includes(w))) return null; const tt = norm(a.t); return {...a, sc:tt.startsWith(words[0]) ? 0 : tt.includes(words[0]) ? 1 : 2}; }).filter(Boolean).sort((a, b) => a.sc - b.sc);
-  else l = SP_START.map(t => SPX.all.find(a => a.t === t)).filter(Boolean);
+  $('#spectre').classList.remove('ai'); AIS.ctl++; AIS.busy = false;
+  const raw = $('#spQ').value.trim(), q = norm(raw), words = q.split(/\s+/).filter(Boolean);
+  let l, head = '';
+  if (words.length){
+    const fz = SPX.all.map(a => { const hay = norm(a.t + ' ' + a.g + ' ' + a.k); if (!words.every(w => hay.includes(w))) return null; const tt = norm(a.t); return {...a, sc:tt.startsWith(words[0]) ? 0 : tt.includes(words[0]) ? 1 : 2}; }).filter(Boolean).sort((a, b) => a.sc - b.sc);
+    const it = parseIntent(raw); l = [];
+    if (it) l.push({g:'Compris', t:it.map(a => a.t).join(' · '), run:() => runIntents(it), intent:true});
+    const ai = raw.length >= 3 ? spAiItem(raw) : null;
+    if (ai && !it && (!fz.length || words.length >= 3)) l.push(ai, ...fz.slice(0, 40));
+    else { l.push(...fz.slice(0, 40)); if (ai) l.push(ai); }
+  } else {
+    const s = selInfo(), empty = countWords(sheet().innerText) < 12;
+    const quick = AI_QUICK.filter(x => s.has ? x.sel : !x.sel).slice(0, s.has ? 8 : 4).map(x => ({g:'IA', t:x.t, ai:true, run:() => aiAsk(x.p, {doc:x.doc})}));
+    if (empty) quick.unshift({g:'IA', t:'Rédiger tout le document avec l\'IA…', ai:true, prefill:'Rédige un document complet sur '});
+    l = [...quick, ...SP_START.map(t => SPX.all.find(a => a.t === t)).filter(Boolean)];
+    head = `<p class="sp-h">${s.has ? 'Avec la sélection' : 'Suggestions'} <small>Écrivez aussi une phrase : « mets ce titre en bleu », « tableau 4 × 5 », « résume ce texte »…</small></p>`;
+  }
   SPX.items = l.slice(0, 60); SPX.i = clamp(SPX.i, 0, Math.max(0, SPX.items.length - 1));
-  $('#spList').innerHTML = (words.length ? '' : '<p class="sp-h">Suggestions</p>') + (SPX.items.length ? SPX.items.map((a, i) => `<button type="button" data-sp="${i}" class="${i === SPX.i ? 'on' : ''}" role="option"><span>${escH(a.t)}</span><small>${escH(a.g)}</small></button>`).join('')
+  $('#spList').innerHTML = head + (SPX.items.length ? SPX.items.map((a, i) => `<button type="button" data-sp="${i}" class="${i === SPX.i ? 'on' : ''}${a.ai ? ' k-ai' : ''}${a.intent ? ' k-do' : ''}" role="option">${a.ai ? '<i class="sp-ai">✦</i>' : a.intent ? '<i class="sp-do">↵</i>' : ''}<span>${escH(a.t)}</span><small>${escH(a.intent ? 'Entrée pour exécuter' : a.g)}</small></button>`).join('')
     : '<p class="sp-none">Rien ne correspond. Essayez « tableau », « titre », « export » ou « thème ».</p>');
   $('#spList .on')?.scrollIntoView({block:'nearest'});
 }
-function runSpectre(i){ const a = SPX.items[i]; if (!a) return; closeSpectre(); restoreSel(); setTimeout(() => a.run(), 10); }
+function runSpectre(i){
+  const a = SPX.items[i]; if (!a) return;
+  if (a.prefill){ const q = $('#spQ'); q.value = a.prefill; q.focus(); q.setSelectionRange(q.value.length, q.value.length); SPX.i = 0; drawSpectre(); return; }
+  if (a.ai) return a.run();
+  closeSpectre(); restoreSel(); setTimeout(() => a.run(), 10);
+}
 
 /* --- Historique des versions (gardé sur cet appareil, par document) --- */
 const VER = {key:'', last:0, lastHtml:''};

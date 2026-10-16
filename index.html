@@ -269,7 +269,7 @@ kbd{display:inline-block;min-width:22px;padding:1px 6px;border:1px solid var(--l
 @media (max-width:380px){.ap-grid2{grid-template-columns:1fr}}
 @media (prefers-reduced-motion:reduce){.ap-dots.shake,.ap-spin,.ap-aurora i{animation:none}}
 /* ===== Accueil SPECTRA : écrire d'abord. Une question, une étagère de modèles, vos documents ===== */
-#home{position:fixed;inset:0;z-index:20;display:grid;grid-template-rows:auto minmax(0,1fr);background:var(--bg)}
+#home{position:fixed;inset:0;z-index:20;display:grid;grid-template-rows:auto minmax(0,1fr);grid-template-columns:minmax(0,1fr);background:var(--bg)}
 .hm-top{display:flex;align-items:center;gap:22px;height:64px;padding:0 clamp(16px,3vw,40px);background:var(--panel);border-bottom:1px solid var(--line)}
 .hm-brand{display:flex;align-items:center;gap:10px;font:800 17px/1 var(--f-disp);letter-spacing:.01em;white-space:nowrap}
 .hm-brand svg{width:32px;height:32px;border-radius:9px}
@@ -296,6 +296,7 @@ kbd{display:inline-block;min-width:22px;padding:1px 6px;border:1px solid var(--l
 .hm-ask-res b{font-size:14.5px;font-weight:600}
 .hm-ask-res span{font-size:12.5px;color:var(--mut)}
 .hm-ask-res .k-tpl b::before,.hm-ask-res .k-doc b::before,.hm-ask-res .k-blank b::before{content:"";display:inline-block;width:8px;height:8px;border-radius:2px;margin-right:9px;vertical-align:1px;background:var(--r-o)}
+.hm-ask-res .k-ai b::before{content:"✦";width:auto;height:auto;background:var(--prism);-webkit-background-clip:text;background-clip:text;color:transparent;font-size:13px;margin-right:8px}
 .hm-ask-res .k-doc b::before{background:var(--r-c)}.hm-ask-res .k-blank b::before{background:var(--r-v)}
 .hm-quick{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px}
 .hm-quick button{display:inline-flex;align-items:center;gap:8px;height:38px;padding:0 14px;border-radius:99px;border:1px solid var(--line2);background:var(--panel);font-weight:550;color:var(--ink2)}
@@ -421,13 +422,52 @@ h2.hsec{margin:22px 0 12px}.hsec-h h2.hsec{margin:0}
   .hm-top{gap:10px;height:auto;flex-wrap:wrap;padding:10px 14px 0}
   .hm-brand span{display:none}
   .hm-sp{display:none}#homeUser{margin-left:auto}
-  .hm-tabs{order:3;width:100%}.hm-tabs button{height:44px}
+  .hm-tabs{order:3;width:100%;min-width:0}.hm-tabs button{height:44px}
   .hm-ask{height:56px}.hm-ask input{font-size:15px}.hm-ask kbd{display:none}
   .hrow{grid-template-columns:32px minmax(0,1fr) 84px 32px}.hr-w,.hr-s,.hstar,.hrow.head span:nth-child(n+4){display:none}
   .hgrid{grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:22px 16px}
   .hsec-h{align-items:flex-start;flex-direction:column}
 }
 @media (prefers-reduced-motion:reduce){.tthumb,.hcard .hthumb{transition:none}}
+/* Modèles : sources (Studio Prism, Communauté, Mes modèles, Modération) */
+.hsrc{display:flex;gap:4px;margin:0 0 22px;padding:4px;border-radius:14px;background:var(--hover);width:max-content;max-width:100%;overflow-x:auto}
+.hsrc button{height:36px;padding:0 16px;border:0;border-radius:10px;background:transparent;font-weight:600;font-size:13.5px;color:var(--ink2);white-space:nowrap;display:inline-flex;align-items:center;gap:7px}
+.hsrc button[aria-selected="true"]{background:var(--panel);color:var(--ink);box-shadow:var(--sh1)}
+.hsrc i{font-style:normal;font-size:11px;font-weight:700;min-width:20px;height:20px;padding:0 6px;border-radius:99px;display:inline-grid;place-items:center;background:var(--line);color:var(--ink2)}
+.hsrc i.hot{background:var(--r-r);color:#fff}
+.pub-how{display:flex;align-items:center;gap:16px;padding:14px 18px;margin:0 0 22px;border-radius:14px;background:var(--glass);color:#fff;position:relative;overflow:hidden}
+.pub-how::before{content:"";position:absolute;left:0;top:0;bottom:0;width:4px;background:var(--prism)}
+.pub-how b{display:block;font:700 15px/1.3 var(--f-disp)}.pub-how span{font-size:13px;color:rgb(255 255 255 / .72)}
+.pub-tools{display:flex;flex-wrap:wrap;align-items:center;gap:10px 14px;margin:0 0 22px}
+.pub-tools .hcats{margin:0}
+.pub-q{display:flex;align-items:center;gap:8px;height:38px;padding:0 12px;border-radius:10px;border:1px solid var(--line2);background:var(--panel);min-width:min(280px,100%)}
+.pub-q svg{width:16px;height:16px;color:var(--mut)}.pub-q input{border:0;outline:0;background:none;flex:1;min-width:0}
+#pubSort{height:38px;border-radius:10px;border:1px solid var(--line2);background:var(--panel);padding:0 10px;margin-left:auto}
+.pcard{position:relative;cursor:pointer}
+.pc-by{font-size:11.5px;color:var(--mut);padding:0 2px;margin-top:-4px}
+.pc-flag{position:absolute;top:8px;right:8px;width:30px;height:30px;border-radius:8px;border:0;background:rgb(255 255 255 / .92);color:#5F5A72;display:grid;place-items:center;opacity:0;box-shadow:var(--sh1);transition:opacity .15s}
+.pc-flag svg{width:15px;height:15px}
+.pcard:hover .pc-flag,.pcard:focus-within .pc-flag{opacity:1}.pc-flag:hover{color:var(--danger)}
+@media (hover:none){.pc-flag{opacity:.85}}
+.pub-none{color:var(--mut);margin:8px 0}
+.pub-mine,.pub-mod{display:grid;gap:10px}
+.pm-row{display:grid;grid-template-columns:64px 1fr auto;gap:16px;align-items:center;padding:10px 14px 10px 10px;border-radius:14px;border:1px solid var(--line);background:var(--panel)}
+.pm-row.mod{grid-template-columns:96px 1fr auto;align-items:start}
+.pm-th{border-radius:3px;overflow:hidden;box-shadow:0 0 0 1px var(--line);background:#fff;cursor:zoom-in}
+.pm-row .ap-btn{width:auto;height:36px;padding:0 14px;font-size:13.5px}
+.pm-i{display:grid;gap:4px;min-width:0;justify-items:start}.pm-i b{font-size:14px}.pm-i small{font-size:12px;color:var(--mut)}
+.pm-acts{display:flex;flex-wrap:wrap;gap:6px;justify-content:flex-end;max-width:360px}
+.pm-ai:empty{display:none}.pm-ai{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.pst{display:inline-block;font-size:11.5px;font-weight:650;padding:2px 9px;border-radius:99px;background:var(--hover);color:var(--ink2)}
+.pst.pending{background:#FFF4E5;color:#8A5300}.pst.published{background:#E8F7EF;color:#0F6E45}.pst.rejected,.pst.rep{background:#FDECEC;color:#A12A2A}
+[data-theme="dark"] .pst.pending{background:#33250E;color:#F5C26B}[data-theme="dark"] .pst.published{background:#12301F;color:#7BE0A9}[data-theme="dark"] .pst.rejected,[data-theme="dark"] .pst.rep{background:#3A1717;color:#FF9D9D}
+.pub-modh{margin:0 0 14px;color:var(--ink2)}
+.dlg-card.xl{width:min(860px,100%)}
+.pub-prev{max-height:62vh;overflow:auto;border-radius:12px;border:1px solid var(--line);background:#eceaf2;padding:18px;color-scheme:light}
+.pub-page{background:#fff;padding:48px 56px;box-shadow:var(--sh2);--mt:0px;--mr:0px;--mb:0px;--ml:0px;zoom:.8;max-width:794px;margin:0 auto;color:#1C1830}
+.pub-reasons{display:flex;flex-wrap:wrap;gap:6px;margin:0 0 12px}
+.pub-reasons .ap-btn{width:auto;height:32px;padding:0 12px;font-size:12.5px}
+@media (max-width:700px){.pm-row,.pm-row.mod{grid-template-columns:56px 1fr}.pm-row>.ap-btn,.pm-acts{grid-column:1 / -1;justify-content:flex-start;max-width:none}.pub-how{flex-direction:column;align-items:flex-start}#pubSort{margin-left:0}}
 /* ===== Éditeur SPECTRA : la page au centre, une seule barre (le Prisme) en bas, des tiroirs qui montent ===== */
 #app{position:fixed;inset:0;display:grid;grid-template-rows:auto minmax(0,1fr);background:var(--canvas)}
 .ed-top{display:flex;align-items:center;gap:10px;height:56px;padding:0 14px 0 10px;background:var(--panel);border-bottom:1px solid var(--line);position:relative;z-index:6}
@@ -666,12 +706,40 @@ h2.hsec{margin:22px 0 12px}.hsec-h h2.hsec{margin:0}
 .sp-in svg{width:20px;height:20px;fill:none;stroke:var(--mut);stroke-width:2;stroke-linecap:round}
 .sp-in input{flex:1;min-width:0;height:100%;border:0;outline:0;background:none;font-size:16.5px}
 .sp-list{max-height:min(52vh,440px);overflow:auto;padding:6px}
-.sp-list button{display:flex;align-items:center;gap:12px;width:100%;padding:10px 12px;border:0;border-radius:10px;background:none;text-align:left}
-.sp-list button span{flex:1;font-size:14px;font-weight:550}
-.sp-list button small{font-size:12px;color:var(--mut)}
-.sp-list button.on{background:var(--hover)}
-.sp-list button.on span::before{content:"";display:inline-block;width:3px;height:14px;border-radius:2px;background:var(--prism);margin-right:10px;vertical-align:-2px}
+.sp-list>button{display:flex;align-items:center;gap:12px;width:100%;padding:10px 12px;border:0;border-radius:10px;background:none;text-align:left}
+.sp-list>button span{flex:1;font-size:14px;font-weight:550}
+.sp-list>button small{font-size:12px;color:var(--mut)}
+.sp-list>button.on{background:var(--hover)}
+.sp-list>button.on span::before{content:"";display:inline-block;width:3px;height:14px;border-radius:2px;background:var(--prism);margin-right:10px;vertical-align:-2px}
 .sp-h{margin:6px 12px 6px;font-size:12px;font-weight:600;color:var(--mut)}
+.sp-h small{display:block;font-weight:400;margin-top:2px;font-size:11.5px}
+.sp-list i.sp-ai,.sp-list i.sp-do{font-style:normal;width:24px;height:24px;border-radius:7px;display:grid;place-items:center;flex:none;font-size:13px}
+.sp-list i.sp-ai{background:var(--glass);color:#fff}
+.sp-list i.sp-ai::first-letter{background:var(--prism);-webkit-background-clip:text;background-clip:text;color:transparent}
+.sp-list i.sp-do{background:var(--accent-soft);color:var(--accent-ink);font-weight:700}
+.sp-list>button.k-do span{font-weight:650}
+.sp-list>button.k-ai.on span::before,.sp-list>button.k-do.on span::before{display:none}
+.sp-list>button.k-do{background:linear-gradient(90deg,var(--accent-soft),transparent 70%)}
+.spectre.ai .sp-list{max-height:min(66vh,620px)}
+.ai-view{padding:10px 12px 12px;display:grid;gap:12px}
+.ai-q{margin:0;font-size:12.5px;color:var(--mut);display:flex;gap:8px;align-items:baseline}
+.ai-q::before{content:"✦";background:var(--prism);-webkit-background-clip:text;background-clip:text;color:transparent;font-size:14px}
+.ai-reply{margin:0;font-size:14.5px;line-height:1.5;font-weight:550}
+.ai-wait{display:grid;gap:10px;padding:18px 4px 10px}
+.ai-wait i{display:block;height:3px;border-radius:3px;background:var(--line);overflow:hidden;position:relative}
+.ai-wait i::after{content:"";position:absolute;inset:0;width:40%;background:var(--prism);border-radius:3px;animation:bar 1.2s ease-in-out infinite}
+.ai-wait span{font-size:13px;color:var(--ink2)}
+@keyframes bar{from{transform:translateX(-110%)}to{transform:translateX(260%)}}
+.ai-err{padding:12px 14px;border-radius:12px;background:#FFF4E5;color:#7A4A00}
+.ai-err b{display:block;margin-bottom:4px}.ai-err p{margin:0;font-size:13px;line-height:1.5}
+[data-theme="dark"] .ai-err{background:#33250E;color:#F5C26B}
+.ai-chips{list-style:none;margin:0;padding:0;display:flex;flex-wrap:wrap;gap:6px}
+.ai-chips li{font-size:12px;padding:4px 10px;border-radius:99px;background:var(--hover);color:var(--ink2)}
+.ai-prev{max-height:42vh;overflow:auto;border:1px solid var(--line);border-radius:12px;background:#fff;color-scheme:light}
+.ai-prev-in{padding:22px 26px;zoom:.78;--mt:0px;--mr:0px;--mb:0px;--ml:0px;color:var(--ink)}
+.ai-acts{display:flex;flex-wrap:wrap;gap:8px;justify-content:flex-end}
+.ai-acts .ap-btn{width:auto;height:38px;padding:0 16px}
+.ai-foot{margin:0;font-size:11.5px;color:var(--mut);text-align:right}
 .sp-none{padding:18px 14px;color:var(--mut);margin:0}
 .ver-list{display:grid;gap:6px;max-height:50vh;overflow:auto}
 .ver{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:10px 12px;border-radius:12px;border:1px solid var(--line)}
@@ -859,7 +927,7 @@ body.ro .ray:not([data-panel="outline"]):not([data-panel="templates"]){opacity:.
     <button type="button" class="ed-home" id="homeBtn" title="Retour à l'accueil" aria-label="Retour à l'accueil"><svg viewBox="0 0 64 64"><use href="#swMark"/></svg></button>
     <div class="ed-doc"><input id="docTitle" class="ed-title" value="Document sans titre" aria-label="Titre du document" spellcheck="false" maxlength="120"><div class="ed-meta"><button type="button" class="ed-menu" id="fileBtn" aria-haspopup="true">Fichier</button><span id="docSub" hidden></span><span id="cloudState" class="cs" hidden></span></div></div>
     <span class="ed-sp"></span>
-    <button type="button" class="ed-spectre" id="spectreBtn" aria-haspopup="dialog"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/></svg><span>Chercher une action</span><kbd id="spectreKbd">Ctrl K</kbd></button>
+    <button type="button" class="ed-spectre" id="spectreBtn" aria-haspopup="dialog"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/></svg><span>Demander ou chercher…</span><kbd id="spectreKbd">Ctrl K</kbd></button>
     <button type="button" class="btn-ghost" id="shareBtn"><svg viewBox="0 0 24 24"><circle cx="18" cy="5" r="2.5"/><circle cx="6" cy="12" r="2.5"/><circle cx="18" cy="19" r="2.5"/><path d="m8.2 10.8 7.6-4.4M8.2 13.2l7.6 4.4"/></svg><span class="hide-s">Partager</span></button>
     <button type="button" class="btn-prism" id="exportBtn" aria-haspopup="true"><svg viewBox="0 0 24 24"><path d="M12 3v12M7 10l5 5 5-5M5 21h14"/></svg><span class="hide-s">Exporter</span></button>
     <button type="button" id="licBadge" hidden title="Offre gratuite">Gratuit</button>
@@ -895,7 +963,7 @@ body.ro .ray:not([data-panel="outline"]):not([data-panel="templates"]){opacity:.
   <div class="ctx-bar" id="imgBar" hidden></div>
   <div class="ctx-bar" id="tblBar" hidden></div>
   <div class="slash" id="slashMenu" hidden role="listbox"></div>
-  <div class="spectre" id="spectre" hidden role="dialog" aria-modal="true" aria-label="Chercher une action"><div class="sp-box"><div class="sp-in"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/></svg><input id="spQ" placeholder="Tapez une action, un bloc, un thème, un titre du document…" autocomplete="off" spellcheck="false"><kbd>Échap</kbd></div><div class="sp-list" id="spList" role="listbox"></div></div></div>
+  <div class="spectre" id="spectre" hidden role="dialog" aria-modal="true" aria-label="Chercher une action"><div class="sp-box"><div class="sp-in"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/></svg><input id="spQ" placeholder="Que voulez-vous faire ? « tableau 4 × 3 », « mets en bleu », « résume ce texte »…" autocomplete="off" spellcheck="false"><kbd>Échap</kbd></div><div class="sp-list" id="spList" role="listbox"></div></div></div>
   <input type="file" id="edImgFile" accept="image/png,image/jpeg,image/webp,image/gif" hidden>
   <input type="file" id="edInsFile" accept=".docx,.spectra,.json,.md,.markdown,.txt,.html,.htm" hidden>
 </div>
@@ -1237,6 +1305,10 @@ const DOC_CSS = `
 .swdoc .sw-total{margin-left:auto;width:min(320px,100%)}
 .swdoc .sw-total td{border:0;padding:4px 10px}
 .swdoc .sw-total tr:last-child td{border-top:2px solid var(--ac);font-weight:800;color:var(--ac);font-size:1.1em;padding-top:8px}
+.swdoc .sw-menu p{display:flex;flex-wrap:wrap;align-items:baseline;gap:0 .6em;margin:.85em 0}
+.swdoc .sw-menu p b{flex:1 1 auto}
+.swdoc .sw-menu p span{font-weight:700;color:var(--ac)}
+.swdoc .sw-menu p small{flex-basis:100%;color:var(--mut);font-size:.88em}
 .swdoc .sw-avatar{width:110px;height:110px;border-radius:50%;background:var(--grad);display:grid;place-items:center;color:#fff;font:var(--hw) 2.4em/1 var(--fh)}
 .swdoc .sw-skill{display:flex;justify-content:space-between;font-size:.9em;margin:.4em 0 .15em}
 `;
@@ -1359,6 +1431,249 @@ const SW_TEMPLATES = [
     html:`<p></p><p class="sw-center sw-kicker" style="margin-top:3em">Vous êtes cordialement invités</p><h1 class="sw-center" style="font-size:3.2em">Inauguration de nos nouveaux locaux</h1><hr class="sw-divider dots"><p class="sw-center sw-lead">Jeudi 18 septembre à 18 h 30</p><p class="sw-center">12 rue de l'Exemple · 59000 Lille</p><p class="sw-center" style="margin-top:2em">Cocktail et visite des ateliers.<br>Réponse souhaitée avant le 10 septembre.</p><p class="sw-center sw-small" style="margin-top:3em">contact@entreprise.fr · 03 00 00 00 00</p>`},
 ];
 window.SW_TEMPLATES = SW_TEMPLATES;
+
+/* ==== 31-templates-more.js ==== */
+/* ---------- Modèles supplémentaires : courriers, RH et juridique, études, BTP, événements, vie perso ---------- */
+SW_TEMPLATES.push(
+  {id:'lettre-motivation', name:'Lettre de motivation', cat:'Essentiels', desc:'Accroche, parcours, motivation, disponibilité', featured:true, theme:{id:'elegant'}, page:{}, title:'Lettre de motivation',
+    html:`<div class="sw-head"><div><b>Prénom Nom</b><br>12 rue de l'Exemple, 59000 Lille<br>06 00 00 00 00<br>prenom.nom@email.fr</div><div class="sw-right"><br><b>Nom de l'entreprise</b><br>À l'attention de [Nom du recruteur]<br>Adresse<br>Code postal Ville</div></div>
+<p class="sw-right">Lille, le {{date}}</p>
+<p><b>Objet : </b>candidature au poste de [intitulé du poste] · réf. [référence de l'annonce]</p>
+<p>Madame, Monsieur,</p>
+<p>Votre annonce pour le poste de [intitulé] a retenu toute mon attention : [ce qui vous attire dans l'entreprise, en une phrase précise et sincère].</p>
+<p>Fort(e) de [nombre] ans d'expérience en [domaine], j'ai notamment [réalisation chiffrée : projet mené, résultat obtenu]. Cette expérience m'a permis de développer [deux ou trois compétences clés en lien avec le poste].</p>
+<p>Rejoindre [nom de l'entreprise], c'est pour moi l'occasion de [ce que vous apporterez et ce que vous recherchez]. Je suis convaincu(e) que [une qualité] et [une autre qualité] seront des atouts pour votre équipe.</p>
+<p>Disponible à partir du [date], je serais heureux(se) de vous présenter ma motivation lors d'un entretien.</p>
+<p>Je vous prie d'agréer, Madame, Monsieur, l'expression de mes salutations distinguées.</p>
+<p class="sw-right" style="margin-top:2.5em">Prénom Nom</p>`},
+
+  {id:'cv-classique', name:'CV classique', cat:'Professionnel', desc:'Une colonne sobre, idéal pour les recruteurs', theme:{id:'classique'}, page:{}, title:'CV',
+    html:`<h1 class="sw-center" style="margin-bottom:.1em">Prénom Nom</h1><p class="sw-center sw-kicker">Comptable confirmé(e)</p><p class="sw-center sw-small">Lille · 06 00 00 00 00 · prenom.nom@email.fr · linkedin.com/in/prenom</p><hr class="sw-divider">
+<p class="sw-lead">Comptable rigoureux(se) avec 8 ans d'expérience en cabinet et en entreprise. Spécialiste des clôtures, de la fiscalité des PME et de la dématérialisation.</p>
+<h2>Expérience professionnelle</h2>
+<h4>Responsable comptable · Entreprise · 2021 — aujourd'hui</h4><ul><li>Clôtures mensuelles et annuelles d'un groupe de 3 sociétés</li><li>Mise en place de la facturation électronique, -30 % de temps de saisie</li><li>Encadrement de 2 assistants comptables</li></ul>
+<h4>Comptable · Cabinet d'expertise · 2016 — 2021</h4><ul><li>Portefeuille de 45 clients (TPE, artisans, professions libérales)</li><li>Liasses fiscales, déclarations de TVA, bilans</li></ul>
+<h2>Formation</h2><p><b>2016 · DCG</b> — Diplôme de comptabilité et de gestion, Lille<br><b>2013 · BTS Comptabilité et gestion</b> — Lycée, Lille</p>
+<h2>Compétences</h2><div class="sw-cols"><div class="sw-col"><ul><li>Comptabilité générale et analytique</li><li>Fiscalité des entreprises</li><li>Consolidation</li></ul></div><div class="sw-col"><ul><li>Sage, Cegid, Pennylane</li><li>Excel avancé, SPECTRA Calc</li><li>Anglais professionnel</li></ul></div></div>
+<h2>Centres d'intérêt</h2><p>Course à pied (semi-marathon), trésorier d'une association sportive, photographie.</p>`},
+
+  {id:'attestation', name:'Attestation sur l\'honneur', cat:'Juridique & RH', desc:'Déclarant, déclaration, date et signature', theme:{id:'ardoise'}, page:{}, title:'Attestation sur l\'honneur',
+    html:`<h1 class="sw-center" style="margin-top:1.5em">Attestation sur l'honneur</h1><hr class="sw-divider dots">
+<p>Je soussigné(e), <b>[Prénom Nom]</b>,<br>né(e) le [date de naissance] à [lieu de naissance],<br>demeurant [adresse complète],</p>
+<p>atteste sur l'honneur que [objet précis de l'attestation : par exemple, « j'héberge à titre gratuit Madame X à mon domicile depuis le 1er janvier {{annee}} »].</p>
+<p>Je déclare avoir connaissance que l'établissement d'une attestation faisant état de faits matériellement inexacts m'expose à des sanctions pénales.</p>
+<p>Fait pour servir et valoir ce que de droit.</p>
+<p class="sw-right" style="margin-top:2em">Fait à [ville], le {{date}}</p>
+<p class="sw-right" style="margin-top:1em">Signature<br><br><br></p>
+<div class="sw-callout" data-sw-kind="info"><p><b>À joindre</b>Une copie de votre pièce d'identité. Supprimez cet encadré avant d'imprimer.</p></div>`},
+
+  {id:'contrat-prestation', name:'Contrat de prestation', cat:'Juridique & RH', desc:'Parties, objet, prix, durée, signatures', theme:{id:'classique'}, page:{numbers:true, numStyle:'np', footer:'Paraphes : ____ / ____'}, title:'Contrat de prestation de services',
+    html:`<h1 class="sw-center">Contrat de prestation de services</h1><p class="sw-center sw-small">Contrat n° [000] · établi le {{date}}</p>
+<h2>Entre les soussignés</h2><div class="sw-cols"><div class="sw-card tint"><p class="sw-kicker">Le prestataire</p><p><b>[Raison sociale]</b><br>[Forme juridique], au capital de [montant] €<br>SIRET [numéro]<br>[Adresse]<br>Représenté par [Prénom Nom], [fonction]</p></div><div class="sw-card"><p class="sw-kicker">Le client</p><p><b>[Raison sociale ou nom]</b><br>[Forme juridique]<br>SIRET [numéro]<br>[Adresse]<br>Représenté par [Prénom Nom], [fonction]</p></div></div>
+<h2>Article 1 · Objet</h2><p>Le présent contrat a pour objet de définir les conditions dans lesquelles le prestataire réalise pour le client la mission suivante : [description précise de la prestation].</p>
+<h2>Article 2 · Durée</h2><p>Le contrat prend effet le [date] pour une durée de [durée]. Il pourra être renouvelé par accord écrit des parties.</p>
+<h2>Article 3 · Obligations du prestataire</h2><p>Le prestataire s'engage à exécuter la mission avec soin, selon les règles de l'art, et à informer le client de toute difficulté rencontrée.</p>
+<h2>Article 4 · Obligations du client</h2><p>Le client s'engage à fournir au prestataire les informations et documents nécessaires à la bonne exécution de la mission, et à régler le prix convenu.</p>
+<h2>Article 5 · Prix et paiement</h2><table class="sw-table"><thead><tr><th>Élément</th><th class="r">Montant HT</th></tr></thead><tbody>${T_ROWS([['Prestation forfaitaire', '[0,00 €]'], ['Frais annexes', '[0,00 €]']])}</tbody></table><p>Les factures sont payables à [30] jours à compter de leur émission, par virement bancaire.</p>
+<h2>Article 6 · Confidentialité</h2><p>Chaque partie s'engage à garder confidentielles les informations reçues de l'autre partie pendant la durée du contrat et [deux] ans après son terme.</p>
+<h2>Article 7 · Résiliation</h2><p>En cas de manquement grave de l'une des parties, l'autre partie pourra résilier le contrat par lettre recommandée avec accusé de réception, après une mise en demeure restée sans effet pendant [15] jours.</p>
+<h2>Article 8 · Litiges</h2><p>Le présent contrat est soumis au droit français. Tout litige sera, à défaut d'accord amiable, porté devant les tribunaux compétents de [ville].</p>
+<p>Fait à [ville], le {{date}}, en deux exemplaires originaux.</p>
+<div class="sw-sign"><div><b>Le prestataire</b>« Lu et approuvé », date et signature</div><div><b>Le client</b>« Lu et approuvé », date et signature</div></div>
+<div class="sw-callout" data-sw-kind="warn"><p><b>Modèle indicatif</b>Faites relire ce contrat par un professionnel du droit avant signature. Supprimez cet encadré.</p></div>`},
+
+  {id:'note-service', name:'Note de service', cat:'Juridique & RH', desc:'Destinataires, objet, consignes, date d\'effet', theme:{id:'studio'}, page:{}, title:'Note de service',
+    html:`<div class="sw-head"><div><div class="sw-logo">Votre entreprise</div></div><div class="sw-right"><h2 style="margin:0">Note de service</h2><p class="sw-small">N° NS-{{annee}}-[00]<br>{{date}}</p></div></div>
+<table class="sw-table t-grid"><tbody>${T_ROWS([['<b>De</b>', '[Prénom Nom, fonction]'], ['<b>À</b>', '[Ensemble du personnel / service concerné]'], ['<b>Objet</b>', '[Objet de la note]'], ['<b>Date d\'effet</b>', '[date]']])}</tbody></table>
+<p>Madame, Monsieur,</p>
+<p>[Contexte en une ou deux phrases : pourquoi cette note.]</p>
+<h3>Ce qui change</h3><ul><li>[Consigne 1]</li><li>[Consigne 2]</li><li>[Consigne 3]</li></ul>
+<div class="sw-callout" data-sw-kind="info"><p><b>Contact</b>Pour toute question : [Prénom Nom], [email], poste [000].</p></div>
+<p>Merci à chacun pour sa bonne application de ces consignes.</p>
+<p class="sw-right" style="margin-top:2em">[Prénom Nom]<br><span class="sw-small">[Fonction]</span></p>`},
+
+  {id:'fiche-poste', name:'Fiche de poste', cat:'Juridique & RH', desc:'Missions, compétences, conditions, rattachement', theme:{id:'moderne'}, page:{}, title:'Fiche de poste',
+    html:`<div class="sw-band top"><p class="sw-kicker">Fiche de poste · {{annee}}</p><h1>Chargé(e) de communication</h1><p>Service Marketing · CDI · Temps plein · Lille</p></div>
+<div class="sw-stats"><div class="sw-stat"><b>Cadre</b><span>Statut</span></div><div class="sw-stat"><b>35 h</b><span>Par semaine</span></div><div class="sw-stat"><b>2 j</b><span>Télétravail</span></div><div class="sw-stat"><b>[00] k€</b><span>Brut annuel</span></div></div>
+<h2>Raison d'être du poste</h2><p class="sw-lead">Faire connaître l'entreprise et ses offres, en ligne et hors ligne, avec une image cohérente et vivante.</p>
+<h2>Missions principales</h2><ol class="sw-steps"><li><b>Contenus</b>Rédiger les articles, posts, newsletters et supports commerciaux.</li><li><b>Réseaux sociaux</b>Animer les comptes, suivre les statistiques, proposer des campagnes.</li><li><b>Événements</b>Organiser salons, inaugurations et rencontres clients.</li><li><b>Relations presse</b>Rédiger les communiqués et entretenir le fichier presse.</li></ol>
+<h2>Compétences attendues</h2><div class="sw-cols"><div class="sw-card tint"><h3 style="margin-top:0">Savoir-faire</h3><ul><li>Rédaction impeccable</li><li>Outils de PAO et de montage</li><li>Gestion de projet</li></ul></div><div class="sw-card"><h3 style="margin-top:0">Savoir-être</h3><ul><li>Curiosité et créativité</li><li>Sens de l'organisation</li><li>Aisance relationnelle</li></ul></div></div>
+<h2>Rattachement et relations</h2><p>Rattaché(e) à la direction marketing. Travaille avec les équipes commerciales, la direction et les prestataires (agence, imprimeur, photographe).</p>`},
+
+  {id:'ordre-du-jour', name:'Ordre du jour', cat:'Professionnel', desc:'Horaires, sujets, intervenants, préparation', theme:{id:'spectra'}, page:{}, title:'Ordre du jour',
+    html:`<p class="sw-kicker">Réunion d'équipe · {{date}}</p><h1>Ordre du jour</h1><p class="sw-lead">Salle Lumière (ou en visio : [lien]) · 9 h 30 — 11 h 00</p>
+<table class="sw-table t-zebra"><thead><tr><th>Horaire</th><th>Sujet</th><th>Intervenant</th><th class="r">Durée</th></tr></thead><tbody>${T_ROWS([['9 h 30', 'Accueil et tour de table', 'Animateur', '10 min'], ['9 h 40', 'Point sur les projets en cours', 'Chefs de projet', '30 min'], ['10 h 10', 'Budget du trimestre', 'Direction', '20 min'], ['10 h 30', 'Questions diverses', 'Tous', '20 min'], ['10 h 50', 'Décisions et prochaines étapes', 'Animateur', '10 min']])}</tbody></table>
+<h2>À préparer</h2><ul class="sw-check"><li>Relire le compte rendu de la dernière réunion</li><li>Mettre à jour l'avancement de vos projets</li><li>Envoyer vos questions avant la veille au soir</li></ul>
+<div class="sw-callout" data-sw-kind="tip"><p><b>Participants</b>[Prénom Nom], [Prénom Nom], [Prénom Nom]</p></div>`},
+
+  {id:'guide-accueil', name:'Guide d\'accueil', cat:'Professionnel', desc:'Bienvenue, équipe, outils, premières semaines', theme:{id:'corail'}, page:{numbers:true}, title:'Guide d\'accueil',
+    html:`<div class="sw-hero"><p class="sw-kicker">Bienvenue chez [Entreprise]</p><h1>Votre guide d'accueil</h1><p class="sw-lead">Tout ce qu'il faut savoir pour bien démarrer, réuni en quelques pages.</p></div>
+<h2 class="sw-secnum"><span>01</span>Qui sommes-nous ?</h2><p>[Histoire, mission et valeurs de l'entreprise en quelques lignes.]</p>
+<div class="sw-stats"><div class="sw-stat"><b>[2009]</b><span>Création</span></div><div class="sw-stat"><b>[45]</b><span>Collaborateurs</span></div><div class="sw-stat"><b>[3]</b><span>Sites</span></div></div>
+<h2 class="sw-secnum"><span>02</span>Votre équipe</h2><div class="sw-cols" data-cols="3"><div class="sw-card tint"><h3 style="margin-top:0">Manager</h3><p>[Prénom Nom]<br>[email]</p></div><div class="sw-card tint"><h3 style="margin-top:0">Parrain / marraine</h3><p>[Prénom Nom]<br>[email]</p></div><div class="sw-card tint"><h3 style="margin-top:0">RH</h3><p>[Prénom Nom]<br>[email]</p></div></div>
+<h2 class="sw-secnum"><span>03</span>Vos premières semaines</h2><ul class="sw-timeline"><li><b>Jour 1</b>Accueil, remise du matériel, visite des locaux</li><li><b>Semaine 1</b>Rencontres avec chaque service, formation aux outils</li><li><b>Mois 1</b>Premier projet en binôme, point d'étape avec votre manager</li><li><b>Mois 3</b>Bilan de fin de période d'essai</li></ul>
+<h2 class="sw-secnum"><span>04</span>Outils et infos pratiques</h2><div class="sw-faq"><div><b>Où trouver mes documents ?</b><p>Dans SPECTRA Writer, onglet « Partagés avec moi ».</p></div><div><b>Quels sont les horaires ?</b><p>[Horaires, badge, télétravail.]</p></div><div><b>Qui contacter en cas de souci informatique ?</b><p>[Contact support.]</p></div></div>`},
+
+  {id:'pv-ag', name:'Procès-verbal d\'assemblée générale', cat:'Associations', desc:'Quorum, résolutions votées, signatures', theme:{id:'ardoise'}, page:{numbers:true}, title:'Procès-verbal d\'assemblée générale',
+    html:`<p class="sw-kicker sw-center">Association [Nom de l'association] · loi 1901</p><h1 class="sw-center">Procès-verbal de l'assemblée générale ordinaire</h1><p class="sw-center sw-small">Siège social : [adresse] · RNA [W000000000]</p><hr class="sw-divider">
+<p>Le [date], à [heure], les membres de l'association se sont réunis en assemblée générale ordinaire à [lieu], sur convocation du [président / conseil d'administration] en date du [date].</p>
+<p>L'assemblée est présidée par [Prénom Nom], président(e). Le secrétariat de séance est assuré par [Prénom Nom].</p>
+<div class="sw-stats"><div class="sw-stat"><b>[48]</b><span>Membres</span></div><div class="sw-stat"><b>[31]</b><span>Présents ou représentés</span></div><div class="sw-stat"><b>Atteint</b><span>Quorum</span></div></div>
+<h2>Ordre du jour</h2><ol><li>Rapport moral du président</li><li>Rapport financier et approbation des comptes de l'exercice {{annee-1}}</li><li>Vote du budget prévisionnel {{annee}}</li><li>Renouvellement du conseil d'administration</li><li>Questions diverses</li></ol>
+<h2>Résolutions</h2><table class="sw-table t-grid"><thead><tr><th>Résolution</th><th class="r">Pour</th><th class="r">Contre</th><th class="r">Abstention</th><th>Résultat</th></tr></thead><tbody>${T_ROWS([['1. Approbation du rapport moral', '31', '0', '0', 'Adoptée'], ['2. Approbation des comptes', '29', '0', '2', 'Adoptée'], ['3. Budget prévisionnel', '30', '1', '0', 'Adoptée'], ['4. Élection de [Prénom Nom]', '28', '2', '1', 'Adoptée']])}</tbody></table>
+<p>L'ordre du jour étant épuisé, la séance est levée à [heure].</p>
+<div class="sw-sign"><div><b>Le/la président(e)</b>[Prénom Nom]</div><div><b>Le/la secrétaire</b>[Prénom Nom]</div></div>`},
+
+  {id:'compte-rendu-chantier', name:'Compte rendu de chantier', cat:'BTP & architecture', desc:'Présents, avancement par lot, observations', theme:{id:'studio'}, page:{numbers:true, header:'{titre}'}, title:'Compte rendu de chantier n° 01',
+    html:`<div class="sw-head"><div><div class="sw-logo">Studio Prism</div><p class="sw-small">Maîtrise d'œuvre</p></div><div class="sw-right"><h2 style="margin:0">Compte rendu de chantier n° 01</h2><p class="sw-small">Réunion du {{date}}<br>Prochaine réunion : [date]</p></div></div>
+<div class="sw-callout" data-sw-kind="info"><p><b>Opération</b>[Nom de l'opération] · [adresse du chantier] · Maître d'ouvrage : [nom]</p></div>
+<h2>Présents</h2><table class="sw-table t-zebra"><thead><tr><th>Lot</th><th>Entreprise</th><th>Représentant</th><th>Présence</th></tr></thead><tbody>${T_ROWS([['01 Gros œuvre', '[Entreprise]', '[Nom]', 'Présent'], ['02 Charpente', '[Entreprise]', '[Nom]', 'Excusé'], ['03 Menuiseries', '[Entreprise]', '[Nom]', 'Présent'], ['04 Électricité', '[Entreprise]', '[Nom]', 'Absent']])}</tbody></table>
+<h2>Avancement</h2><div class="sw-progress"><p><span>Gros œuvre</span><span>80 %</span></p><div class="sw-bar"><i style="width:80%"></i></div></div><div class="sw-progress"><p><span>Charpente</span><span>40 %</span></p><div class="sw-bar"><i style="width:40%"></i></div></div><div class="sw-progress"><p><span>Menuiseries</span><span>10 %</span></p><div class="sw-bar"><i style="width:10%"></i></div></div>
+<h2>Observations et actions</h2><table class="sw-table t-grid"><thead><tr><th>N°</th><th>Observation</th><th>Qui</th><th>Pour le</th></tr></thead><tbody>${T_ROWS([['1', 'Fournir les plans d\'exécution des réservations', 'Lot 01', '[date]'], ['2', 'Valider les échantillons de menuiseries', 'MOA', '[date]'], ['3', 'Nettoyer les abords du chantier', 'Lot 01', 'Immédiat']])}</tbody></table>
+<div class="sw-callout" data-sw-kind="warn"><p><b>Sécurité</b>Port du casque et des chaussures de sécurité obligatoire sur tout le chantier.</p></div>
+<p class="sw-small">Sauf observation écrite sous 8 jours, ce compte rendu est réputé accepté par tous les destinataires.</p>`},
+
+  {id:'pv-reception', name:'PV de réception de travaux', cat:'BTP & architecture', desc:'Réception avec ou sans réserves, signatures', theme:{id:'ardoise'}, page:{}, title:'Procès-verbal de réception de travaux',
+    html:`<h1 class="sw-center">Procès-verbal de réception de travaux</h1><p class="sw-center sw-small">Opération : [nom] · Marché n° [000] · Lot [00 — intitulé]</p><hr class="sw-divider dots">
+<div class="sw-cols"><div class="sw-card tint"><p class="sw-kicker">Maître d'ouvrage</p><p><b>[Nom]</b><br>[Adresse]</p></div><div class="sw-card"><p class="sw-kicker">Entreprise</p><p><b>[Raison sociale]</b><br>[Adresse]<br>SIRET [numéro]</p></div></div>
+<p>Après visite contradictoire des travaux effectuée le [date], en présence de [maître d'œuvre, entreprise, maître d'ouvrage], le maître d'ouvrage déclare :</p>
+<ul class="sw-check"><li>prononcer la réception <b>sans réserve</b></li><li>prononcer la réception <b>avec les réserves</b> listées ci-dessous</li><li><b>refuser</b> la réception pour les motifs suivants : [motifs]</li></ul>
+<p>La réception prend effet à la date du <b>[date]</b>. Elle fait courir les garanties de parfait achèvement (1 an), biennale (2 ans) et décennale (10 ans).</p>
+<h2>Réserves</h2><table class="sw-table t-grid"><thead><tr><th>N°</th><th>Localisation</th><th>Nature de la réserve</th><th>Délai de levée</th></tr></thead><tbody>${T_ROWS([['1', '[Pièce / façade]', '[Description]', '[date]'], ['2', '[Pièce / façade]', '[Description]', '[date]'], ['3', '', '', '']])}</tbody></table>
+<p>Fait à [ville], le {{date}}, en [trois] exemplaires.</p>
+<div class="sw-sign"><div><b>Le maître d'ouvrage</b>Date et signature</div><div><b>L'entreprise</b>Date et signature</div></div>`},
+
+  {id:'cctp', name:'CCTP', cat:'BTP & architecture', desc:'Cahier des clauses techniques particulières par lot', theme:{id:'studio'}, page:{numbers:true, numStyle:'np', header:'CCTP · Lot [00]'}, title:'CCTP',
+    html:`<div class="sw-cover light"><p class="sw-kicker">Dossier de consultation des entreprises</p><h1>CCTP · Lot [00] [Intitulé du lot]</h1><p class="sw-lead">Cahier des clauses techniques particulières</p><div class="sw-cover-meta"><span><b>Opération</b><br>[Nom de l'opération]</span><span><b>Maître d'œuvre</b><br>Studio Prism</span><span><b>Indice</b><br>A · {{date}}</span></div></div>
+<div class="sw-toc" contenteditable="false" data-sw="toc"></div>
+<h2>1. Généralités</h2><h3>1.1 Objet du présent CCTP</h3><p>Le présent document définit les prescriptions techniques applicables aux travaux du lot [00].</p><h3>1.2 Documents de référence</h3><ul><li>Documents techniques unifiés (DTU) en vigueur</li><li>Normes NF et Eurocodes applicables</li><li>Réglementation environnementale RE2020</li></ul><h3>1.3 Limites de prestations</h3><p>[Ce qui est dû par le lot, ce qui relève des autres lots.]</p>
+<h2>2. Description des ouvrages</h2><h3>2.1 [Ouvrage]</h3><p><b>Localisation :</b> [lieux]<br><b>Matériaux :</b> [références, performances]<br><b>Mise en œuvre :</b> [prescriptions]</p><h3>2.2 [Ouvrage]</h3><p>[Description.]</p>
+<h2>3. Essais, contrôles et réception</h2><p>[Autocontrôles, essais exigés, documents à fournir (DOE, fiches techniques, PV d'essais).]</p>
+<div class="sw-callout" data-sw-kind="tip"><p><b>Astuce</b>Chaque titre alimente le sommaire. Le numéro de lot de l'en-tête se change dans le tiroir « Page ».</p></div>`},
+
+  {id:'devis-service', name:'Devis de prestation', cat:'Commercial', desc:'Prestations, options, conditions, bon pour accord', theme:{id:'moderne'}, page:{}, title:'Devis',
+    html:`<div class="sw-head"><div><div class="sw-logo">Votre entreprise</div><p class="sw-small">12 rue de l'Exemple, 59000 Lille<br>SIRET 000 000 000 00000<br>contact@entreprise.fr</p></div><div class="sw-right"><h1 style="margin:0">DEVIS</h1><p class="sw-small">N° D-{{annee}}-001<br>Date : {{date}}<br>Valable 30 jours</p></div></div>
+<div class="sw-card tint"><p class="sw-kicker">Pour</p><p><b>[Nom du client]</b> · [Adresse] · [Email]</p></div>
+<h2>Prestations</h2><table class="sw-table"><thead><tr><th>Description</th><th class="r">Jours</th><th class="r">Tarif / jour HT</th><th class="r">Total HT</th></tr></thead><tbody>${T_ROWS([['Atelier de cadrage', '1', '650,00 €', '650,00 €'], ['Conception et réalisation', '6', '550,00 €', '3 300,00 €'], ['Formation des équipes', '1', '600,00 €', '600,00 €']])}</tbody></table>
+<table class="sw-total"><tbody><tr><td>Total HT</td><td class="r">4 550,00 €</td></tr><tr><td>TVA 20 %</td><td class="r">910,00 €</td></tr><tr><td>Total TTC</td><td class="r">5 460,00 €</td></tr></tbody></table>
+<h3>Options</h3><ul><li>Maintenance mensuelle : 180 € HT / mois</li><li>Journée supplémentaire : 550 € HT</li></ul>
+<h3>Conditions</h3><p class="sw-small">Acompte de 30 % à la signature, solde à la livraison. Paiement à 30 jours par virement. Toute prestation non prévue fera l'objet d'un avenant.</p>
+<div class="sw-sign"><div><b>Le prestataire</b>Date et signature</div><div><b>Le client</b>« Bon pour accord », date et signature</div></div>`},
+
+  {id:'bon-commande', name:'Bon de commande', cat:'Commercial', desc:'Fournisseur, articles, livraison, validation', theme:{id:'spectra'}, page:{}, title:'Bon de commande',
+    html:`<div class="sw-head"><div><div class="sw-logo">Votre entreprise</div><p class="sw-small">Service achats · achats@entreprise.fr</p></div><div class="sw-right"><h1 style="margin:0">BON DE COMMANDE</h1><p class="sw-small">N° BC-{{annee}}-001<br>Date : {{date}}</p></div></div>
+<div class="sw-cols"><div class="sw-card tint"><p class="sw-kicker">Fournisseur</p><p><b>[Raison sociale]</b><br>[Adresse]<br>[Contact]</p></div><div class="sw-card"><p class="sw-kicker">Livraison</p><p><b>[Adresse de livraison]</b><br>Date souhaitée : [date]<br>Contact sur place : [nom, téléphone]</p></div></div>
+<table class="sw-table t-zebra"><thead><tr><th>Réf.</th><th>Article</th><th class="r">Qté</th><th class="r">PU HT</th><th class="r">Total HT</th></tr></thead><tbody>${T_ROWS([['A-102', 'Article 1', '10', '12,50 €', '125,00 €'], ['B-220', 'Article 2', '4', '89,00 €', '356,00 €'], ['C-005', 'Article 3', '1', '240,00 €', '240,00 €']])}</tbody></table>
+<table class="sw-total"><tbody><tr><td>Total HT</td><td class="r">721,00 €</td></tr><tr><td>TVA 20 %</td><td class="r">144,20 €</td></tr><tr><td>Total TTC</td><td class="r">865,20 €</td></tr></tbody></table>
+<p class="sw-small">Merci de rappeler le numéro de commande sur votre bon de livraison et votre facture.</p>
+<div class="sw-sign"><div><b>Demandé par</b>[Prénom Nom]</div><div><b>Validé par</b>[Prénom Nom], date et signature</div></div>`},
+
+  {id:'communique', name:'Communiqué de presse', cat:'Commercial', desc:'Titre, chapô, citation, à propos, contact presse', theme:{id:'editorial'}, page:{}, title:'Communiqué de presse',
+    html:`<p class="sw-kicker">Communiqué de presse · Lille, le {{date}}</p><h1>[Entreprise] lance [nouveauté] pour [bénéfice principal]</h1>
+<p class="sw-lead">Le chapô résume l'information en deux ou trois phrases : qui, quoi, quand, où, pourquoi. C'est souvent la seule partie lue en entier.</p>
+<p>Le premier paragraphe développe l'annonce avec des faits précis et des chiffres. Le deuxième donne le contexte : le marché, le besoin, ce qui rend l'annonce nouvelle.</p>
+<div class="sw-quote">« Une citation forte d'un dirigeant ou d'un partenaire, qui donne de la chair à l'annonce. »<cite>— Prénom Nom, fonction, Entreprise</cite></div>
+<h3>En chiffres</h3><div class="sw-stats"><div class="sw-stat"><b>[3]</b><span>ans de développement</span></div><div class="sw-stat"><b>[12 000]</b><span>utilisateurs attendus</span></div><div class="sw-stat"><b>[15]</b><span>emplois créés</span></div></div>
+<h3>Disponibilité</h3><p>[Date de lancement, prix, où le trouver.]</p>
+<hr class="sw-divider">
+<p class="sw-small"><b>À propos de [Entreprise]</b> — Créée en [année] à [ville], [Entreprise] [activité en une phrase]. [Chiffre clé.] Plus d'informations : [site].</p>
+<div class="sw-card tint"><p><b>Contact presse</b><br>[Prénom Nom] · [téléphone] · [email]</p></div>`},
+
+  {id:'business-plan', name:'Business plan', cat:'Commercial', desc:'Projet, marché, stratégie, prévisionnel', theme:{id:'spectra'}, page:{numbers:true, footer:'{titre} · Confidentiel'}, title:'Business plan',
+    html:`<div class="sw-cover"><p class="sw-kicker">Business plan · {{annee}}</p><h1>[Nom du projet]</h1><p class="sw-lead">[Votre proposition de valeur en une phrase.]</p><div class="sw-cover-meta"><span><b>Porteur(s)</b><br>[Prénom Nom]</span><span><b>Besoin</b><br>[000 k€]</span><span><b>Contact</b><br>[email]</span></div></div>
+<div class="sw-toc" contenteditable="false" data-sw="toc"></div>
+<h2>1. Résumé</h2><p class="sw-lead">Le projet en dix lignes : problème, solution, marché, modèle économique, équipe, besoin de financement.</p>
+<h2>2. Le marché</h2><div class="sw-stats"><div class="sw-stat"><b>[2,4 Md€]</b><span>Marché total</span></div><div class="sw-stat"><b>[+8 %]</b><span>Croissance par an</span></div><div class="sw-stat"><b>[120 k]</b><span>Clients cibles</span></div></div><p>Analyse de la demande, des tendances et de la concurrence.</p>
+<table class="sw-table t-zebra"><thead><tr><th>Concurrent</th><th>Forces</th><th>Faiblesses</th><th>Prix</th></tr></thead><tbody>${T_ROWS([['[Concurrent A]', '[…]', '[…]', '[…]'], ['[Concurrent B]', '[…]', '[…]', '[…]']])}</tbody></table>
+<h2>3. Stratégie</h2><div class="sw-cols" data-cols="3"><div class="sw-card tint"><h3 style="margin-top:0">Offre</h3><p>Produits, services, prix.</p></div><div class="sw-card tint"><h3 style="margin-top:0">Distribution</h3><p>Canaux de vente.</p></div><div class="sw-card tint"><h3 style="margin-top:0">Communication</h3><p>Comment vous faire connaître.</p></div></div>
+<h2>4. Prévisionnel financier</h2><table class="sw-table"><thead><tr><th>En k€</th><th class="r">Année 1</th><th class="r">Année 2</th><th class="r">Année 3</th></tr></thead><tbody>${T_ROWS([['Chiffre d\'affaires', '120', '260', '480'], ['Charges', '150', '220', '360'], ['Résultat', '-30', '40', '120']])}</tbody></table>
+<h2>5. L'équipe</h2><p>Parcours et rôle de chaque associé.</p>
+<h2>6. Financement</h2><p>Montant recherché, utilisation des fonds, apports déjà réunis.</p>`},
+
+  {id:'flyer', name:'Flyer promotionnel', cat:'Commercial', desc:'Offre, avantages, prix, appel à l\'action', theme:{id:'corail'}, page:{margins:'narrow'}, title:'Flyer',
+    html:`<div class="sw-band top"><p class="sw-kicker">Offre de lancement · jusqu'au [date]</p><h1 style="font-size:3em">-20 % sur votre premier projet</h1><p>Architecture d'intérieur, rénovation, plans 3D.</p></div>
+<div class="sw-cols" data-cols="3"><div class="sw-card tint"><h3 style="margin-top:0">✨ Sur mesure</h3><p>Un projet pensé pour votre façon de vivre.</p></div><div class="sw-card tint"><h3 style="margin-top:0">📐 En 3D</h3><p>Visitez votre futur intérieur avant les travaux.</p></div><div class="sw-card tint"><h3 style="margin-top:0">🤝 Clé en main</h3><p>Un seul interlocuteur, du plan à la livraison.</p></div></div>
+<div class="sw-prices"><div class="sw-price"><p>Conseil</p><b>190 €</b><p>Visite et recommandations</p></div><div class="sw-price hot"><p>Projet 3D</p><b>790 €</b><p>Plans et visite virtuelle</p></div><div class="sw-price"><p>Clé en main</p><b>Sur devis</b><p>Suivi complet des travaux</p></div></div>
+<p class="sw-center" style="margin-top:1.5em"><a class="sw-btn" href="https://">Réserver un rendez-vous</a></p>
+<p class="sw-center sw-small">Studio [Nom] · 03 00 00 00 00 · contact@exemple.fr</p>`},
+
+  {id:'rapport-stage', name:'Rapport de stage', cat:'Études', desc:'Couverture, remerciements, sommaire, missions', theme:{id:'moderne'}, page:{numbers:true}, title:'Rapport de stage',
+    html:`<div class="sw-cover light"><p class="sw-kicker">Rapport de stage · [Formation] · {{annee}}</p><h1>[Intitulé du stage]</h1><p class="sw-lead">Stage effectué du [date] au [date] chez [Entreprise], [ville]</p><div class="sw-cover-meta"><span><b>Étudiant(e)</b><br>[Prénom Nom]</span><span><b>Tuteur entreprise</b><br>[Prénom Nom]</span><span><b>Enseignant référent</b><br>[Prénom Nom]</span></div></div>
+<h2>Remerciements</h2><p>Je tiens à remercier [Prénom Nom], mon tuteur, pour […], ainsi que toute l'équipe de [service] pour son accueil.</p>
+<div class="sw-toc" contenteditable="false" data-sw="toc"></div>
+<h2>Introduction</h2><p>Présentez le contexte du stage, vos objectifs et le plan du rapport.</p>
+<h2>1. Présentation de l'entreprise</h2><h3>1.1 Activité et chiffres clés</h3><div class="sw-stats"><div class="sw-stat"><b>[Année]</b><span>Création</span></div><div class="sw-stat"><b>[00]</b><span>Salariés</span></div><div class="sw-stat"><b>[0 M€]</b><span>Chiffre d'affaires</span></div></div><h3>1.2 Organisation et service d'accueil</h3><p>[…]</p>
+<h2>2. Missions réalisées</h2><ol class="sw-steps"><li><b>Mission 1</b>Objectif, démarche, outils, résultat.</li><li><b>Mission 2</b>Objectif, démarche, outils, résultat.</li></ol>
+<h2>3. Bilan</h2><div class="sw-cols"><div class="sw-card tint"><h3 style="margin-top:0">Compétences acquises</h3><ul><li>[…]</li><li>[…]</li></ul></div><div class="sw-card"><h3 style="margin-top:0">Difficultés et solutions</h3><ul><li>[…]</li><li>[…]</li></ul></div></div>
+<h2>Conclusion</h2><p>Ce que ce stage vous a apporté et vos perspectives.</p>
+<h2>Annexes</h2><p>[Documents utiles.]</p>`},
+
+  {id:'memoire', name:'Mémoire', cat:'Études', desc:'Page de garde, sommaire, chapitres, bibliographie', theme:{id:'classique'}, page:{numbers:true, margins:'wide', header:'{titre}'}, title:'Mémoire',
+    html:`<div class="sw-cover light"><p class="sw-kicker">[Université] · [Diplôme] · Année {{annee-1}}-{{annee}}</p><h1>[Titre du mémoire]</h1><p class="sw-lead">[Sous-titre : la problématique en une ligne]</p><div class="sw-cover-meta"><span><b>Présenté par</b><br>[Prénom Nom]</span><span><b>Sous la direction de</b><br>[Prénom Nom]</span><span><b>Soutenu le</b><br>[date]</span></div></div>
+<h2>Résumé</h2><p>Résumé de 10 à 15 lignes. <b>Mots-clés :</b> [mot 1], [mot 2], [mot 3].</p>
+<div class="sw-toc" contenteditable="false" data-sw="toc"></div>
+<h2>Introduction</h2><p>Contexte, problématique, hypothèses, méthode, annonce du plan.</p>
+<h2>Chapitre 1 · État de l'art</h2><h3>1.1 [Section]</h3><p>[…]</p><blockquote>Une citation d'auteur, avec sa référence entre parenthèses (Auteur, année, p. 00).</blockquote><h3>1.2 [Section]</h3><p>[…]</p>
+<h2>Chapitre 2 · Méthodologie</h2><p>[Terrain, échantillon, outils d'analyse.]</p>
+<h2>Chapitre 3 · Résultats et discussion</h2><table class="sw-table t-zebra"><thead><tr><th>Variable</th><th class="r">Groupe A</th><th class="r">Groupe B</th></tr></thead><tbody>${T_ROWS([['[…]', '[00]', '[00]'], ['[…]', '[00]', '[00]']])}</tbody></table><p class="sw-small sw-center">Tableau 1 · [Légende]</p>
+<h2>Conclusion</h2><p>Réponse à la problématique, limites, perspectives.</p>
+<h2>Bibliographie</h2><p class="sw-small">NOM, Prénom. <i>Titre de l'ouvrage</i>. Éditeur, année.<br>NOM, Prénom. « Titre de l'article ». <i>Revue</i>, vol. 0, n° 0, année, p. 00-00.</p>`},
+
+  {id:'fiche-revision', name:'Fiche de révision', cat:'Études', desc:'L\'essentiel d\'un chapitre sur une page', theme:{id:'pastel'}, page:{margins:'narrow'}, title:'Fiche de révision',
+    html:`<div class="sw-band top"><p class="sw-kicker">Fiche de révision · [Matière]</p><h1>[Titre du chapitre]</h1><p>À connaître pour le [date de l'examen]</p></div>
+<div class="sw-cols"><div class="sw-col"><div class="sw-callout" data-sw-kind="info"><p><b>Définitions</b>[Notion 1] : […]<br>[Notion 2] : […]</p></div><h3>Les dates clés</h3><ul class="sw-timeline"><li><b>[Date]</b>[Événement]</li><li><b>[Date]</b>[Événement]</li><li><b>[Date]</b>[Événement]</li></ul></div>
+<div class="sw-col"><h3>Les formules / règles</h3><pre><code>[formule ou règle à retenir]</code></pre><div class="sw-callout" data-sw-kind="warn"><p><b>Pièges</b>[L'erreur classique à éviter.]</p></div><h3>Méthode</h3><ol class="sw-steps"><li><b>1</b>[Étape]</li><li><b>2</b>[Étape]</li><li><b>3</b>[Étape]</li></ol></div></div>
+<h3>Je vérifie que je sais…</h3><ul class="sw-check"><li>[Compétence 1]</li><li>[Compétence 2]</li><li>[Compétence 3]</li></ul>`},
+
+  {id:'menu', name:'Menu de restaurant', cat:'Événements & loisirs', desc:'Entrées, plats, desserts, prix alignés', theme:{id:'elegant'}, page:{margins:'wide'}, title:'Menu',
+    html:`<p class="sw-center sw-kicker" style="margin-top:1em">Maison [Nom] · Cuisine de saison</p><h1 class="sw-center" style="font-size:3em">La carte</h1><hr class="sw-divider dots">
+<h2 class="sw-center">Entrées</h2><div class="sw-menu"><p><b>Velouté de potimarron</b><span>9 €</span><small>noisettes torréfiées, crème crue</small></p><p><b>Œuf parfait</b><span>12 €</span><small>champignons des bois, émulsion au lard</small></p><p><b>Tartare de truite</b><span>13 €</span><small>pomme verte, aneth, citron vert</small></p></div>
+<h2 class="sw-center">Plats</h2><div class="sw-menu"><p><b>Suprême de volaille fermière</b><span>22 €</span><small>purée maison, jus corsé</small></p><p><b>Dos de cabillaud</b><span>24 €</span><small>poireaux fondants, beurre blanc</small></p><p><b>Risotto aux cèpes</b><span>19 €</span><small>parmesan affiné 24 mois</small></p></div>
+<h2 class="sw-center">Desserts</h2><div class="sw-menu"><p><b>Tarte fine aux pommes</b><span>9 €</span><small>glace vanille de Madagascar</small></p><p><b>Mi-cuit au chocolat</b><span>10 €</span><small>cœur coulant, crème anglaise</small></p></div>
+<p class="sw-center sw-small" style="margin-top:2em">Prix nets, service compris. Allergènes : liste disponible sur demande.</p>`},
+
+  {id:'programme', name:'Programme d\'événement', cat:'Événements & loisirs', desc:'Horaires, intervenants, infos pratiques', theme:{id:'minuit'}, page:{}, title:'Programme',
+    html:`<div class="sw-hero"><p class="sw-kicker">[Date] · [Lieu]</p><h1>[Nom de l'événement]</h1><p class="sw-lead">[Une phrase qui donne envie de venir.]</p></div>
+<ul class="sw-timeline"><li><b>9 h 00</b><strong>Accueil café</strong><br>Retrait des badges, rencontres</li><li><b>9 h 30</b><strong>Ouverture</strong><br>[Prénom Nom], [fonction]</li><li><b>10 h 00</b><strong>Conférence : [titre]</strong><br>[Intervenant]</li><li><b>11 h 30</b><strong>Ateliers en parallèle</strong><br>Salle A : [thème] · Salle B : [thème]</li><li><b>12 h 30</b><strong>Déjeuner</strong></li><li><b>14 h 00</b><strong>Table ronde : [sujet]</strong><br>[Intervenants]</li><li><b>16 h 00</b><strong>Clôture et cocktail</strong></li></ul>
+<div class="sw-cols"><div class="sw-card tint"><h3 style="margin-top:0">📍 Accès</h3><p>[Adresse]<br>Métro [ligne], parking [nom]</p></div><div class="sw-card tint"><h3 style="margin-top:0">🎟️ Inscription</h3><p>Gratuite, sur [site] avant le [date]</p></div></div>`},
+
+  {id:'certificat', name:'Certificat', cat:'Événements & loisirs', desc:'Format paysage, nom en grand, signatures', theme:{id:'elegant'}, page:{orient:'l', margins:'wide'}, title:'Certificat',
+    html:`<p class="sw-center sw-kicker" style="margin-top:2.5em">[Organisme]</p><h1 class="sw-center" style="font-size:3.6em;margin:.2em 0">Certificat de réussite</h1><p class="sw-center">est décerné à</p><p class="sw-center sw-grad-text" style="font-size:2.6em;font-weight:800;margin:.3em 0">[Prénom Nom]</p><p class="sw-center sw-lead">pour avoir suivi avec succès la formation « [Intitulé] » ([durée]).</p><hr class="sw-divider dots">
+<div class="sw-sign"><div><b>[Prénom Nom]</b>[Fonction] · le {{date}}</div><div><b>[Prénom Nom]</b>[Fonction]</div></div>`},
+
+  {id:'faire-part', name:'Faire-part', cat:'Événements & loisirs', desc:'Naissance, mariage, anniversaire : centré et élégant', theme:{id:'pastel'}, page:{size:'A5', margins:'wide'}, title:'Faire-part',
+    html:`<p class="sw-center" style="margin-top:3em;font-size:2.2em">🌿</p><p class="sw-center sw-kicker">Nous avons la joie de vous annoncer</p><h1 class="sw-center" style="font-size:2.8em">[Prénom] &amp; [Prénom]</h1><p class="sw-center sw-lead">se marient le [samedi 12 juin {{annee}}]</p><hr class="sw-divider dots"><p class="sw-center">La cérémonie aura lieu à [heure]<br>[Lieu], [ville]</p><p class="sw-center">Elle sera suivie d'un dîner à [lieu de réception].</p><p class="sw-center sw-small" style="margin-top:2em">Réponse souhaitée avant le [date]<br>[téléphone] · [email]</p>`},
+
+  {id:'recette', name:'Fiche recette', cat:'Vie perso', desc:'Ingrédients, étapes, temps, astuces', theme:{id:'nature'}, page:{}, title:'Recette',
+    html:`<p class="sw-kicker">Recette · Plat</p><h1>Tarte aux poireaux et au chèvre</h1><p class="sw-lead">Une tarte fondante, prête en moins d'une heure.</p>
+<div class="sw-stats"><div class="sw-stat"><b>6</b><span>Personnes</span></div><div class="sw-stat"><b>20 min</b><span>Préparation</span></div><div class="sw-stat"><b>35 min</b><span>Cuisson</span></div><div class="sw-stat"><b>Facile</b><span>Difficulté</span></div></div>
+<div class="sw-cols" data-cols="1-2"><div class="sw-col"><h3 style="margin-top:0">Ingrédients</h3><ul class="sw-check"><li>1 pâte brisée</li><li>3 poireaux</li><li>150 g de bûche de chèvre</li><li>3 œufs</li><li>20 cl de crème</li><li>1 noix de beurre</li><li>Sel, poivre, muscade</li></ul></div>
+<div class="sw-col"><h3 style="margin-top:0">Préparation</h3><ol class="sw-steps"><li><b>Les poireaux</b>Émincez-les et faites-les fondre 15 min au beurre, à feu doux.</li><li><b>L'appareil</b>Battez les œufs avec la crème, salez, poivrez, ajoutez un peu de muscade.</li><li><b>Le montage</b>Étalez les poireaux sur la pâte, versez l'appareil, ajoutez le chèvre en rondelles.</li><li><b>La cuisson</b>35 min à 180 °C, jusqu'à ce que la tarte soit dorée.</li></ol></div></div>
+<div class="sw-callout" data-sw-kind="tip"><p><b>Astuce</b>Ajoutez une poignée de noix concassées au moment d'enfourner.</p></div>`},
+
+  {id:'planning-semaine', name:'Planning de la semaine', cat:'Vie perso', desc:'Format paysage, du lundi au dimanche', theme:{id:'spectra'}, page:{orient:'l', margins:'narrow'}, title:'Planning de la semaine',
+    html:`<div class="sw-head"><div><h1 style="margin:0">Planning de la semaine</h1></div><div class="sw-right"><p class="sw-kicker">Semaine du [date]</p></div></div>
+<table class="sw-table t-grid"><thead><tr><th></th><th>Lundi</th><th>Mardi</th><th>Mercredi</th><th>Jeudi</th><th>Vendredi</th><th>Samedi</th><th>Dimanche</th></tr></thead><tbody>${T_ROWS([['<b>Matin</b>', '', '', '', '', '', '', ''], ['<b>Midi</b>', '', '', '', '', '', '', ''], ['<b>Après-midi</b>', '', '', '', '', '', '', ''], ['<b>Soir</b>', '', '', '', '', '', '', '']])}</tbody></table>
+<div class="sw-cols" data-cols="3"><div class="sw-card tint"><h3 style="margin-top:0">🎯 Priorités</h3><ul class="sw-check"><li>[…]</li><li>[…]</li><li>[…]</li></ul></div><div class="sw-card tint"><h3 style="margin-top:0">🛒 Courses</h3><ul class="sw-check"><li>[…]</li><li>[…]</li></ul></div><div class="sw-card tint"><h3 style="margin-top:0">📝 Notes</h3><p>[…]</p></div></div>`},
+
+  {id:'carnet-voyage', name:'Carnet de voyage', cat:'Vie perso', desc:'Itinéraire jour par jour, budget, valise', theme:{id:'ocean'}, page:{}, title:'Carnet de voyage',
+    html:`<div class="sw-hero"><p class="sw-kicker">Carnet de voyage · [mois] {{annee}}</p><h1>[Destination]</h1><p class="sw-lead">[Nombre] jours entre [ville] et [ville].</p></div>
+<div class="sw-stats"><div class="sw-stat"><b>[10]</b><span>Jours</span></div><div class="sw-stat"><b>[4]</b><span>Étapes</span></div><div class="sw-stat"><b>[1 800 €]</b><span>Budget</span></div></div>
+<h2>Itinéraire</h2><ul class="sw-timeline"><li><b>Jour 1</b><strong>Arrivée à [ville]</strong><br>[Hébergement, première balade]</li><li><b>Jours 2-3</b><strong>[Étape]</strong><br>[À voir, à faire]</li><li><b>Jours 4-6</b><strong>[Étape]</strong><br>[À voir, à faire]</li><li><b>Jour 10</b><strong>Retour</strong></li></ul>
+<h2>Budget</h2><table class="sw-table t-zebra"><thead><tr><th>Poste</th><th class="r">Prévu</th><th class="r">Dépensé</th></tr></thead><tbody>${T_ROWS([['Transport', '[0 €]', ''], ['Hébergement', '[0 €]', ''], ['Repas', '[0 €]', ''], ['Activités', '[0 €]', '']])}</tbody></table>
+<div class="sw-cols"><div class="sw-card tint"><h3 style="margin-top:0">🧳 Dans la valise</h3><ul class="sw-check"><li>Passeport / carte d'identité</li><li>Chargeurs et adaptateur</li><li>Trousse de secours</li></ul></div><div class="sw-card tint"><h3 style="margin-top:0">📞 Utile</h3><p>Urgences : [numéro]<br>Hébergement : [contact]<br>Assurance : [contrat]</p></div></div>`},
+
+  {id:'resiliation', name:'Lettre de résiliation', cat:'Essentiels', desc:'Abonnement, assurance, contrat : en recommandé', theme:{id:'ardoise'}, page:{}, title:'Lettre de résiliation',
+    html:`<div class="sw-head"><div><b>Prénom Nom</b><br>12 rue de l'Exemple<br>59000 Lille<br>N° de client / contrat : [000000]</div><div class="sw-right"><br><br><b>[Nom de la société]</b><br>Service résiliations<br>Adresse<br>Code postal Ville</div></div>
+<p class="sw-right">Lille, le {{date}}</p>
+<p><b>Objet : </b>résiliation du contrat n° [000000]</p><p><b>Lettre recommandée avec accusé de réception</b></p>
+<p>Madame, Monsieur,</p>
+<p>Par la présente, je vous informe de ma décision de résilier le contrat [type de contrat] n° [000000], souscrit le [date].</p>
+<p>Conformément [aux conditions générales du contrat / à l'article L. 113-15-2 du Code des assurances / à la loi applicable], cette résiliation prendra effet [à l'échéance du / un mois après réception de ce courrier].</p>
+<p>Je vous remercie de bien vouloir me confirmer la prise en compte de cette demande et de m'adresser le solde de tout compte.</p>
+<p>Je vous prie d'agréer, Madame, Monsieur, l'expression de mes salutations distinguées.</p>
+<p class="sw-right" style="margin-top:2.5em">Prénom Nom<br><span class="sw-small">Signature</span></p>`},
+);
 
 /* ==== 40-blocks.js ==== */
 /* ---------- Blocs prêts à glisser (façon Canva) : ils prennent les couleurs et les polices du thème du document ---------- */
@@ -2164,18 +2479,36 @@ function spectreActions(){
 }
 const SP_START = ['Titre 1', 'Titre 2', 'Image', 'Tableau 3 × 3', 'Lien', 'Rechercher', 'Exporter en PDF', 'Exporter en Word (.docx)', 'Historique des versions', 'Mode concentration'];
 function openSpectre(){ saveSel(); closePop(); $('#spectre').hidden = false; const q = $('#spQ'); q.value = ''; SPX.all = spectreActions(); SPX.i = 0; drawSpectre(); setTimeout(() => q.focus(), 10); }
-function closeSpectre(){ $('#spectre').hidden = true; }
+function closeSpectre(){ $('#spectre').hidden = true; $('#spectre').classList.remove('ai'); AIS.ctl++; AIS.busy = false; }
 function drawSpectre(){
-  const q = norm($('#spQ').value.trim()), words = q.split(/\s+/).filter(Boolean);
-  let l;
-  if (words.length) l = SPX.all.map(a => { const hay = norm(a.t + ' ' + a.g + ' ' + a.k); if (!words.every(w => hay.includes(w))) return null; const tt = norm(a.t); return {...a, sc:tt.startsWith(words[0]) ? 0 : tt.includes(words[0]) ? 1 : 2}; }).filter(Boolean).sort((a, b) => a.sc - b.sc);
-  else l = SP_START.map(t => SPX.all.find(a => a.t === t)).filter(Boolean);
+  $('#spectre').classList.remove('ai'); AIS.ctl++; AIS.busy = false;
+  const raw = $('#spQ').value.trim(), q = norm(raw), words = q.split(/\s+/).filter(Boolean);
+  let l, head = '';
+  if (words.length){
+    const fz = SPX.all.map(a => { const hay = norm(a.t + ' ' + a.g + ' ' + a.k); if (!words.every(w => hay.includes(w))) return null; const tt = norm(a.t); return {...a, sc:tt.startsWith(words[0]) ? 0 : tt.includes(words[0]) ? 1 : 2}; }).filter(Boolean).sort((a, b) => a.sc - b.sc);
+    const it = parseIntent(raw); l = [];
+    if (it) l.push({g:'Compris', t:it.map(a => a.t).join(' · '), run:() => runIntents(it), intent:true});
+    const ai = raw.length >= 3 ? spAiItem(raw) : null;
+    if (ai && !it && (!fz.length || words.length >= 3)) l.push(ai, ...fz.slice(0, 40));
+    else { l.push(...fz.slice(0, 40)); if (ai) l.push(ai); }
+  } else {
+    const s = selInfo(), empty = countWords(sheet().innerText) < 12;
+    const quick = AI_QUICK.filter(x => s.has ? x.sel : !x.sel).slice(0, s.has ? 8 : 4).map(x => ({g:'IA', t:x.t, ai:true, run:() => aiAsk(x.p, {doc:x.doc})}));
+    if (empty) quick.unshift({g:'IA', t:'Rédiger tout le document avec l\'IA…', ai:true, prefill:'Rédige un document complet sur '});
+    l = [...quick, ...SP_START.map(t => SPX.all.find(a => a.t === t)).filter(Boolean)];
+    head = `<p class="sp-h">${s.has ? 'Avec la sélection' : 'Suggestions'} <small>Écrivez aussi une phrase : « mets ce titre en bleu », « tableau 4 × 5 », « résume ce texte »…</small></p>`;
+  }
   SPX.items = l.slice(0, 60); SPX.i = clamp(SPX.i, 0, Math.max(0, SPX.items.length - 1));
-  $('#spList').innerHTML = (words.length ? '' : '<p class="sp-h">Suggestions</p>') + (SPX.items.length ? SPX.items.map((a, i) => `<button type="button" data-sp="${i}" class="${i === SPX.i ? 'on' : ''}" role="option"><span>${escH(a.t)}</span><small>${escH(a.g)}</small></button>`).join('')
+  $('#spList').innerHTML = head + (SPX.items.length ? SPX.items.map((a, i) => `<button type="button" data-sp="${i}" class="${i === SPX.i ? 'on' : ''}${a.ai ? ' k-ai' : ''}${a.intent ? ' k-do' : ''}" role="option">${a.ai ? '<i class="sp-ai">✦</i>' : a.intent ? '<i class="sp-do">↵</i>' : ''}<span>${escH(a.t)}</span><small>${escH(a.intent ? 'Entrée pour exécuter' : a.g)}</small></button>`).join('')
     : '<p class="sp-none">Rien ne correspond. Essayez « tableau », « titre », « export » ou « thème ».</p>');
   $('#spList .on')?.scrollIntoView({block:'nearest'});
 }
-function runSpectre(i){ const a = SPX.items[i]; if (!a) return; closeSpectre(); restoreSel(); setTimeout(() => a.run(), 10); }
+function runSpectre(i){
+  const a = SPX.items[i]; if (!a) return;
+  if (a.prefill){ const q = $('#spQ'); q.value = a.prefill; q.focus(); q.setSelectionRange(q.value.length, q.value.length); SPX.i = 0; drawSpectre(); return; }
+  if (a.ai) return a.run();
+  closeSpectre(); restoreSel(); setTimeout(() => a.run(), 10);
+}
 
 /* --- Historique des versions (gardé sur cet appareil, par document) --- */
 const VER = {key:'', last:0, lastHtml:''};
@@ -2200,6 +2533,313 @@ function historyDlg(){
   }, 'wide');
 }
 setInterval(() => { if (!$('#app').hidden) verSnap(false); }, 60e3);
+
+/* ==== 65-intent.js ==== */
+/* ---------- Le Spectre comprend des phrases ----------
+   1) moteur d'intentions local : « mets le titre en rouge », « tableau de 4 lignes et 3 colonnes », « remplace X par Y », « passe en paysage puis exporte en PDF »…
+      instantané, gratuit, hors ligne.
+   2) sinon, l'IA (Gemini, via Firebase AI Logic, voir src/js/ai.js) : rédiger, résumer, corriger, traduire, reformuler, créer un document complet… */
+const NUMW = {un:1, une:1, deux:2, trois:3, quatre:4, cinq:5, six:6, sept:7, huit:8, neuf:9, dix:10, onze:11, douze:12, treize:13, quatorze:14, quinze:15, seize:16, vingt:20};
+const numOf = s => s == null ? NaN : /^\d+$/.test(s) ? +s : (NUMW[s] ?? NaN);
+const NUM_RE = '(\\d+|un|une|deux|trois|quatre|cinq|six|sept|huit|neuf|dix|onze|douze|treize|quatorze|quinze|seize|vingt)';
+const COLOR_WORDS = [['bleu marine', '#1E3A8A'], ['bleu ciel', '#0EA5E9'], ['bleu fonce', '#1E40AF'], ['vert fonce', '#166534'], ['rouge fonce', '#991B1B'], ['gris fonce', '#374151'], ['gris clair', '#9CA3AF'],
+  ['rouge', '#D92D20'], ['bleu', '#2563EB'], ['vert', '#16A34A'], ['jaune', '#CA8A04'], ['orange', '#EA580C'], ['violet', '#7C3AED'], ['mauve', '#9333EA'], ['rose', '#DB2777'], ['noir', '#000000'],
+  ['gris', '#6B7280'], ['blanc', '#FFFFFF'], ['marron', '#92400E'], ['brun', '#92400E'], ['turquoise', '#0D9488'], ['cyan', '#0891B2'], ['indigo', '#4F46E5'], ['bordeaux', '#7F1D1D'], ['dore', '#B8860B'], ['or', '#B8860B'],
+  ['couleur du theme', 'var(--ac)'], ['couleur principale', 'var(--ac)'], ['accent', 'var(--ac)']];
+const HL_WORDS = [['jaune', '#FFF1A8'], ['orange', '#FFE0B2'], ['rose', '#FFD1DC'], ['violet', '#E9D5FF'], ['mauve', '#E9D5FF'], ['bleu', '#D6E4FF'], ['vert', '#CFF5E7'], ['gris', '#E2E8F0'], ['rouge', '#FFD1D1'], ['blanc', '#FFFFFF']];
+const PAGE_BG = [['creme', '#FBF7EE'], ['beige', '#F5EFE3'], ['ivoire', '#FFFDF5'], ['blanc', '#FFFFFF'], ['gris', '#F3F4F6'], ['bleu', '#EEF4FF'], ['vert', '#EEFAF3'], ['rose', '#FFF0F5'], ['jaune', '#FFFBEA'], ['violet', '#F5F0FF'], ['noir', '#16131F'], ['nuit', '#16131F']];
+const wordIn = (n, w) => new RegExp('(^|[^a-z0-9])' + w.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '($|[^a-z0-9])').test(n);
+const colorIn = (n, list) => { for (const [w, c] of list) if (wordIn(n, w)) return [w, c]; return null; };
+const unq = s => String(s || '').trim().replace(/^["«“'‘\s]+|["»”'’\s.!]+$/g, '').trim();
+const NEG = /\b(retire|retirer|enleve|enlever|supprime|supprimer|sans|cache|cacher|desactive|desactiver|efface|effacer|plus de|pas de|vire|virer)\b/;
+
+/* s'assure qu'il y a une sélection : sinon, prend le paragraphe où se trouve le curseur */
+function ensureSel(){
+  restoreSel(); if (!inSheet()){ sheet().focus(); caretToEnd(sheet().lastElementChild || sheet()); }
+  const s = getSelection(); if (!s.rangeCount) return false;
+  if (s.getRangeAt(0).collapsed){ const b = blockOf(s.anchorNode); if (!b) return false; const r = document.createRange(); r.selectNodeContents(b); s.removeAllRanges(); s.addRange(r); }
+  E.range = s.getRangeAt(0).cloneRange(); return true;
+}
+function replaceAllText(find, rep, cs){
+  if (!find || E.ro) return 0; flushRecord(); record(); const hits = [];
+  const w = document.createTreeWalker(sheet(), NodeFilter.SHOW_TEXT); let n; const qq = cs ? find : find.toLowerCase();
+  while ((n = w.nextNode())){ const t = cs ? n.data : n.data.toLowerCase(); let i = 0; while ((i = t.indexOf(qq, i)) >= 0){ const r = document.createRange(); r.setStart(n, i); r.setEnd(n, i + find.length); hits.push(r); i += find.length; } }
+  hits.reverse().forEach(r => { r.deleteContents(); r.insertNode(document.createTextNode(rep)); });
+  sheet().normalize(); if (hits.length) changed({record:true}); return hits.length;
+}
+function transformSel(fn){
+  if (!ensureSel()) return; flushRecord(); record();
+  const r = getSelection().getRangeAt(0); const w = document.createTreeWalker(r.commonAncestorContainer.nodeType === 3 ? r.commonAncestorContainer.parentNode : r.commonAncestorContainer, NodeFilter.SHOW_TEXT);
+  let n; const list = []; while ((n = w.nextNode())) if (r.intersectsNode(n)) list.push(n);
+  list.forEach(t => { const a = t === r.startContainer ? r.startOffset : 0, b = t === r.endContainer ? r.endOffset : t.data.length; t.data = t.data.slice(0, a) + fn(t.data.slice(a, b)) + t.data.slice(b); });
+  changed({record:true});
+}
+function setDocTitle(t){ t = String(t || '').trim().slice(0, 120); if (!t) return; E.doc.title = t; E.autoTitle = false; const ti = $('#docTitle'); if (ti) ti.value = t; emitChange(true); renderDeco(); }
+function goPage(n){ const pg = $$('#pageDeco .pg')[n - 1]; if (!pg) return toast(`Le document a ${E.pages} page${E.pages > 1 ? 's' : ''}.`); pg.scrollIntoView({behavior:'smooth', block:'start'}); }
+function removeEmpty(){ flushRecord(); record(); let k = 0; $$(':scope > p, :scope > h1, :scope > h2, :scope > h3, :scope > h4', sheet()).forEach((p, i, all) => { if (isEmptyBlock(p) && all.length - k > 1){ const nx = p.nextElementSibling; if (nx && isEmptyBlock(nx) || p.previousElementSibling && isEmptyBlock(p.previousElementSibling) || i === 0){ p.remove(); k++; } } }); changed({record:true}); paginate(); return k; }
+
+/* une phrase → une liste d'intentions {t:libellé, run} (null si rien de compris) */
+function parseOne(raw){
+  let n = norm(raw).replace(/[’']/g, ' ').replace(/[!?.]+$/g, '').replace(/\s+/g, ' ').trim();
+  n = n.replace(/^(?:(?:est-ce que |peux|pourrais|pouvez|pourriez)[- ]?(?:tu|vous) |s il (?:te|vous) plait,? |stp,? |svp,? |je (?:veux|voudrais) (?:que tu )?|j aimerais (?:que tu )?|il faut |merci de |fais en sorte que )+/, '').replace(/,? (?:s il (?:te|vous) plait|stp|svp|merci)$/, '').trim();
+  const r = raw.trim().replace(/[!?]+$/, '');
+  const out = [], add = (t, run) => out.push({t, run});
+  const neg = NEG.test(n), selWord = /\b(selection|selectionne|ce texte|le texte|ce paragraphe|ce passage|la phrase|cette phrase|ce mot)\b/.test(n);
+  let m;
+  /* remplacer partout */
+  if ((m = r.match(/^(?:remplacer?|remplacez|changer?|changez|substituer?)\s+(?:partout\s+)?(?:tous les |toutes les |toute |tout )?(.+?)\s+par\s+(.+?)(?:\s+partout)?$/i)) && !/\b(theme|police)\b/.test(n)){
+    const a = unq(m[1]), b = unq(m[2]); if (a) return [{t:`Remplacer « ${a} » par « ${b} » partout`, run:() => { const k = replaceAllText(a, b, /[A-Z]/.test(a)); toast(k ? `${k} remplacement${k > 1 ? 's' : ''}` : `« ${a} » n'apparaît pas dans le document`); }}];
+  }
+  /* renommer */
+  if ((m = r.match(/^(?:renomm\w*|appel\w*|intitul\w*|nomm\w*)\s+(?:le\s+|ce\s+)?(?:document|fichier)\s*(?:en|:|comme|«)?\s*(.+)$/i)) || (m = r.match(/^(?:titre du document|nom du document)\s*:?\s*(.+)$/i))){ const t = unq(m[1]); if (t) return [{t:`Renommer le document « ${t} »`, run:() => { setDocTitle(t); toast('Document renommé'); }}]; }
+  /* chercher */
+  if ((m = r.match(/^(?:cherch\w*|trouv\w*|rechercher?)\s+(?:le mot |l'expression |le texte )?(.+)$/i)) && !/\b(document|fichier|modele)\b/.test(n)){ const q = unq(m[1]); if (q) return [{t:`Chercher « ${q} »`, run:() => { openFind(false); $('#frQ').value = q; frSearch(); frGo(1); }}]; }
+  /* annuler / rétablir */
+  if (/^(annule|annuler|defais|defaire|ctrl z)( (ca|la derniere action|la derniere modification))?$/.test(n)) return [{t:'Annuler', run:undo}];
+  if (/^(retablis|retablir|refais|refaire)( (ca|la derniere action))?$/.test(n)) return [{t:'Rétablir', run:redo}];
+  /* tableau */
+  if (/\btableaux?\b/.test(n) && !/\b(tableau de bord)\b/.test(n) && !neg){
+    let rows = NaN, cols = NaN;
+    if ((m = n.match(new RegExp(NUM_RE + '\\s*(?:x|×|\\*|sur|par)\\s*' + NUM_RE)))){ cols = numOf(m[1]); rows = numOf(m[2]); }
+    if ((m = n.match(new RegExp(NUM_RE + '\\s*lignes?')))) rows = numOf(m[1]);
+    if ((m = n.match(new RegExp(NUM_RE + '\\s*colonnes?')))) cols = numOf(m[1]);
+    rows = clamp(rows || 3, 1, 60); cols = clamp(cols || 3, 1, 12);
+    const zebra = /\b(raye|rayee|zebre|alterne)\b/.test(n);
+    add(`Insérer un tableau de ${rows} ligne${rows > 1 ? 's' : ''} et ${cols} colonne${cols > 1 ? 's' : ''}${zebra ? ' (rayé)' : ''}`, () => insertHTMLBlock(tableHtml(rows, cols, zebra ? 'sw-table t-zebra' : 'sw-table')));
+    return out;
+  }
+  /* page : saut, orientation, format, marges, numéros, filigrane, en-tête, pied, fond, objectif */
+  if (/\b(saut de page|nouvelle page|page suivante)\b/.test(n) && !/\bva\b/.test(n)) add('Insérer un saut de page', () => insertHTMLBlock(PAGEBREAK + '<p><br></p>'));
+  if (/\bpaysage\b/.test(n)) add('Orientation paysage', () => setPage({orient:'l'}));
+  else if (/\bportrait\b/.test(n)) add('Orientation portrait', () => setPage({orient:'p'}));
+  if ((m = n.match(/\b(a3|a4|a5|letter|lettre us|legal|format lettre)\b/))){ const k = {a3:'A3', a4:'A4', a5:'A5', letter:'Letter', 'lettre us':'Letter', 'format lettre':'Letter', legal:'Legal'}[m[1]]; add('Format ' + k, () => setPage({size:k})); }
+  if (/\bmarges?\b/.test(n)){ const k = /etroit|petit|fin|reduit/.test(n) ? 'narrow' : /larg|grand/.test(n) ? 'wide' : /aucun|sans|zero|pleine/.test(n) || neg ? 'none' : 'normal';
+    add('Marges ' + {narrow:'étroites', wide:'larges', none:'aucune', normal:'normales'}[k], () => setPage({margins:k})); }
+  if (/\b(numeros? de pages?|numerotation|pagination|numerote)\b/.test(n)) add(neg ? 'Retirer les numéros de page' : 'Ajouter les numéros de page', () => setPage({numbers:!neg, numStyle:/\bsur\b|\/|total/.test(n) ? 'np' : E.doc.page.numStyle}));
+  if (/\bfiligrane\b/.test(n)){ if (neg) add('Retirer le filigrane', () => setPage({watermark:''}));
+    else { const t = unq((r.match(/filigrane\s*(?:«|"|:|avec(?: le texte)?|indiquant|qui dit|disant)?\s*(.*)$/i) || [])[1] || '') || 'BROUILLON'; add(`Filigrane « ${t.toUpperCase()} »`, () => setPage({watermark:t.toUpperCase().slice(0, 40)})); } }
+  else if (/\bconfidentiel\b/.test(n) && /\b(marque|tampon|mention)\b/.test(n)) add('Filigrane « CONFIDENTIEL »', () => setPage({watermark:'CONFIDENTIEL'}));
+  for (const [re, key, lab] of [[/en-?t[eê]te/i, 'header', 'En-tête'], [/pied de page/i, 'footer', 'Pied de page']]){
+    if (!re.test(r)) continue;
+    if (neg){ add(`Retirer ${key === 'header' ? 'l\'en-tête' : 'le pied de page'}`, () => setPage({[key]:''})); continue; }
+    const t = unq((r.match(new RegExp(re.source + '\\s*(?::|«|"|avec(?: le texte)?|indiquant|qui dit|disant)?\\s*(.*)$', 'i')) || [])[1] || '');
+    add(`${lab} « ${t || (key === 'header' ? '{titre}' : 'Page {page} sur {pages}')} »`, () => setPage({[key]:t || (key === 'header' ? '{titre}' : 'Page {page} sur {pages}')}));
+  }
+  if (/\bfond\b/.test(n) && /\bpage\b/.test(n)){ const c = colorIn(n, PAGE_BG); if (c) add(`Fond de page ${c[0]}`, () => setPage({bg:c[1]})); else if (neg) add('Fond de page blanc', () => setPage({bg:'#ffffff'})); }
+  if ((m = n.match(/objectif (?:de )?(\d[\d ]*) ?mots/))){ const g = +m[1].replace(/\s/g, ''); add(`Objectif de ${g.toLocaleString('fr-FR')} mots`, () => { E.doc.page.goal = g; emitChange(); updateStatus(); openPanel('outline'); }); }
+  if (out.length) return out;
+  /* thème du document */
+  const th = THEMES.find(t => wordIn(n, norm(t.name)) || wordIn(n, t.id));
+  if (th && (/\b(theme|style|ambiance|look|apparence|habillage|design)\b/.test(n) || n === norm(th.name) || n === th.id)) return [{t:'Thème ' + th.name, run:() => { applyTheme({id:th.id, ...(E.doc.theme.fs ? {fs:E.doc.theme.fs} : {}), ...(E.doc.theme.lh ? {lh:E.doc.theme.lh} : {})}); toast('Thème ' + th.name + ' appliqué'); }}];
+  if (/\b(couleur principale|couleur du theme|couleur d accent|couleurs? du document)\b/.test(n)){ const c = colorIn(n, COLOR_WORDS.filter(x => x[1][0] === '#')); if (c) return [{t:`Couleur principale ${c[0]}`, run:() => applyTheme({...E.doc.theme, ac:c[1]})}]; }
+  /* police */
+  const font = FONTS.find(([f]) => wordIn(n, norm(f)));
+  if (font && (/\b(police|ecri\w*|typo\w*|font|caractere|en)\b/.test(n))){
+    if (/\b(document|tout|partout|titres|corps|texte entier)\b/.test(n)){ const k = /\btitres?\b/.test(n) ? 'fh' : /\bcorps\b/.test(n) ? 'fb' : ''; return [{t:`Police ${font[0]} pour ${k === 'fh' ? 'les titres' : k === 'fb' ? 'le texte' : 'tout le document'}`, run:() => applyTheme({...E.doc.theme, ...(k ? {[k]:font[0]} : {fh:font[0], fb:font[0]})})}]; }
+    return [{t:`Police ${font[0]} sur la sélection`, run:() => { ensureFont(font[0]); if (ensureSel()) inlineStyle('font-family', fontStack(font[0])); }}];
+  }
+  /* taille */
+  if ((m = n.match(/\b(?:taille|corps|en)\s*(?:de\s*|a\s*)?(\d{1,2}(?:[.,]\d)?)\s*(?:pt|points?|px)?\b/)) && /\b(taille|pt|points?|corps)\b/.test(n)){
+    const v = parseFloat(m[1].replace(',', '.')); if (v >= 6 && v <= 96){
+      if (/\b(document|tout le texte|texte du document|partout)\b/.test(n)) return [{t:`Texte du document en ${v} pt`, run:() => applyTheme({...E.doc.theme, fs:Math.round(v * 4 / 3)})}];
+      return [{t:`Taille ${v} pt sur la sélection`, run:() => { if (ensureSel()) inlineStyle('font-size', v + 'pt'); }}];
+    }
+  }
+  if (/\b(plus grand|agrandi\w*|plus gros)\b/.test(n) && !/\bmarge/.test(n)) add('Agrandir le texte sélectionné', () => { if (ensureSel()) stepSize(1); });
+  if (/\b(plus petit|rapetiss\w*|reduis la taille|plus fin)\b/.test(n) && !/\bmarge/.test(n)) add('Réduire le texte sélectionné', () => { if (ensureSel()) stepSize(-1); });
+  /* styles de paragraphe */
+  if ((m = n.match(/\b(?:titre|title|intertitre)\s*(?:de niveau\s*)?([1-4]|un|deux|trois|quatre)\b/)) && !/\bdocument\b/.test(n)){ const lv = numOf(m[1]); add(`Titre ${lv}`, () => setBlock('h' + lv)); }
+  else if (/\b(sous-titre|sous titre)\b/.test(n) && /\b(en|transforme|mets|fais|change)\b/.test(n)) add('Titre 2', () => setBlock('h2'));
+  else if (/\b(texte normal|paragraphe normal|corps de texte)\b/.test(n)) add('Texte normal', () => setBlock('p'));
+  else if (/\bcitation\b/.test(n) && /\b(en|transforme|mets|fais|change)\b/.test(n)) add('Citation', () => setBlock('blockquote'));
+  else if (/\bchapeau\b/.test(n) && /\b(en|transforme|mets|fais|change)\b/.test(n)) add('Chapeau', () => setBlock('p', 'sw-lead'));
+  if (/\bliste (a puces|non numerotee|simple)\b/.test(n) || /\b(puces)\b/.test(n)) add('Liste à puces', () => cmd('insertUnorderedList'));
+  else if (/\bliste numerotee\b|\bnumerote\w* (la liste|les lignes|ces lignes)\b/.test(n)) add('Liste numérotée', () => cmd('insertOrderedList'));
+  else if (/\b(liste de taches|cases a cocher|checklist|todo)\b/.test(n) && !/\b(ajoute|insere)\b/.test(n)) add('Liste de tâches', toggleChecklist);
+  /* mise en forme en ligne */
+  if (/\bgras\b/.test(n)) add(neg ? 'Retirer le gras' : 'Gras', () => { if (ensureSel()) cmd('bold'); });
+  if (/\bitalique\b/.test(n)) add(neg ? 'Retirer l\'italique' : 'Italique', () => { if (ensureSel()) cmd('italic'); });
+  if (/\bsouligne\w*\b/.test(n) && !/\bsurligne/.test(n)) add(neg ? 'Retirer le soulignement' : 'Souligné', () => { if (ensureSel()) cmd('underline'); });
+  if (/\b(barre|barrer|rature)\b/.test(n)) add('Barré', () => { if (ensureSel()) cmd('strikeThrough'); });
+  if (/\b(en majuscules?|tout en capitales?|en capitales?)\b/.test(n)) add('Mettre en majuscules', () => transformSel(s => s.toLocaleUpperCase('fr-FR')));
+  else if (/\ben minuscules?\b/.test(n)) add('Mettre en minuscules', () => transformSel(s => s.toLocaleLowerCase('fr-FR')));
+  else if (/\b(majuscule au debut|premiere lettre en majuscule|capitalise)\b/.test(n)) add('Majuscule à chaque mot', () => transformSel(s => s.toLocaleLowerCase('fr-FR').replace(/(^|[\s'’(-])(\p{L})/gu, (_, a, b) => a + b.toLocaleUpperCase('fr-FR'))));
+  if (/\b(surlign\w*|fluo|stabilo|marque en)\b/.test(n) || (/\bfond\b/.test(n) && !/\bpage\b/.test(n))){
+    if (neg) add('Retirer le surlignage', () => { if (ensureSel()) inlineStyle('background-color', 'transparent', true); });
+    else { const c = colorIn(n, HL_WORDS) || ['jaune', '#FFF1A8']; add(`Surligner en ${c[0]}`, () => { if (ensureSel()) inlineStyle('background-color', c[1], true); }); }
+  } else {
+    const c = colorIn(n.replace(/\bfond\b.*$/, ''), COLOR_WORDS);
+    if (c && (/\b(en|couleur|colore\w*|texte|ecri\w*|mets|passe|met)\b/.test(n))) add(`Texte en ${c[0]}`, () => { if (ensureSel()) inlineStyle('color', c[1]); });
+  }
+  if (/\b(centre|centrer|centree?s?|au centre|au milieu)\b/.test(n)) add('Centrer', () => cmd('justifyCenter'));
+  else if (/\b(a droite|aligne\w* a droite|ferre a droite)\b/.test(n)) add('Aligner à droite', () => cmd('justifyRight'));
+  else if (/\b(a gauche|aligne\w* a gauche)\b/.test(n)) add('Aligner à gauche', () => cmd('justifyLeft'));
+  else if (/\bjustifi\w*\b/.test(n)) add('Justifier', () => cmd('justifyFull'));
+  if (/\b(efface|enleve|retire|supprime)\w* (la |toute la )?mise en forme\b|\bsans mise en forme\b/.test(n)) add('Effacer la mise en forme', clearFormat);
+  if (/\binterligne\b/.test(n) && (m = n.match(/(\d(?:[.,]\d+)?)/))){ const v = m[1].replace(',', '.'); add(`Interligne ${v.replace('.', ',')}`, () => { if (ensureSel()) setLineHeight(v); }); }
+  if (out.length) return out;
+  /* insérer un bloc */
+  if (/^(ajoute|ajouter|insere|inserer|mets|mettre|met|place|placer|cree|creer|fais|faire|rajoute|colle|nouveau|nouvelle|un|une|des|le|la)\b/.test(n) || /\b(bloc|encadre|section)\b/.test(n)){
+    if (/\b(image|photo|illustration)\b/.test(n) && !/\b(texte|et)\b/.test(n)) return [{t:'Insérer une image', run:() => $('#edImgFile').click()}];
+    if (/\b(date du jour|date d aujourd hui|la date)\b/.test(n)) return [{t:'Insérer la date du jour', run:() => insertInline(today())}];
+    if (/\b(sommaire|table des matieres)\b/.test(n)) return [{t:'Insérer un sommaire automatique', run:() => insertBlockById('toc')}];
+    const words = n.split(' ').filter(w => w.length > 2 && !/^(ajoute|ajouter|insere|inserer|mets|mettre|place|placer|cree|creer|fais|faire|rajoute|une|des|les|avec|dans|pour|bloc|document|ici|moi)$/.test(w));
+    let best = null, bs = 0;
+    BLOCKS.forEach(b => { const hay = norm(b.name + ' ' + b.kw); const sc = words.reduce((a, w) => a + (wordIn(hay, w) ? 2 : hay.includes(w.slice(0, 5)) ? 1 : 0), 0) + (n.includes(norm(b.name)) ? 4 : 0); if (sc > bs){ bs = sc; best = b; } });
+    if (best && bs >= 2) return [{t:`Insérer : ${best.name}`, run:() => insertBlockById(best.id)}];
+    const sh = SHAPES.find(s => n.includes(norm(s.name))); if (sh && /\bforme|decor|vague\b/.test(n)) return [{t:`Insérer la forme ${sh.name}`, run:() => insertHTMLBlock(`<div class="sw-shape" contenteditable="false">${sh.svg}</div>`)}];
+  }
+  /* exporter, imprimer */
+  if (/\b(export\w*|telecharg\w*|enregistre\w* (en|au format|sous)|sauvegarde\w* en|convert\w*|genere\w*)\b/.test(n) || /^(en )?(pdf|docx|word)$/.test(n)){
+    const k = /\bpdf\b/.test(n) ? 'pdf' : /\b(word|docx|doc)\b/.test(n) ? 'docx' : /\b(html|page web|site)\b/.test(n) ? 'html' : /\b(markdown|md)\b/.test(n) ? 'md' : /\b(texte brut|txt|texte)\b/.test(n) ? 'txt' : /\b(sauvegarde|spectra)\b/.test(n) ? 'spectra' : '';
+    if (k) return [{t:{pdf:'Exporter en PDF', docx:'Exporter en Word (.docx)', html:'Exporter en page web', md:'Exporter en Markdown', txt:'Exporter en texte', spectra:'Télécharger une sauvegarde'}[k], run:() => doExport(k)}];
+  }
+  if (/^(imprime|imprimer|impression)\b/.test(n)) return [{t:'Imprimer', run:printDoc}];
+  /* navigation, affichage */
+  if ((m = n.match(new RegExp('\\b(?:va|aller|vas|saute|direction|montre)\\w*\\s*(?:a|vers|sur)?\\s*(?:la\\s*)?page\\s*' + NUM_RE)))) { const p = numOf(m[1]); return [{t:`Aller à la page ${p}`, run:() => goPage(p)}]; }
+  if (/\b(debut|haut) du document\b|^(va |aller )?(au )?debut$/.test(n)) return [{t:'Aller au début du document', run:() => { E.scroll.scrollTo({top:0, behavior:'smooth'}); sheet().focus({preventScroll:true}); caretToStart(sheet().firstElementChild || sheet()); }}];
+  if (/\b(fin|bas) du document\b|^(va |aller )?(a la )?fin$/.test(n)) return [{t:'Aller à la fin du document', run:() => { E.scroll.scrollTo({top:E.scroll.scrollHeight, behavior:'smooth'}); sheet().focus({preventScroll:true}); caretToEnd(sheet().lastElementChild || sheet()); }}];
+  if ((m = n.match(/^(?:va|aller|vas|montre|affiche)\w*\s*(?:a|au|a la|aux|vers)?\s*(?:la section|la partie|le chapitre|au titre)?\s*(.{3,})$/))){
+    const q = m[1].trim(), h = $$('h1, h2, h3, h4', sheet()).find(x => norm(x.textContent).includes(q));
+    if (h) return [{t:`Aller à « ${h.textContent.trim().slice(0, 60)} »`, run:() => h.scrollIntoView({behavior:'smooth', block:'start'})}];
+  }
+  if ((m = n.match(/\bzoom\w*\s*(?:a|de)?\s*(\d{2,3})\s*%?/))){ const z = clamp(+m[1], 30, 200); return [{t:`Zoom ${z} %`, run:() => setZoom(z / 100)}]; }
+  if (/\b(ajuste|adapte|pleine largeur|zoom auto|taille de l ecran)\b/.test(n)) return [{t:'Ajuster à la largeur', run:() => setZoom(1, true)}];
+  if (/\b(mode|interface|ecran|theme)\s*(sombre|nuit|noir|dark)\b/.test(n)) return [{t:'Interface sombre', run:() => { document.documentElement.dataset.theme = 'dark'; lsSet('sw.theme', 'dark'); }}];
+  if (/\b(mode|interface|ecran|theme)\s*(clair|jour|light)\b/.test(n)) return [{t:'Interface claire', run:() => { document.documentElement.dataset.theme = 'light'; lsSet('sw.theme', 'light'); }}];
+  if (/\b(mode )?(concentration|focus|zen|plein ecran)\b/.test(n)) return [{t:neg ? 'Quitter le mode concentration' : 'Mode concentration', run:() => toggleFocus(!neg)}];
+  if (/\b(combien|nombre|compte)\w* (de )?(mots|caracteres|pages|signes)\b|\bstatistiques\b/.test(n)) return [{t:'Statistiques du document', run:infoDlg}];
+  if (/\b(typographie|espaces? insecables?|guillemets francais)\b/.test(n)) return [{t:'Typographie française', run:frenchTypo}];
+  if (/\b(historique|versions? precedentes?|ancienne version|restaurer)\b/.test(n)) return [{t:'Historique des versions', run:historyDlg}];
+  if (/\b(lignes?|paragraphes?) vides?\b/.test(n) && neg) return [{t:'Supprimer les paragraphes vides en trop', run:() => { const k = removeEmpty(); toast(k ? `${k} paragraphe${k > 1 ? 's' : ''} vide${k > 1 ? 's' : ''} supprimé${k > 1 ? 's' : ''}` : 'Aucun paragraphe vide en trop'); }}];
+  if (/^(selectionne|selectionner|tout selectionner) (tout|tout le texte|tout le document)$|^tout selectionner$/.test(n)) return [{t:'Tout sélectionner', run:() => { sheet().focus(); document.execCommand('selectAll'); }}];
+  if (/\b(vide|efface|supprime)\w* (tout le document|tout le texte|tout le contenu|le document entier|tout)$/.test(n)) return [{t:'Vider le document (Ctrl + Z pour annuler)', run:() => { flushRecord(); record(); sheet().innerHTML = '<h1><br></h1><p><br></p>'; caretToStart(sheet().firstElementChild); changed({record:true}); paginate(); }}];
+  if (/\b(nouveau document|nouvelle page blanche|document vierge)\b/.test(n)) return [{t:'Nouveau document', run:() => window.SWHome?.show('templates')}];
+  if (/^(accueil|retour|retour a l accueil|quitte|quitter|ferme le document)$/.test(n)) return [{t:'Retour à l\'accueil', run:() => window.SWHome?.show('home')}];
+  if (/\b(partage|partager|envoie a|inviter?)\b/.test(n)) return [{t:'Partager le document', run:() => window.SWShareCurrent?.()}];
+  if (/\b(duplique|dupliquer|copie du document|fais une copie)\b/.test(n)) return [{t:'Dupliquer le document', run:() => window.SWHome?.duplicateCurrent()}];
+  if (/\b(enregistre|sauve|garde)\w* (comme|en) modele\b|\bfais en un modele\b/.test(n)) return [{t:'Enregistrer comme modèle', run:saveTplDlg}];
+  if (/\b(publie|publier|partage a la communaute|bibliotheque publique)\b/.test(n)) return [{t:'Publier comme modèle dans la Communauté', run:() => window.SWHome?.publishCurrent?.()}];
+  if (/\braccourcis?\b/.test(n)) return [{t:'Raccourcis clavier', run:shortcutsDlg}];
+  return out.length ? out : null;
+}
+/* plusieurs ordres dans une phrase : « passe en paysage puis exporte en PDF », « titre 1, centré et en bleu » */
+function parseIntent(raw){
+  const s = String(raw || '').trim(); if (s.length < 2) return null;
+  const whole = parseOne(s);
+  const parts = s.split(/\s*(?:;|\.\s|,?\s+puis\s+|,?\s+ensuite\s+|,?\s+et apr[eè]s\s+|,?\s+et enfin\s+)\s*/i).filter(Boolean);
+  if (parts.length > 1){ const all = parts.map(parseOne); if (all.every(Boolean)) return all.flat(); }
+  if (whole) return whole;
+  const p2 = s.split(/\s*(?:,|\bet\b)\s*/i).filter(x => x.trim().length > 1);
+  if (p2.length > 1){ const all = p2.map(parseOne); if (all.every(Boolean)) return all.flat(); }
+  return null;
+}
+function runIntents(list){ restoreSel(); list.forEach((a, i) => setTimeout(() => { try { a.run(); } catch(e){ console.warn(e); } }, 10 + i * 40)); }
+
+/* ---------- l'IA dans le Spectre ---------- */
+const AI_QUICK = [
+  {t:'Améliorer le style', p:'Améliore le style de la sélection : plus clair, plus fluide, sans changer le sens.', sel:true},
+  {t:'Corriger l\'orthographe et la grammaire', p:'Corrige l\'orthographe, la grammaire et la ponctuation de la sélection, sans rien changer d\'autre.', sel:true},
+  {t:'Raccourcir', p:'Raccourcis la sélection de moitié en gardant l\'essentiel.', sel:true},
+  {t:'Développer', p:'Développe la sélection avec plus de détails et d\'exemples concrets.', sel:true},
+  {t:'Ton plus professionnel', p:'Réécris la sélection sur un ton plus professionnel.', sel:true},
+  {t:'Traduire en anglais', p:'Traduis la sélection en anglais.', sel:true},
+  {t:'Transformer en liste à puces', p:'Transforme la sélection en liste à puces claire.', sel:true},
+  {t:'Transformer en tableau', p:'Transforme le contenu de la sélection en tableau SPECTRA bien organisé.', sel:true},
+  {t:'Continuer l\'écriture', p:'Continue le texte à partir de l\'endroit où se trouve le curseur, dans le même style, sur un ou deux paragraphes.'},
+  {t:'Résumer le document', p:'Écris un résumé du document en 5 points clés, à insérer à l\'endroit du curseur, avec un titre « En bref ».'},
+  {t:'Proposer un plan', p:'Propose un plan détaillé (titres et sous-titres, avec une phrase par partie) pour ce document, à insérer à l\'endroit du curseur.'},
+  {t:'Relire et corriger tout le document', p:'Corrige l\'orthographe, la grammaire et la typographie de tout le document, sans changer le contenu ni la mise en forme.', doc:true},
+];
+const AIS = {busy:false, res:null, prompt:'', ctx:null, ctl:0};
+const aiOk = () => !!window.SWAI;
+function selInfo(){
+  const r = E.range && sheet().contains(E.range.commonAncestorContainer) ? E.range : null;
+  if (!r || r.collapsed) return {has:false, text:'', html:''};
+  const d = document.createElement('div'); d.appendChild(r.cloneContents()); $$('.sw-pbs', d).forEach(x => x.remove());
+  return {has:!!d.textContent.trim(), text:d.textContent.trim(), html:d.innerHTML};
+}
+function aiContext(){
+  const s = selInfo(), c = cleanClone(), txt = (c.innerText || c.textContent || '').replace(/\n{3,}/g, '\n\n').trim();
+  const at = E.range && sheet().contains(E.range.startContainer) ? topOf(E.range.startContainer) : null;
+  return {title:E.doc.title, theme:E.doc.theme.id, page:`${E.doc.page.size} ${E.doc.page.orient === 'l' ? 'paysage' : 'portrait'}`,
+    outline:$$('h1, h2, h3', sheet()).filter(h => !h.closest('.sw-toc')).map(h => (h.tagName === 'H1' ? '# ' : h.tagName === 'H2' ? '## ' : '### ') + h.textContent.trim()).filter(x => x.length > 2).slice(0, 60).join('\n'),
+    words:countWords(txt), selection:s.has ? s.html.slice(0, 12000) : '', selectionText:s.text.slice(0, 6000), docHtml:c.innerHTML.length < 60000 ? c.innerHTML : '', docText:txt.slice(0, 30000),
+    around:at ? (at.previousElementSibling?.textContent || '').slice(-600) + '\n[CURSEUR] ' + at.textContent.slice(0, 600) : '', empty:countWords(txt) < 12,
+    themes:THEMES.map(t => t.id).join(', '), blocks:aiCatalogue()};
+}
+let aiCat = '';
+function aiCatalogue(){
+  if (aiCat) return aiCat;
+  const ids = ['hero', 'secnum', 'band', 'banner', 'cover', 'lead', 'quote', 'info', 'tip', 'warn', 'ok', 'cols2', 'cols3', 'card', 'div-grad', 'table-zebra', 'stats', 'progress', 'timeline', 'steps', 'prices', 'check', 'sign', 'contact', 'faq', 'toc'];
+  aiCat = ids.map(id => { const b = BLOCKS.find(x => x.id === id); return b ? `- ${b.name} : ${b.html().replace(/<svg[\s\S]*?<\/svg>/g, '').replace(/\s+/g, ' ').slice(0, 700)}` : ''; }).filter(Boolean).join('\n') + `\n- Saut de page : ${PAGEBREAK}`;
+  return aiCat;
+}
+function spAiItem(q){ return {g:'IA', t:q ? `Demander à l'IA : « ${q.length > 70 ? q.slice(0, 68) + '…' : q} »` : 'Demander à l\'IA', ai:true, run:() => aiAsk(q)}; }
+async function aiAsk(prompt, opts = {}){
+  prompt = String(prompt || '').trim(); if (!prompt){ $('#spQ').focus(); return; }
+  const box = $('#spList'); $('#spectre').hidden = false; $('#spectre').classList.add('ai');
+  if (!aiOk() || !window.SWAI.available()){ return aiShow({err:window.SWAI?.why?.() || 'L\'IA de SPECTRA Writer fonctionne sur le site en ligne, avec un compte Studio Prism.'}); }
+  AIS.busy = true; AIS.prompt = prompt; AIS.res = null; const ctl = ++AIS.ctl;
+  AIS.ctx = aiContext(); if (opts.doc) AIS.ctx.wantDoc = true;
+  box.innerHTML = `<div class="ai-view"><p class="ai-q">${escH(prompt)}</p><div class="ai-wait"><i></i><span>Spectra prépare votre demande…</span></div></div>`;
+  try {
+    const res = await window.SWAI.run(prompt, AIS.ctx);
+    if (ctl !== AIS.ctl || $('#spectre').hidden) return;
+    AIS.res = res; aiShow(res);
+  } catch(e){ if (ctl === AIS.ctl) aiShow({err:e?.message || String(e)}); }
+  finally { if (ctl === AIS.ctl) AIS.busy = false; }
+}
+function aiApplyList(res){
+  const l = [];
+  if (res.title && res.target === 'document') l.push(`Titre « ${res.title} »`);
+  if (res.theme && THEMES.some(t => t.id === res.theme.id)) l.push('Thème ' + THEMES.find(t => t.id === res.theme.id).name + (res.theme.ac ? ' (couleur personnalisée)' : ''));
+  if (res.page) Object.entries(res.page).forEach(([k, v]) => { const lab = {size:'Format', orient:'Orientation', margins:'Marges', numbers:'Numéros de page', watermark:'Filigrane', header:'En-tête', footer:'Pied de page', bg:'Fond'}[k]; if (lab) l.push(`${lab} : ${v === true ? 'oui' : v === false ? 'non' : v === 'l' ? 'paysage' : v === 'p' ? 'portrait' : v || 'aucun'}`); });
+  (res.replacements || []).forEach(x => l.push(`Remplacer « ${x.find} » par « ${x.replace} »`));
+  return l;
+}
+function aiShow(res){
+  const box = $('#spList'); if (!box) return;
+  if (res.err){ box.innerHTML = `<div class="ai-view"><p class="ai-q">${escH(AIS.prompt || '')}</p><div class="ai-err"><b>L'IA n'a pas pu répondre</b><p>${escH(res.err)}</p></div><div class="ai-acts"><button type="button" class="ap-btn alt" data-ai="back">Retour</button>${AIS.prompt && aiOk() && window.SWAI.available() ? '<button type="button" class="ap-btn" data-ai="retry">Réessayer</button>' : ''}</div></div>`; return; }
+  const html = res.html ? SAN(res.html) : '', acts = aiApplyList(res), s = selInfo();
+  const tgt = res.target === 'document' ? 'document' : res.target === 'selection' && s.has ? 'selection' : html ? 'cursor' : 'none';
+  const main = tgt === 'document' ? (AIS.ctx?.empty ? 'Créer le document' : 'Remplacer le document') : tgt === 'selection' ? 'Remplacer la sélection' : tgt === 'cursor' ? 'Insérer' : acts.length ? 'Appliquer' : '';
+  box.innerHTML = `<div class="ai-view"><p class="ai-q">${escH(AIS.prompt)}</p>${res.reply ? `<p class="ai-reply">${escH(res.reply)}</p>` : ''}
+    ${acts.length ? `<ul class="ai-chips">${acts.map(a => `<li>${escH(a)}</li>`).join('')}</ul>` : ''}
+    ${html ? `<div class="ai-prev"><div class="ai-prev-in swdoc" style="${themeCss(res.theme?.id ? res.theme : E.doc.theme)}">${html}</div></div>` : ''}
+    <div class="ai-acts"><button type="button" class="ap-btn alt" data-ai="back">Retour</button><button type="button" class="ap-btn alt" data-ai="retry">Autre proposition</button>
+      ${html && tgt === 'selection' ? '<button type="button" class="ap-btn alt" data-ai="apply" data-tgt="after">Insérer après</button>' : ''}
+      ${html && tgt === 'document' && !AIS.ctx?.empty ? '<button type="button" class="ap-btn alt" data-ai="apply" data-tgt="end">Ajouter à la fin</button>' : ''}
+      ${main ? `<button type="button" class="ap-btn" data-ai="apply" data-tgt="${tgt}">${main}</button>` : ''}</div>
+    <p class="ai-foot">Généré par l'IA : relisez avant de partager. Ctrl + Z annule.</p></div>`;
+  [...box.querySelectorAll('[data-ai="apply"]')].pop()?.focus();
+}
+function aiApply(tgt){
+  const res = AIS.res; if (!res) return; closeSpectre(); restoreSel();
+  const html = res.html ? SAN(res.html) : '';
+  flushRecord(); record();
+  if (res.theme && THEMES.some(t => t.id === res.theme.id)) E.doc.theme = {...E.doc.theme, ...res.theme};
+  if (res.page){ const p = {}; ['size', 'orient', 'margins', 'numbers', 'watermark', 'header', 'footer', 'bg'].forEach(k => { if (res.page[k] !== undefined) p[k] = res.page[k]; }); if (p.size && !PAGE_SIZES[p.size]) delete p.size; if (p.margins && !MARGINS[p.margins]) delete p.margins; E.doc.page = {...E.doc.page, ...p}; }
+  if (res.title && tgt === 'document') setDocTitle(res.title);
+  (res.replacements || []).forEach(x => x.find && replaceAllText(x.find, x.replace || '', true));
+  if (html){
+    if (tgt === 'document'){ sheet().innerHTML = html; if (!/^(P|H[1-6])$/.test(sheet().lastElementChild?.tagName || '')) sheet().insertAdjacentHTML('beforeend', '<p><br></p>'); caretToStart(sheet().firstElementChild || sheet()); E.scroll.scrollTo({top:0}); }
+    else if (tgt === 'selection' && E.range && !E.range.collapsed){
+      const r = E.range, sb = topOf(r.startContainer), eb = topOf(r.endContainer);
+      const tpl = document.createElement('template'); tpl.innerHTML = html;
+      const kids = [...tpl.content.children], blocky = kids.some(x => !/^(B|I|U|S|A|SPAN|EM|STRONG|MARK|SUB|SUP|BR|CODE)$/.test(x.tagName));
+      const a = document.createRange(); if (sb) a.selectNodeContents(sb); const b = document.createRange(); if (eb) b.selectNodeContents(eb);
+      const whole = sb && eb && r.compareBoundaryPoints(Range.START_TO_START, a) <= 0 && r.compareBoundaryPoints(Range.END_TO_END, b) >= 0;
+      if (blocky && sb && eb && (whole || sb !== eb || kids.length > 1 || kids[0]?.tagName !== 'P')){
+        const S = sheet(); let n = sb; const kill = []; while (n){ kill.push(n); if (n === eb) break; n = n.nextElementSibling; }
+        const at = eb.nextSibling; [...tpl.content.childNodes].forEach(x => S.insertBefore(x, at)); kill.forEach(x => x.remove());
+      } else { const s = getSelection(); s.removeAllRanges(); s.addRange(r); document.execCommand('insertHTML', false, kids.length === 1 && kids[0].tagName === 'P' ? kids[0].innerHTML : html); }
+    } else if (tgt === 'end'){ const last = sheet().lastElementChild; insertHTMLBlock(html, isEmptyBlock(last) ? undefined : last, 'after'); }
+    else if (tgt === 'after' && E.range && sheet().contains(E.range.endContainer)){ insertHTMLBlock(html, topOf(E.range.endContainer), 'after'); }
+    else insertHTMLBlock(html);
+  }
+  applyGeometry(); paginate(); changed({record:true}); emitChange(true); panelRefresh(); toast(res.reply ? res.reply.slice(0, 120) : 'Fait'); AIS.res = null;
+}
 
 /* ==== 70-io.js ==== */
 /* ---------- Import / export : PDF (impression), Word .docx, page web, Markdown, texte, sauvegarde .spectra ---------- */
@@ -2605,12 +3245,12 @@ function toolsPop(anchor){
     <button type="button" data-o="page"><b>Mise en page</b><span>Format, marges, en-tête, pied de page, numéros, filigrane</span></button>
     <button type="button" data-o="focus"><b>Mode concentration</b><span>Seulement vous et votre texte (Échap pour sortir)</span></button>
     <hr><button type="button" data-o="insert-file"><b>Insérer le contenu d'un fichier</b><span>Word, Markdown, texte ou SPECTRA, à l'endroit du curseur</span></button>
-    <button type="button" data-o="save-tpl"><b>Enregistrer comme modèle</b><span>Réutilisez ce document comme point de départ</span></button>
+    <button type="button" data-o="spectre"><b>Spectre et IA</b><span>Ctrl + K : tapez ce que vous voulez faire, en français</span></button>
     <button type="button" data-o="shortcuts"><b>Raccourcis et astuces</b><span>Commande /, Markdown, clavier</span></button></div>`, p => {
     $('#optTypo', p).onchange = e => { E.frTypo = e.target.checked; lsSet('sw.frTypo', E.frTypo); toast(E.frTypo ? 'Typographie automatique activée' : 'Typographie automatique désactivée'); };
     p.onclick = e => { const b = e.target.closest('[data-o]'); if (!b) return; closePop(); const k = b.dataset.o;
       if (k === 'strike') { restoreSel(); cmd('strikeThrough'); } else if (k === 'clear'){ restoreSel(); clearFormat(); } else if (k === 'history') historyDlg(); else if (k === 'typo') frenchTypo(); else if (k === 'find') openFind(true); else if (k === 'page') pageDlg(); else if (k === 'focus') toggleFocus(true);
-      else if (k === 'insert-file') $('#edInsFile').click(); else if (k === 'save-tpl') saveTplDlg(); else if (k === 'shortcuts') shortcutsDlg(); };
+      else if (k === 'insert-file') $('#edInsFile').click(); else if (k === 'spectre') openSpectre(); else if (k === 'shortcuts') shortcutsDlg(); };
   }, 'menu');
 }
 function filePop(anchor){
@@ -2619,6 +3259,8 @@ function filePop(anchor){
     <button type="button" data-f="dup"><b>Dupliquer</b><span>Une copie, ouverte tout de suite</span></button>
     <button type="button" data-f="import"><b>Importer un fichier</b><span>Word (.docx), Markdown, texte, SPECTRA → nouveau document</span></button>
     <button type="button" data-f="share"><b>Partager…</b><span>Par email ou par lien, en lecture ou modification</span></button>
+    <button type="button" data-f="tpl"><b>Enregistrer comme modèle</b><span>Dans vos modèles personnels</span></button>
+    <button type="button" data-f="publish"><b>Publier dans la Communauté</b><span>Proposez ce document comme modèle public, vérifié par Studio Prism</span></button>
     <hr><button type="button" data-f="page"><b>Mise en page</b><span>Format, marges, en-tête et pied de page</span></button>
     <button type="button" data-f="print"><b>Imprimer</b><span>Ctrl + P</span></button>
     <button type="button" data-f="history"><b>Historique des versions</b><span>Revenir à une version précédente</span></button>
@@ -2626,7 +3268,7 @@ function filePop(anchor){
     <hr><button type="button" data-f="home"><b>Retour à l'accueil</b><span>Vos documents et modèles</span></button></div>`, p => {
     p.onclick = e => { const b = e.target.closest('[data-f]'); if (!b) return; closePop(); const k = b.dataset.f;
       if (k === 'new') window.SWHome?.show('templates'); else if (k === 'dup') window.SWHome?.duplicateCurrent(); else if (k === 'import') $('#homeFile').click();
-      else if (k === 'share') window.SWShareCurrent?.(); else if (k === 'page') pageDlg(); else if (k === 'print') printDoc(); else if (k === 'info') infoDlg(); else if (k === 'history') historyDlg(); else if (k === 'home') window.SWHome?.show('home'); };
+      else if (k === 'share') window.SWShareCurrent?.(); else if (k === 'page') pageDlg(); else if (k === 'print') printDoc(); else if (k === 'info') infoDlg(); else if (k === 'history') historyDlg(); else if (k === 'home') window.SWHome?.show('home'); else if (k === 'tpl') saveTplDlg(); else if (k === 'publish') window.SWHome?.publishCurrent?.(); };
   }, 'menu');
 }
 function saveTplDlg(){ SWAsk('Enregistrer comme modèle', 'Nom du modèle', E.doc.title, 'Enregistrer', async v => { await SWHome.saveTemplate(v); }); }
@@ -2640,7 +3282,7 @@ function infoDlg(){
 function shortcutsDlg(){
   const k = (a, b) => `<tr><td>${a}</td><td>${b}</td></tr>`;
   SWDlg.open(`<h3>Raccourcis et astuces</h3><div class="sc-wrap"><table class="sc">${k('<kbd>/</kbd> en début de ligne', 'Insérer un bloc, un titre, un tableau…')}${k('<kbd>#</kbd> <kbd>##</kbd> <kbd>###</kbd> + espace', 'Titre 1, 2, 3')}${k('<kbd>-</kbd> ou <kbd>*</kbd> + espace', 'Liste à puces')}${k('<kbd>1.</kbd> + espace', 'Liste numérotée')}${k('<kbd>[]</kbd> + espace', 'Liste de tâches')}${k('<kbd>&gt;</kbd> + espace', 'Citation')}${k('<kbd>---</kbd> + Entrée', 'Séparateur')}
-    ${k('<kbd>Ctrl</kbd> <kbd>B</kbd> / <kbd>I</kbd> / <kbd>U</kbd>', 'Gras, italique, souligné')}${k('<kbd>Ctrl</kbd> <kbd>Alt</kbd> <kbd>1</kbd> <kbd>2</kbd> <kbd>3</kbd> · <kbd>0</kbd>', 'Titre 1, 2, 3 · texte normal')}${k('<kbd>Ctrl</kbd> <kbd>K</kbd>', 'Chercher une action (le Spectre)')}${k('<kbd>:</kbd> + un mot', 'Émoji (:idee, :ok, :date…)')}${k('<kbd>Ctrl</kbd> <kbd>Entrée</kbd>', 'Saut de page')}${k('<kbd>Ctrl</kbd> <kbd>F</kbd> · <kbd>H</kbd>', 'Rechercher · remplacer')}${k('<kbd>Ctrl</kbd> <kbd>Maj</kbd> <kbd>V</kbd>', 'Coller sans mise en forme')}${k('<kbd>Ctrl</kbd> <kbd>P</kbd>', 'Imprimer ou PDF')}${k('<kbd>Ctrl</kbd> <kbd>S</kbd>', 'Enregistrer tout de suite (sinon automatique)')}
+    ${k('<kbd>Ctrl</kbd> <kbd>B</kbd> / <kbd>I</kbd> / <kbd>U</kbd>', 'Gras, italique, souligné')}${k('<kbd>Ctrl</kbd> <kbd>Alt</kbd> <kbd>1</kbd> <kbd>2</kbd> <kbd>3</kbd> · <kbd>0</kbd>', 'Titre 1, 2, 3 · texte normal')}${k('<kbd>Ctrl</kbd> <kbd>K</kbd>', 'Le Spectre : tapez une action en français (« tableau 4 × 3 », « mets en bleu », « passe en paysage puis exporte en PDF ») ou demandez à l\'IA (« résume ce texte », « rédige une introduction »)')}${k('<kbd>:</kbd> + un mot', 'Émoji (:idee, :ok, :date…)')}${k('<kbd>Ctrl</kbd> <kbd>Entrée</kbd>', 'Saut de page')}${k('<kbd>Ctrl</kbd> <kbd>F</kbd> · <kbd>H</kbd>', 'Rechercher · remplacer')}${k('<kbd>Ctrl</kbd> <kbd>Maj</kbd> <kbd>V</kbd>', 'Coller sans mise en forme')}${k('<kbd>Ctrl</kbd> <kbd>P</kbd>', 'Imprimer ou PDF')}${k('<kbd>Ctrl</kbd> <kbd>S</kbd>', 'Enregistrer tout de suite (sinon automatique)')}
     ${k('Poignée <b>⋮⋮</b> à gauche d\'un bloc', 'Glisser pour déplacer, cliquer pour dupliquer, supprimer…')}${k('Glisser une image sur la page', 'Elle s\'insère à cet endroit')}</table></div><div class="dlg-acts"><button type="button" class="ap-btn" data-dlg="close">Compris</button></div>`, null, 'wide');
 }
 function toggleFocus(on){ document.body.classList.toggle('focus-mode', on ?? !document.body.classList.contains('focus-mode')); setTimeout(() => { sizeStage(); placeTools(); }, 50); if (document.body.classList.contains('focus-mode')) toast('Mode concentration · Échap pour sortir'); }
@@ -2724,8 +3366,10 @@ function wire(){
   $('#edRail').addEventListener('click', e => { const b = e.target.closest('[data-panel]'); if (b) openPanel(b.dataset.panel); });
   $('#edThread').addEventListener('click', e => { const b = e.target.closest('[data-tk]'); if (!b) return; const hs = $$('h1, h2, h3', sheet()).filter(h => h.textContent.trim() && !h.closest('.sw-toc, .sw-cover')); hs[+b.dataset.tk]?.scrollIntoView({behavior:'smooth', block:'start'}); });
   $('#spQ').addEventListener('input', () => { SPX.i = 0; drawSpectre(); });
-  $('#spQ').addEventListener('keydown', e => { if (e.key === 'ArrowDown'){ e.preventDefault(); SPX.i = Math.min(SPX.items.length - 1, SPX.i + 1); drawSpectre(); } else if (e.key === 'ArrowUp'){ e.preventDefault(); SPX.i = Math.max(0, SPX.i - 1); drawSpectre(); } else if (e.key === 'Enter'){ e.preventDefault(); runSpectre(SPX.i); } else if (e.key === 'Escape'){ e.preventDefault(); closeSpectre(); restoreSel(); } });
-  $('#spList').addEventListener('click', e => { const b = e.target.closest('[data-sp]'); if (b) runSpectre(+b.dataset.sp); });
+  $('#spQ').addEventListener('keydown', e => { if ($('#spectre').classList.contains('ai')){ if (e.key === 'Enter'){ e.preventDefault(); const b = [...$$('#spList [data-ai="apply"]')].pop() || $('#spList [data-ai="retry"]'); if (b && !AIS.busy) b.click(); } else if (e.key === 'Escape'){ e.preventDefault(); e.stopPropagation(); drawSpectre(); } return; } if (e.key === 'ArrowDown'){ e.preventDefault(); SPX.i = Math.min(SPX.items.length - 1, SPX.i + 1); drawSpectre(); } else if (e.key === 'ArrowUp'){ e.preventDefault(); SPX.i = Math.max(0, SPX.i - 1); drawSpectre(); } else if (e.key === 'Enter'){ e.preventDefault(); runSpectre(SPX.i); } else if (e.key === 'Escape'){ e.preventDefault(); e.stopPropagation(); closeSpectre(); restoreSel(); } });
+  $('#spList').addEventListener('click', e => { const b = e.target.closest('[data-sp]'); if (b) return runSpectre(+b.dataset.sp);
+    const x = e.target.closest('[data-ai]'); if (!x) return; const k = x.dataset.ai;
+    if (k === 'back'){ drawSpectre(); $('#spQ').focus(); } else if (k === 'retry') aiAsk(AIS.prompt, {doc:AIS.ctx?.wantDoc}); else if (k === 'apply') aiApply(x.dataset.tgt); });
   $('#spectre').addEventListener('mousedown', e => { if (e.target.id === 'spectre') closeSpectre(); });
   $('#edPanelClose').addEventListener('click', () => openPanel(panel));
   const PB = $('#edPanelBody');
@@ -2853,7 +3497,7 @@ function mdShortcut(){
 function globalKeys(e){
   if ($('#app').hidden || !$('#auth').hidden) return;
   const mod = e.ctrlKey || e.metaKey, lk = e.key.toLowerCase();
-  if (e.key === 'Escape'){ if (!$('#spectre').hidden){ closeSpectre(); return restoreSel(); } if (!$('#edPop').hidden) return closePop(); if (panel) return openPanel(panel); if (!$('#findBar').hidden) return closeFind(); if (document.body.classList.contains('focus-mode')) return toggleFocus(false); if (selFig) return selectFigure(null); }
+  if (e.key === 'Escape'){ if (!$('#spectre').hidden){ if ($('#spectre').classList.contains('ai') && document.activeElement !== $('#spQ')){ drawSpectre(); return $('#spQ').focus(); } closeSpectre(); return restoreSel(); } if (!$('#edPop').hidden) return closePop(); if (panel) return openPanel(panel); if (!$('#findBar').hidden) return closeFind(); if (document.body.classList.contains('focus-mode')) return toggleFocus(false); if (selFig) return selectFigure(null); }
   if (!mod) return;
   if (lk === 'k' || e.key === '/'){ e.preventDefault(); return $('#spectre').hidden ? openSpectre() : closeSpectre(); }
   if (lk === 's'){ e.preventDefault(); window.SWHome?.flush(); toast('Enregistré'); }
@@ -2901,6 +3545,7 @@ function onPaste(e){
     metaOf, fromTemplate, importFile, setReadOnly, restoreSel, setUserLib(l){ E.userLib = l || {}; if (panel === 'templates') renderPanel(); },
     focusTitle(blank){ if (blank){ const h = sheet().querySelector('h1'); if (h){ sheet().focus(); caretToStart(h); return; } } sheet().focus({preventScroll:true}); },
     paginate, doExport,
+    ai(p, o){ openSpectre(); $('#spQ').value = p; aiAsk(p, o || {}); },
   };
   window.__swReady = true;
   window.dispatchEvent(new Event('sw:ready'));
@@ -3012,6 +3657,7 @@ const DemoAuth = {
     await sleep(200); const info = {accountKind:'individual', subscription:'free', role:'user', companyName:''};
     const keyed = (store.get('sp.demo.keys') || {})[u.uid];
     if (/decouverte/i.test(u.email || '') && !keyed) return {level:'discovery', info, license:null};
+    if (/admin/i.test(u.email || '')) return {level:'admin', info:{...info, role:'admin'}, license:null};   // démo : un email contenant « admin » simule un administrateur Studio Prism
     return {level:'licensed', info, license:{type:keyed ? 'pro' : 'demo', status:'active', expiresAt:null, expired:false}};
   },
   // Démo : toute clé au bon format commençant par SPEC active une licence Pro d'un an.
@@ -4290,11 +4936,7 @@ function renderHome(){
         : H.view === 'list' ? `<div class="hlist" role="table"><div class="hrow head" role="row"><span></span><span>Nom</span><span>Modifié</span><span>Mots</span><span>Taille</span><span></span><span></span></div>${list.map(p => rowHtml(p, !!p._sh)).join('')}</div>` : `<div class="hgrid">${list.map(p => cardHtml(p, !!p._sh)).join('')}</div>`; }
     h += '</section>';
   } else if (H.tab === 'templates'){
-    const cats = ['Tous', ...new Set(TPL().filter(t => t.id !== 'blank').map(t => t.cat))], mt = myTplCards();
-    if (mt.length) cats.splice(1, 0, 'Mes modèles');
-    const list = H.cat === 'Mes modèles' ? mt : TPL().filter(t => H.cat === 'Tous' || t.cat === H.cat || t.id === 'blank');
-    h += `<div class="hcats" role="tablist">${cats.map(c => `<button type="button" role="tab" data-cat="${esc(c)}" aria-selected="${c === H.cat}">${esc(c)}</button>`).join('')}</div>
-      <div class="tgrid">${list.map(t => tplCard(t, true)).join('')}</div>`;
+    h += renderTemplatesTab();
   } else if (H.tab === 'mine'){
     if (H.loading && !H.mine) h = loadingSk;
     else if (H.err) h = `<div class="hempty"><p>${esc(H.err)}</p><button type="button" class="ap-btn alt" data-hact="reload">Réessayer</button></div>`;
@@ -4358,7 +5000,7 @@ async function newDoc(tplId, opts = {}){
     if (!opts.data) setTimeout(() => window.SWEditor.focusTitle?.(tplId === 'blank'), 60);
   } catch(e){ hideBusy(); toastA(e?.code === 'app/too-big' ? 'Document trop volumineux pour le cloud.' : e?.code === 'app/quota' || e?.code === 'app/quota-or-denied' ? 'Espace cloud plein (ou accès refusé) : libérez de la place.' : e?.code === 'permission-denied' ? 'Création refusée.' : errMsg(e)); }
 }
-window.SWHome = {newDoc, show:showHome, saveTemplate, flush:() => Save.flush(true), canExport:() => fullAccess(), licence:reason => show('licence', {reason}), duplicateCurrent};
+window.SWHome = {newDoc, show:showHome, publishCurrent:() => publishCurrent(), saveTemplate, flush:() => Save.flush(true), canExport:() => fullAccess(), licence:reason => show('licence', {reason}), duplicateCurrent};
 function showBusy(t){ const b = $a('#homeBusy'); b.querySelector('span').textContent = t; b.hidden = false; }
 function hideBusy(){ $a('#homeBusy').hidden = true; }
 async function duplicateCurrent(){
@@ -4627,7 +5269,8 @@ function askDraw(){
   const words = q.split(/\s+/);
   const tpl = TPL().filter(t => t.id !== 'blank').map(t => ({k:'tpl', id:t.id, t:t.name, s:t.desc || t.cat, hay:nrm(t.name + ' ' + t.cat + ' ' + (t.desc || '') + ' ' + t.id.replace(/-/g, ' '))})).filter(x => words.every(w => x.hay.includes(w)));
   const docs = allMine().map(p => ({k:'doc', id:p.id, t:p.name, s:'Ouvrir · ' + ago(p.updatedAt), hay:nrm(p.name)})).filter(x => words.every(w => x.hay.includes(w))).slice(0, 4);
-  ASK.items = [...tpl.slice(0, 5), ...docs, {k:'blank', t:`Page blanche « ${$a('#homeAsk').value.trim().slice(0, 50)} »`, s:'Un document vide, avec ce titre'}];
+  const typed = $a('#homeAsk').value.trim(), aiIt = window.SWAI?.available() && typed.length > 3 ? [{k:'ai', t:`Créer avec l'IA : « ${typed.slice(0, 60)} »`, s:'Spectra rédige et met en page tout le document'}] : [];
+  ASK.items = [...(words.length >= 3 ? aiIt : []), ...tpl.slice(0, 5), ...(words.length < 3 ? aiIt : []), ...docs, {k:'blank', t:`Page blanche « ${$a('#homeAsk').value.trim().slice(0, 50)} »`, s:'Un document vide, avec ce titre'}];
   ASK.i = Math.min(ASK.i, ASK.items.length - 1);
   box.hidden = false;
   box.innerHTML = ASK.items.map((x, i) => `<button type="button" data-ask="${i}" class="${i === ASK.i ? 'on' : ''} k-${x.k}" role="option"><b>${x.k === 'tpl' ? 'Nouveau : ' : ''}${esc(x.t)}</b><span>${esc(x.s.replace(' · ', ', '))}</span></button>`).join('');
@@ -4636,6 +5279,7 @@ async function askRun(i){
   const x = ASK.items[i]; if (!x) return; const typed = $a('#homeAsk').value.trim();
   $a('#homeAsk').value = ''; $a('#homeAskRes').hidden = true;
   if (x.k === 'tpl') return newDoc(x.id);
+  if (x.k === 'ai'){ await newDoc('blank'); setTimeout(() => window.SWEditor?.ai('Crée un document complet et bien mis en page : ' + typed), 250); return; }
   if (x.k === 'doc'){ const p = findP(x.id, false); if (p) return openDoc(p); }
   if (x.k === 'blank'){ await newDoc('blank'); if (typed && window.SWEditor){ const h = document.querySelector('#sheet h1'); if (h){ h.textContent = typed; document.querySelector('#sheet').dispatchEvent(new Event('input', {bubbles:true})); } } }
 }
@@ -4648,6 +5292,339 @@ $a('#homeAsk').addEventListener('keydown', e => {
 });
 $a('#homeAskRes').addEventListener('mousedown', e => { e.preventDefault(); const b = e.target.closest('[data-ask]'); if (b) askRun(+b.dataset.ask); });
 $a('#homeAsk').addEventListener('blur', () => setTimeout(() => { $a('#homeAskRes').hidden = true; }, 120));
+/* =====================================================================
+   Communauté : bibliothèque publique de modèles.
+   Chacun peut proposer un de ses documents comme modèle ; il reste « en attente » jusqu'à ce qu'un administrateur
+   Studio Prism le publie ou le refuse (onglet Modération, réservé aux administrateurs). Les membres peuvent signaler
+   un modèle publié : il remonte alors dans la file de modération. Collection Firestore swPublic (+ content/main).
+   ===================================================================== */
+const PUB_MAX_SIZE = 400000, PUB_MAX_PENDING = 10, PUB_HIDE_REPORTS = 3;
+const isAdm = () => access.level === 'admin';
+const PUB_STATUS = {pending:'En attente de vérification', published:'Publié', rejected:'Refusé'};
+/* premier filtre, côté navigateur, avant même la modération humaine */
+const PUB_BAD = /\b(porn\w*|sexe?|xxx|nazi\w*|hitler|terroris\w*|bombe artisanale|suicide|viol(?:er|s)?|p[eé]dophil\w*|encul\w*|salope|connard|nique|fdp|ntm|bite|chatte|nègre|negro|bougnoule|youpin|pd)\b/i;
+
+const PubLocal = {
+  key:'sp.demo.swpublic',
+  db(){ const d = store.get(this.key) || {}; return {items:{}, content:{}, ...d}; },
+  put(d){ try { localStorage.setItem(this.key, JSON.stringify(d)); } catch(e){ throw {code:'app/device-full'}; } },
+  async list(kind){ await sleep(80); const all = Object.values(this.db().items);
+    return kind === 'published' ? all.filter(x => x.status === 'published') : kind === 'mine' ? all.filter(x => x.ownerUid === me.uid) : all.filter(x => x.status === 'pending' || (x.reports || 0) > 0); },
+  async get(id){ const d = this.db(), x = d.items[id]; if (!x || !(x.status === 'published' || x.ownerUid === me.uid || isAdm())) throw {code:'permission-denied'}; return d.content[id] || ''; },
+  async create(f){ await sleep(80); const d = this.db(), id = randId('t'), now = Date.now();
+    d.items[id] = {id, ownerUid:me.uid, ownerName:f.ownerName, name:f.name, desc:f.desc, cat:f.cat, status:'pending', reason:'', preview:f.preview, theme:f.theme, pageSize:f.pageSize, size:f.size, uses:0, reports:0, reporters:[], createdAt:now, updatedAt:now};
+    d.content[id] = f.data; this.put(d); return {...d.items[id]}; },
+  async review(id, status, reason = ''){ if (!isAdm()) throw {code:'permission-denied'}; const d = this.db(), x = d.items[id]; if (!x) throw {code:'app/not-found'};
+    Object.assign(x, {status, reason, reviewedAt:Date.now(), reviewedBy:me.uid, updatedAt:Date.now()}); if (status === 'published'){ x.reports = 0; x.reporters = []; } this.put(d); },
+  async remove(id){ const d = this.db(), x = d.items[id]; if (x && x.ownerUid !== me.uid && !isAdm()) throw {code:'permission-denied'}; delete d.items[id]; delete d.content[id]; this.put(d); },
+  async use(id){ const d = this.db(); if (d.items[id]){ d.items[id].uses = (d.items[id].uses || 0) + 1; this.put(d); } },
+  async report(id){ const d = this.db(), x = d.items[id]; if (!x || (x.reporters || []).includes(me.uid)) return; x.reporters = [...(x.reporters || []), me.uid]; x.reports = x.reporters.length; this.put(d); },
+};
+const PubFB = {
+  get db(){ return FirebaseAuth.db; }, ts(){ return FirebaseAuth.ts(); },
+  T(id){ return this.db.collection('swPublic').doc(id); }, C(id){ return this.T(id).collection('content').doc('main'); },
+  m(d){ const x = d.data(); return {...x, id:d.id, createdAt:ms(x.createdAt), updatedAt:ms(x.updatedAt)}; },
+  async list(kind){
+    const c = this.db.collection('swPublic');
+    if (kind === 'published') return (await c.where('status', '==', 'published').limit(400).get()).docs.map(d => this.m(d));
+    if (kind === 'mine') return (await c.where('ownerUid', '==', me.uid).limit(100).get()).docs.map(d => this.m(d));
+    const [a, b] = await Promise.all([c.where('status', '==', 'pending').limit(200).get(), c.where('reports', '>', 0).limit(200).get()]);
+    const out = new Map(); [...a.docs, ...b.docs].forEach(d => out.set(d.id, this.m(d))); return [...out.values()];
+  },
+  async get(id){ const s = await this.C(id).get(); return s.exists ? s.data().data : ''; },
+  async create(f){
+    const ref = this.db.collection('swPublic').doc(), b = this.db.batch();
+    const rec = {ownerUid:me.uid, ownerName:f.ownerName, name:f.name, desc:f.desc, cat:f.cat, status:'pending', reason:'', preview:f.preview, theme:f.theme, pageSize:f.pageSize, size:f.size,
+      uses:0, reports:0, reporters:[], createdAt:this.ts(), updatedAt:this.ts()};
+    b.set(ref, rec); b.set(ref.collection('content').doc('main'), {data:f.data, updatedAt:this.ts()}); await b.commit();
+    return {...rec, id:ref.id, createdAt:Date.now(), updatedAt:Date.now()};
+  },
+  async review(id, status, reason = ''){ const f = {status, reason, reviewedAt:this.ts(), reviewedBy:me.uid, updatedAt:this.ts()}; if (status === 'published'){ f.reports = 0; f.reporters = []; } await this.T(id).update(f); },
+  async remove(id){ const b = this.db.batch(); b.delete(this.C(id)); b.delete(this.T(id)); await b.commit(); },
+  async use(id){ await this.T(id).update({uses:firebase.firestore.FieldValue.increment(1)}); },
+  async report(id){ await this.T(id).update({reports:firebase.firestore.FieldValue.increment(1), reporters:firebase.firestore.FieldValue.arrayUnion(me.uid)}); },
+};
+const Pub = () => cloudMode === 'firebase' ? PubFB : cloudMode === 'demo' ? PubLocal : null;
+const P = {published:null, mine:null, mod:null, loading:false, err:'', q:'', cat:'Toutes', sort:'pop'};
+async function loadPub(kinds){
+  const api = Pub(); if (!api) return;
+  P.loading = true; P.err = ''; renderHome();
+  try {
+    const res = await Promise.all(kinds.map(k => withTimeout(api.list(k), 15000)));
+    kinds.forEach((k, i) => { P[k === 'pending' ? 'mod' : k] = res[i]; });
+  } catch(e){ P.err = e?.code === 'permission-denied' ? 'La Communauté s\'ouvrira dès que les règles Firestore de SPECTRA Writer seront publiées.' : errMsg(e); console.warn('[SPECTRA Writer] Communauté', e); }
+  P.loading = false; renderHome();
+}
+
+/* ---------- Onglet Modèles : Studio Prism · Communauté · Mes modèles · Modération ---------- */
+function renderTemplatesTab(){
+  if (P.uid !== me?.uid){ Object.assign(P, {uid:me?.uid, published:null, mine:null, mod:null, err:'', q:'', cat:'Toutes'}); }
+  if (isAdm() && Pub() && P.mod === null && !P.loading && !P.err) setTimeout(() => loadPub(['pending', 'published', 'mine']), 0);
+  const mt = myTplCards(), src = H.src || 'studio';
+  const modN = (P.mod || []).length;
+  let h = `<div class="hsrc" role="tablist">${[['studio', 'Studio Prism'], ['community', 'Communauté'], ...(mt.length ? [['mine', `Mes modèles <i>${mt.length}</i>`]] : []), ...(isAdm() ? [['mod', `Modération${modN ? ` <i class="hot">${modN}</i>` : ''}`]] : [])]
+    .map(([k, t]) => `<button type="button" role="tab" data-src="${k}" aria-selected="${k === src}">${t}</button>`).join('')}</div>`;
+  if (src === 'mine') return h + `<div class="tgrid">${mt.map(t => tplCard(t, true)).join('')}</div>`;
+  if (src === 'community') return h + communityHtml();
+  if (src === 'mod') return h + modHtml();
+  const cats = ['Tous', ...new Set(TPL().filter(t => t.id !== 'blank').map(t => t.cat))];
+  const list = TPL().filter(t => H.cat === 'Tous' || t.cat === H.cat || t.id === 'blank');
+  return h + `<div class="hcats" role="tablist">${cats.map(c => `<button type="button" role="tab" data-cat="${esc(c)}" aria-selected="${c === H.cat}">${esc(c)}</button>`).join('')}</div>
+    <div class="tgrid">${list.map(t => tplCard(t, true)).join('')}</div>`;
+}
+const shortName = n => { const p = String(n || '').trim().split(/\s+/); return p.length > 1 ? `${p[0]} ${p[p.length - 1][0]}.` : p[0] || 'Membre'; };
+function pubCard(t){
+  return `<article class="tcard big pcard" data-pub="${esc(t.id)}" tabindex="0" aria-label="Utiliser le modèle ${esc(t.name)}">
+    <div class="tthumb">${miniPage(previewOf(t), t.theme, /-l$/.test(t.pageSize || '') ? 'land' : '')}</div>
+    <b>${esc(t.name)}</b><small>${esc(t.desc || t.cat)}</small>
+    <span class="pc-by">${esc(shortName(t.ownerName))}${t.uses ? ` · ${t.uses.toLocaleString('fr-FR')} utilisation${t.uses > 1 ? 's' : ''}` : ''}</span>
+    <button type="button" class="pc-flag" data-pact="report" data-id="${esc(t.id)}" title="Signaler ce modèle" aria-label="Signaler ${esc(t.name)}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M5 21V4M5 4h11l-2 4 2 4H5"/></svg></button></article>`;
+}
+function communityHtml(){
+  if (!Pub()) return `<div class="hempty"><div class="hic">${ICON.share}</div><h3>Communauté bientôt disponible</h3><p>La bibliothèque publique s'ouvrira dès que le cloud SPECTRA Writer sera activé sur le serveur Studio Prism.</p></div>`;
+  if (P.published === null && !P.loading && !P.err){ setTimeout(() => loadPub(['published', 'mine', ...(isAdm() ? ['pending'] : [])]), 0); }
+  const how = `<div class="pub-how"><div><b>Partagez vos plus beaux documents</b><span>Ouvrez un document, puis Fichier → « Publier dans la Communauté ». L'équipe Studio Prism vérifie chaque modèle avant sa mise en ligne.</span></div></div>`;
+  if (P.err) return how + `<div class="hempty"><p>${esc(P.err)}</p><button type="button" class="ap-btn alt" data-pact="reload">Réessayer</button></div>`;
+  if (P.loading && P.published === null) return how + `<div class="tgrid">${'<div class="tcard big"><div class="tthumb sk"></div></div>'.repeat(6)}</div>`;
+  const pub = (P.published || []).filter(t => (t.reports || 0) < PUB_HIDE_REPORTS || isAdm());
+  const cats = ['Toutes', ...new Set(pub.map(t => t.cat).filter(Boolean))];
+  let h = how;
+  if (pub.length) h += `<div class="pub-tools"><label class="pub-q"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/></svg><input id="pubQ" placeholder="Chercher dans la Communauté" value="${esc(P.q)}"></label>
+      <div class="hcats">${cats.map(c => `<button type="button" data-pcat="${esc(c)}" aria-selected="${c === P.cat}">${esc(c)}</button>`).join('')}</div>
+      <select id="pubSort" aria-label="Trier"><option value="pop"${P.sort === 'pop' ? ' selected' : ''}>Les plus utilisés</option><option value="new"${P.sort === 'new' ? ' selected' : ''}>Les plus récents</option></select></div>
+    <div class="tgrid" id="pubGrid">${pubGrid(pub)}</div>`;
+  else h += `<div class="hempty"><div class="hic">${ICON.share}</div><h3>La Communauté démarre</h3><p>Aucun modèle publié pour l'instant. Soyez le premier : ouvrez un document réussi et publiez-le.</p></div>`;
+  const mine = P.mine || [];
+  if (mine.length) h += `<section class="hsec-wrap"><div class="hsec-h"><h2 class="hsec">Mes publications</h2></div><div class="pub-mine">${mine.sort((a, b) => b.createdAt - a.createdAt).map(t => `<div class="pm-row">
+      <div class="pm-th">${miniPage(previewOf(t), t.theme)}</div><div class="pm-i"><b>${esc(t.name)}</b><span class="pst ${t.status}">${PUB_STATUS[t.status] || t.status}</span>${t.status === 'rejected' && t.reason ? `<small>Motif : ${esc(t.reason)}</small>` : t.status === 'published' ? `<small>${(t.uses || 0).toLocaleString('fr-FR')} utilisation${(t.uses || 0) > 1 ? 's' : ''}</small>` : `<small>Proposé ${ago(t.createdAt)}</small>`}</div>
+      <button type="button" class="ap-btn alt" data-pact="delete" data-id="${esc(t.id)}">${t.status === 'published' ? 'Retirer' : 'Supprimer'}</button></div>`).join('')}</div></section>`;
+  return h;
+}
+function pubGrid(pub){
+  const q = nrm(P.q), words = q.split(/\s+/).filter(Boolean);
+  let l = (pub || (P.published || [])).filter(t => (P.cat === 'Toutes' || t.cat === P.cat) && words.every(w => nrm(t.name + ' ' + t.desc + ' ' + t.cat + ' ' + t.ownerName).includes(w)));
+  l = l.sort((a, b) => P.sort === 'new' ? b.createdAt - a.createdAt : (b.uses || 0) - (a.uses || 0) || b.createdAt - a.createdAt);
+  return l.length ? l.map(pubCard).join('') : '<p class="pub-none">Aucun modèle ne correspond.</p>';
+}
+function modHtml(){
+  if (!isAdm()) return '';
+  if (P.mod === null && !P.loading && !P.err) setTimeout(() => loadPub(['pending', 'published', 'mine']), 0);
+  if (P.err) return `<div class="hempty"><p>${esc(P.err)}</p><button type="button" class="ap-btn alt" data-pact="reload">Réessayer</button></div>`;
+  if (P.loading && P.mod === null) return '<p class="pub-none">Chargement de la file de modération…</p>';
+  const l = (P.mod || []).sort((a, b) => (b.reports || 0) - (a.reports || 0) || a.createdAt - b.createdAt);
+  if (!l.length) return `<div class="hempty"><div class="hic">✓</div><h3>Rien à vérifier</h3><p>Tous les modèles proposés ont été traités. Les nouveaux et les signalés apparaîtront ici.</p></div>`;
+  return `<p class="pub-modh">${l.length} modèle${l.length > 1 ? 's' : ''} à vérifier. Ouvrez l'aperçu, lancez l'analyse IA si besoin, puis publiez ou refusez (le motif est montré à l'auteur).</p><div class="pub-mod">${l.map(t => `<div class="pm-row mod" data-row="${esc(t.id)}">
+    <div class="pm-th" data-pact="preview" data-id="${esc(t.id)}" title="Aperçu">${miniPage(previewOf(t), t.theme)}</div>
+    <div class="pm-i"><b>${esc(t.name)}</b>${t.status === 'published' ? `<span class="pst rep">Signalé ${t.reports} fois</span>` : `<span class="pst pending">Nouveau</span>`}
+      <small>${esc(t.ownerName || '')} · ${esc(t.cat)} · ${ago(t.createdAt)} · ${kb(t.size)}</small>${t.desc ? `<small>${esc(t.desc)}</small>` : ''}<div class="pm-ai" id="ai_${esc(t.id)}"></div></div>
+    <div class="pm-acts"><button type="button" class="ap-btn alt" data-pact="preview" data-id="${esc(t.id)}">Aperçu</button>${window.SWAI?.available() ? `<button type="button" class="ap-btn alt" data-pact="ai" data-id="${esc(t.id)}">Analyse IA</button>` : ''}
+      <button type="button" class="ap-btn alt" data-pact="reject" data-id="${esc(t.id)}">${t.status === 'published' ? 'Retirer' : 'Refuser'}</button><button type="button" class="ap-btn" data-pact="approve" data-id="${esc(t.id)}">${t.status === 'published' ? 'Garder' : 'Publier'}</button></div></div>`).join('')}</div>`;
+}
+const pubFind = id => [...(P.published || []), ...(P.mine || []), ...(P.mod || [])].find(t => t.id === id);
+async function pubData(id){ const raw = await withTimeout(Pub().get(id), 15000); const j = JSON.parse(raw || '{}'); if (!j.html) throw {code:'app/not-found'}; return {raw, j}; }
+async function pubUse(id){
+  const t = pubFind(id); if (!t) return;
+  showBusy('Préparation du modèle…');
+  try { const {j} = await pubData(id); hideBusy();
+    const y = new Date().getFullYear(); j.html = String(j.html).replace(/\{\{date\}\}/g, new Date().toLocaleDateString('fr-FR', {day:'numeric', month:'long', year:'numeric'})).replace(/\{\{annee-1\}\}/g, y - 1).replace(/\{\{annee\}\}/g, y);
+    j.tpl = ''; j.title = t.name; Pub().use(id).catch(() => {}); t.uses = (t.uses || 0) + 1;
+    await newDoc('', {data:JSON.stringify(j), name:t.name}); }
+  catch(e){ hideBusy(); toastA(errMsg(e)); }
+}
+async function pubPreview(id){
+  const t = pubFind(id); if (!t) return;
+  dlg(`<h3>${esc(t.name)}</h3><p class="dlg-p small">${esc(t.ownerName || '')} · ${esc(t.cat)}${t.desc ? ' · ' + esc(t.desc) : ''}</p><div class="pub-prev"><p class="pub-none">Chargement…</p></div>
+    <div class="dlg-acts"><button type="button" class="ap-btn alt" data-dlg="close">Fermer</button>${t.status === 'published' ? `<button type="button" class="ap-btn" id="pvUse">Utiliser ce modèle</button>` : ''}</div>`, async d => {
+    const u = d.querySelector('#pvUse'); if (u) u.onclick = () => { closeDlg(); pubUse(id); };
+    try { const {j} = await pubData(id); const html = window.SWSanitize ? window.SWSanitize(j.html) : ''; d.querySelector('.pub-prev').innerHTML = `<div class="swdoc pub-page" style="${window.SWThemes ? window.SWThemes.css(j.theme) : ''}">${html}</div>`; }
+    catch(e){ d.querySelector('.pub-prev').innerHTML = `<p class="pub-none">${esc(errMsg(e))}</p>`; }
+  }, 'wide xl');
+}
+async function pubAi(id, btn){
+  const box = $a('#ai_' + id); if (!box) return; busy(btn, true, 'Analyse…');
+  try { const {j} = await pubData(id); const txt = (new DOMParser().parseFromString(j.html, 'text/html').body.textContent || '').replace(/\s+/g, ' ').slice(0, 20000);
+    const r = await window.SWAI.moderate(`Titre : ${pubFind(id)?.name}\nDescription : ${pubFind(id)?.desc || ''}\n\n${txt}`);
+    box.innerHTML = `<span class="pst ${r.ok ? 'published' : 'rejected'}">${r.ok ? 'IA : rien à signaler' : 'IA : à vérifier'}</span> <small>${esc(r.summary || '')}${r.reasons?.length ? ' · ' + esc(r.reasons.join(', ')) : ''}</small>`; }
+  catch(e){ box.innerHTML = `<small>${esc(e?.message || errMsg(e))}</small>`; }
+  busy(btn, false);
+}
+function pubReject(id){
+  const t = pubFind(id); if (!t) return;
+  dlg(`<h3>${t.status === 'published' ? 'Retirer' : 'Refuser'} « ${esc(t.name)} »</h3><p class="dlg-p">Le motif est montré à l'auteur dans « Mes publications ».</p>
+    <div class="pub-reasons">${['Contenu inapproprié', 'Données personnelles visibles', 'Modèle vide ou inachevé', 'Contenu protégé (droits d\'auteur)', 'Doublon d\'un modèle existant', 'Publicité ou spam'].map(r => `<button type="button" class="ap-btn alt" data-r="${esc(r)}">${esc(r)}</button>`).join('')}</div>
+    <label class="ap-field"><span>Motif</span><span class="ap-in"><input id="rjIn" maxlength="280" placeholder="Précisez le motif"></span></label><p class="ap-err" id="dlgErr"></p>
+    <div class="dlg-acts"><button type="button" class="ap-btn alt" data-dlg="close">Annuler</button><button type="button" class="ap-btn danger" id="rjOk">${t.status === 'published' ? 'Retirer' : 'Refuser'}</button></div>`, d => {
+    d.querySelectorAll('[data-r]').forEach(b => b.onclick = () => { d.querySelector('#rjIn').value = b.dataset.r; });
+    d.querySelector('#rjOk').onclick = async e => { const v = d.querySelector('#rjIn').value.trim(); if (!v) return d.querySelector('#dlgErr').textContent = 'Indiquez un motif.';
+      busy(e.currentTarget, true); try { await Pub().review(id, 'rejected', v); closeDlg(); pubAfterReview(id, 'rejected', v); toastA('Modèle refusé'); } catch(err){ busy(e.currentTarget, false); d.querySelector('#dlgErr').textContent = errMsg(err); } };
+  });
+}
+function pubAfterReview(id, status, reason){
+  const t = pubFind(id); P.mod = (P.mod || []).filter(x => x.id !== id);
+  if (t){ Object.assign(t, {status, reason, reports:status === 'published' ? 0 : t.reports});
+    P.published = (P.published || []).filter(x => x.id !== id); if (status === 'published') P.published.push({...t}); }
+  renderHome();
+}
+/* Publier le document ouvert dans la Communauté */
+function publishCurrent(){
+  if (!Pub()) return dlg(`<h3>Communauté bientôt disponible</h3><p class="dlg-p">La publication s'ouvrira dès que le cloud SPECTRA Writer sera activé sur le serveur Studio Prism. En attendant, « Enregistrer comme modèle » le garde dans vos modèles personnels.</p><div class="dlg-acts"><button type="button" class="ap-btn" data-dlg="close">Compris</button></div>`);
+  const data = window.SWEditor.get(), meta = window.SWEditor.meta(), j = JSON.parse(data), size = byteLen(data);
+  if (size > PUB_MAX_SIZE) return dlg(`<h3>Document trop lourd</h3><p class="dlg-p">Un modèle public est limité à ${kb(PUB_MAX_SIZE)} (celui-ci fait ${kb(size)}). Réduisez ou retirez quelques images, puis réessayez.</p><div class="dlg-acts"><button type="button" class="ap-btn" data-dlg="close">Compris</button></div>`);
+  const cats = [...new Set(TPL().filter(t => t.id !== 'blank').map(t => t.cat)), 'Autre'];
+  dlg(`<h3>Publier dans la Communauté</h3><p class="dlg-p">Votre document devient un modèle que tous les utilisateurs de SPECTRA Writer pourront utiliser. Il sera vérifié par l'équipe Studio Prism avant sa mise en ligne.</p>
+    <form id="pubF"><label class="ap-field"><span>Nom du modèle</span><span class="ap-in"><input id="pbName" maxlength="80" value="${esc(j.title || '')}" required></span></label>
+    <label class="ap-field"><span>Description courte</span><span class="ap-in"><input id="pbDesc" maxlength="160" placeholder="Par exemple : devis clair avec totaux automatiques"></span></label>
+    <label class="ap-field"><span>Catégorie</span><span class="ap-in"><select id="pbCat">${cats.map(c => `<option>${esc(c)}</option>`).join('')}</select></span></label>
+    <label class="ap-check"><input type="checkbox" id="pbOk"><span>Je confirme avoir le droit de partager ce contenu, et qu'il ne contient ni données personnelles réelles (noms, adresses, numéros), ni contenu choquant.</span></label>
+    <p class="ap-err" id="dlgErr"></p><div class="dlg-acts"><button type="button" class="ap-btn alt" data-dlg="close">Annuler</button><button class="ap-btn" type="submit">Proposer le modèle</button></div></form>`, d => {
+    d.querySelector('#pubF').onsubmit = async e => {
+      e.preventDefault(); const err = d.querySelector('#dlgErr'), name = d.querySelector('#pbName').value.trim(), desc = d.querySelector('#pbDesc').value.trim(), cat = d.querySelector('#pbCat').value;
+      if (name.length < 2) return err.textContent = 'Donnez un nom au modèle.';
+      if (!d.querySelector('#pbOk').checked) return err.textContent = 'Cochez la case de confirmation.';
+      const text = new DOMParser().parseFromString(j.html, 'text/html').body.textContent || '';
+      if ((text.match(/[\p{L}\p{N}]+/gu) || []).length < 15) return err.textContent = 'Ce document est presque vide : ajoutez du contenu avant de le publier.';
+      if (PUB_BAD.test(name + ' ' + desc + ' ' + text)) return err.textContent = 'Ce document contient des mots qui ne sont pas acceptés dans la Communauté.';
+      const b = e.submitter || d.querySelector('[type=submit]'); busy(b, true, 'Envoi…');
+      try {
+        if (P.mine === null) P.mine = await withTimeout(Pub().list('mine'), 12000);
+        if (P.mine.filter(t => t.status === 'pending').length >= PUB_MAX_PENDING) throw {message:`Vous avez déjà ${PUB_MAX_PENDING} modèles en attente de vérification. Patientez un peu avant d'en proposer d'autres.`};
+        const rec = await withTimeout(Pub().create({name, desc, cat, data, size, preview:meta.preview || '', theme:meta.theme || '', pageSize:meta.pageSize || '', ownerName:fullName()}), 20000);
+        P.mine = [rec, ...(P.mine || [])]; if (isAdm() && P.mod) P.mod.push(rec);
+        closeDlg(); dlg(`<h3>Merci, c'est envoyé</h3><p class="dlg-p">« ${esc(name)} » est en attente de vérification par l'équipe Studio Prism. Vous suivrez son statut dans Modèles → Communauté → Mes publications.</p><div class="dlg-acts"><button type="button" class="ap-btn" data-dlg="close">Parfait</button></div>`);
+      } catch(x){ busy(b, false); err.textContent = x?.message && !x.code ? x.message : errMsg(x); }
+    };
+  });
+}
+async function pubReport(id){
+  const t = pubFind(id); if (!t) return;
+  if ((t.reporters || []).includes(me.uid)) return toastA('Vous avez déjà signalé ce modèle. Merci.');
+  confirmDlg('Signaler ce modèle ?', `« ${esc(t.name)} » sera revu par l'équipe Studio Prism. Signalez un contenu choquant, haineux, trompeur, ou qui contient des données personnelles.`, 'Signaler', async () => {
+    await Pub().report(id); t.reporters = [...(t.reporters || []), me.uid]; t.reports = (t.reports || 0) + 1; toastA('Merci, le modèle a été signalé.'); renderHome(); });
+}
+/* événements de l'onglet Modèles */
+$a('#homeBody').addEventListener('click', async e => {
+  const t = e.target;
+  const s = t.closest('[data-src]'); if (s){ H.src = s.dataset.src; if (s.dataset.src === 'mod' || s.dataset.src === 'community'){ P.err = ''; } return renderHome(); }
+  const pc = t.closest('[data-pcat]'); if (pc){ P.cat = pc.dataset.pcat; return renderHome(); }
+  const a = t.closest('[data-pact]');
+  if (a){ e.stopPropagation(); const id = a.dataset.id, k = a.dataset.pact;
+    if (k === 'reload'){ P.published = P.mine = P.mod = null; P.err = ''; return renderHome(); }
+    if (k === 'report') return pubReport(id);
+    if (k === 'preview') return pubPreview(id);
+    if (k === 'ai') return pubAi(id, a);
+    if (k === 'reject') return pubReject(id);
+    if (k === 'approve'){ busy(a, true); try { await Pub().review(id, 'published'); pubAfterReview(id, 'published', ''); toastA('Modèle publié dans la Communauté'); } catch(x){ busy(a, false); toastA(errMsg(x)); } return; }
+    if (k === 'delete'){ const it = pubFind(id); return confirmDlg('Retirer ce modèle ?', `« ${esc(it?.name || '')} » sera supprimé de la Communauté. Les documents déjà créés à partir de lui ne changent pas.`, 'Supprimer', async () => {
+      await Pub().remove(id); ['published', 'mine', 'mod'].forEach(k2 => { if (P[k2]) P[k2] = P[k2].filter(x => x.id !== id); }); renderHome(); toastA('Modèle retiré'); }); }
+  }
+  const pb = t.closest('[data-pub]'); if (pb) return pubUse(pb.dataset.pub);
+});
+$a('#homeBody').addEventListener('input', e => { if (e.target.id === 'pubQ'){ P.q = e.target.value; const g = $a('#pubGrid'); if (g) g.innerHTML = pubGrid((P.published || []).filter(t => (t.reports || 0) < PUB_HIDE_REPORTS || isAdm())); window.SWScaleMinis?.(g); } });
+$a('#homeBody').addEventListener('change', e => { if (e.target.id === 'pubSort'){ P.sort = e.target.value; renderHome(); } });
+$a('#homeBody').addEventListener('keydown', e => { if (e.key === 'Enter' && e.target.matches('[data-pub]')) e.target.click(); });
+/* =====================================================================
+   IA de SPECTRA Writer : Gemini via Firebase AI Logic (projet Studio Prism), sans serveur.
+   À activer une fois dans la console Firebase : AI Logic → Commencer → « Gemini Developer API ».
+   Le SDK modulaire est chargé à la première demande seulement (aucun coût au démarrage).
+   Limite quotidienne par compte (gratuit / licence), en plus des quotas configurables dans la console.
+   ===================================================================== */
+const AI_SDK = '13.0.0';
+const AI_MODELS = ['gemini-3.6-flash', 'gemini-3.5-flash', 'gemini-3-flash', 'gemini-2.5-flash'];
+const AI_DAY = {free:25, pro:300, admin:1000};
+let aiInit = null, aiModelIdx = Math.max(0, AI_MODELS.indexOf(store.get('sw.ai.model') || '')), aiBlocked = '';
+const aiDayKey = () => `sw.ai.${me?.uid || 'x'}.${new Date().toISOString().slice(0, 10)}`;
+const aiUsed = () => +store.get(aiDayKey()) || 0;
+const aiLimit = () => AI_DAY[planKey()] || AI_DAY.free;
+function aiWhy(){
+  if (!FIREBASE_CONFIG) return 'Cette version de démonstration n\'a pas d\'IA : elle fonctionne sur le site en ligne de SPECTRA Writer, avec votre compte Studio Prism. Les commandes simples (« tableau 4 × 3 », « mets en rouge »…) marchent partout.';
+  if (!me) return 'Connectez-vous pour utiliser l\'IA.';
+  if (aiBlocked) return aiBlocked;
+  if (aiUsed() >= aiLimit()) return `Vous avez utilisé vos ${aiLimit()} demandes à l'IA du jour${planKey() === 'free' ? ' (offre gratuite). Une licence SPECTRA Writer en donne bien plus.' : '.'} Le compteur repart demain.`;
+  return '';
+}
+async function aiModel(sys = AI_SYSTEM){
+  if (!aiInit) aiInit = (async () => {
+    const base = `https://www.gstatic.com/firebasejs/${AI_SDK}/`;
+    const [A, I] = await Promise.all([import(base + 'firebase-app.js'), import(base + 'firebase-ai.js')]);
+    const app = A.getApps().find(x => x.name === 'sw-ai') || A.initializeApp(FIREBASE_CONFIG, 'sw-ai');
+    return {I, ai:I.getAI(app, {backend:new I.GoogleAIBackend()})};
+  })().catch(e => { aiInit = null; throw e; });
+  const {I, ai} = await aiInit;
+  return I.getGenerativeModel(ai, {model:AI_MODELS[aiModelIdx], systemInstruction:sys,
+    generationConfig:{responseMimeType:'application/json', temperature:.7, maxOutputTokens:16384}});
+}
+const AI_SYSTEM = `Tu es Spectra, l'assistant intégré à SPECTRA Writer, le traitement de texte de Studio Prism. Tu réponds en français (sauf si on te demande une autre langue pour le contenu).
+Tu reçois une demande de l'utilisateur et le contexte de son document. Tu réponds UNIQUEMENT par un objet JSON valide, sans texte autour, de la forme :
+{"reply":"…","target":"selection|cursor|document|none","html":"…","title":"…","theme":{"id":"…","ac":"#RRGGBB"},"page":{"size":"A4","orient":"p","margins":"normal","numbers":true,"watermark":"","header":"","footer":"","bg":"#ffffff"},"replacements":[{"find":"…","replace":"…"}]}
+Tous les champs sauf "reply" et "target" sont facultatifs : n'inclus que ce qui est utile.
+- "reply" : une phrase courte qui dit ce que tu proposes (ou répond à une question).
+- "target" : "selection" pour remplacer le texte sélectionné (corriger, reformuler, traduire, raccourcir, transformer…) ; "cursor" pour insérer du nouveau contenu à l'endroit du curseur ; "document" pour (re)créer tout le document ; "none" si tu réponds seulement à une question ou ne changes que le thème, la page ou des remplacements.
+- "html" : le contenu à insérer, en HTML simple et propre. Balises permises : p, h1, h2, h3, h4, ul, ol, li, blockquote, pre, code, table, thead, tbody, tr, th, td, b, strong, i, em, u, s, a, br, hr, span, div, cite, small, sup, sub. Pas de <html>, <body>, <style>, <script>, ni d'images, ni de styles inline sauf color/background-color/text-align.
+  Utilise les composants SPECTRA ci-dessous (mêmes classes, même structure) pour des documents beaux et structurés : grand titre, sections numérotées, encadrés, chiffres clés, chronologie, étapes, cartes, tableaux "sw-table t-zebra", etc. Un document complet commence en général par un grand titre ou une couverture, puis des sections avec des titres h2.
+  Quand tu remplaces une sélection, garde sa structure et sa mise en forme, et ne renvoie que le passage remplacé.
+- "theme" : seulement si on te demande un style, une ambiance ou des couleurs, ou pour un nouveau document. "id" parmi la liste fournie, "ac" (couleur principale) facultatif.
+- "page" : seulement si la demande touche la mise en page. size: A4|A5|A3|Letter|Legal, orient: p|l, margins: normal|narrow|wide|none.
+- "title" : le titre du document quand target = "document".
+- "replacements" : pour des remplacements précis dans tout le document.
+Écris un contenu concret, utile et réaliste (pas de lorem ipsum). Mets des éléments à compléter entre crochets, par exemple [Nom du client].
+Refuse poliment (target "none", reply qui explique) toute demande haineuse, violente, sexuelle, illégale ou dangereuse.`;
+function aiPrompt(q, c){
+  const parts = [`Demande : ${q}`, `Document : « ${c.title} » · thème ${c.theme} · page ${c.page} · ${c.words} mots${c.empty ? ' (document presque vide)' : ''}`,
+    `Thèmes disponibles : ${c.themes}`];
+  if (c.wantDoc) parts.push('Cette demande porte sur tout le document : renvoie le document complet corrigé (target "document").');
+  if (c.selection) parts.push(`Sélection (HTML) :\n${c.selection}`);
+  else if (c.around) parts.push(`Autour du curseur :\n${c.around}`);
+  if (c.outline) parts.push(`Plan actuel :\n${c.outline}`);
+  if (c.wantDoc && c.docHtml) parts.push(`Document complet (HTML) :\n${c.docHtml}`);
+  else if (c.docText && !c.empty) parts.push(`Texte du document :\n${c.docText}`);
+  parts.push(`Composants SPECTRA :\n${c.blocks}`);
+  return parts.join('\n\n');
+}
+function aiParse(t){
+  t = String(t || '').trim().replace(/^```(?:json)?\s*/i, '').replace(/```\s*$/, '');
+  try { return JSON.parse(t); } catch(e){}
+  const a = t.indexOf('{'), b = t.lastIndexOf('}'); if (a >= 0 && b > a){ try { return JSON.parse(t.slice(a, b + 1)); } catch(e){} }
+  return {reply:'', target:'cursor', html:t.startsWith('<') ? t : t.split(/\n{2,}/).map(p => `<p>${esc(p)}</p>`).join('')};
+}
+function aiErr(e){
+  const m = String(e?.message || e || ''), code = String(e?.code || '');
+  if (/api-not-enabled|not been used|is disabled|SERVICE_DISABLED|AI Logic|firebasevertexai|generativelanguage.*(disabled|not enabled)|PERMISSION_DENIED|403/i.test(m + code))
+    return {fatal:true, msg:'L\'IA n\'est pas encore activée sur le projet Studio Prism. Un administrateur doit cliquer sur « Commencer » dans la console Firebase (AI Logic) : console.firebase.google.com/project/archivision-studioprism/ailogic. Ensuite, tout fonctionne ici sans rien changer.'};
+  if (/404|not found|is not supported|unknown model/i.test(m)) return {model:true, msg:'Modèle indisponible.'};
+  if (/429|quota|RESOURCE_EXHAUSTED|rate/i.test(m)) return {msg:'L\'IA reçoit trop de demandes en ce moment. Réessayez dans une minute.'};
+  if (/blocked|SAFETY|finishReason/i.test(m)) return {msg:'L\'IA a refusé cette demande. Reformulez-la autrement.'};
+  if (/Failed to fetch|NetworkError|network|import/i.test(m)) return {msg:'Impossible de joindre l\'IA. Vérifiez votre connexion internet.'};
+  return {msg:'Erreur de l\'IA : ' + m.slice(0, 220)};
+}
+async function aiCall(sys, prompt){
+  const why = aiWhy(); if (why) throw new Error(why);
+  for (let tries = 0; tries < AI_MODELS.length; tries++){
+    try {
+      const model = await aiModel(sys);
+      const r = await withTimeout(model.generateContent(prompt), 90000, 'ai/timeout');
+      store.set(aiDayKey(), aiUsed() + 1); store.set('sw.ai.model', AI_MODELS[aiModelIdx]);
+      return aiParse(r.response.text());
+    } catch(e){
+      if (e?.code === 'ai/timeout') throw new Error('L\'IA a mis trop de temps à répondre. Réessayez avec une demande plus courte.');
+      const x = aiErr(e); console.warn('[SPECTRA Writer] IA', e);
+      if (x.model && aiModelIdx < AI_MODELS.length - 1){ aiModelIdx++; continue; }
+      if (x.fatal) aiBlocked = x.msg;
+      throw new Error(x.msg);
+    }
+  }
+  throw new Error('Aucun modèle d\'IA disponible pour le moment.');
+}
+async function aiRun(q, ctx){
+  const out = await aiCall(AI_SYSTEM, aiPrompt(q, ctx));
+  if (!out.reply && !out.html && !out.theme && !out.page && !out.replacements) throw new Error('L\'IA a renvoyé une réponse vide. Reformulez votre demande.');
+  return out;
+}
+const AI_MOD = `Tu es le modérateur de la bibliothèque publique de modèles de SPECTRA Writer (Studio Prism). On te donne le titre, la description et le texte d'un modèle de document proposé par un utilisateur.
+Réponds UNIQUEMENT par un objet JSON : {"ok":true,"summary":"une phrase en français qui résume le modèle et ton avis","reasons":["…"]}.
+"ok" vaut false si le contenu est haineux, violent, sexuel, discriminatoire, illégal, dangereux, trompeur (arnaque, faux document officiel, usurpation), du spam ou de la publicité agressive, s'il contient des données personnelles réelles apparentes (nom complet avec adresse, téléphone, email, IBAN ou numéro d'identité qui semblent réels), ou s'il est vide, absurde ou sans intérêt comme modèle.
+Les zones à compléter entre crochets, les coordonnées d'exemple (06 00 00 00 00, contact@exemple.fr…) et les personnes fictives sont normales. "reasons" liste les problèmes trouvés (vide si aucun).`;
+async function aiModerate(text){ const r = await aiCall(AI_MOD, text); return {ok:r.ok !== false, summary:String(r.summary || r.reply || ''), reasons:Array.isArray(r.reasons) ? r.reasons.map(String).slice(0, 6) : []}; }
+window.SWAI = {available:() => !aiWhy(), why:aiWhy, run:aiRun, moderate:aiModerate, left:() => Math.max(0, aiLimit() - aiUsed()), limit:aiLimit};
 /* Menu du compte (accueil et éditeur) */
 const um = $a('#userMenu');
 const openUM = e => {

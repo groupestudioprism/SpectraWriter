@@ -92,6 +92,7 @@ const DemoAuth = {
     await sleep(200); const info = {accountKind:'individual', subscription:'free', role:'user', companyName:''};
     const keyed = (store.get('sp.demo.keys') || {})[u.uid];
     if (/decouverte/i.test(u.email || '') && !keyed) return {level:'discovery', info, license:null};
+    if (/admin/i.test(u.email || '')) return {level:'admin', info:{...info, role:'admin'}, license:null};   // démo : un email contenant « admin » simule un administrateur Studio Prism
     return {level:'licensed', info, license:{type:keyed ? 'pro' : 'demo', status:'active', expiresAt:null, expired:false}};
   },
   // Démo : toute clé au bon format commençant par SPEC active une licence Pro d'un an.

@@ -76,7 +76,7 @@
     <button type="button" class="ed-home" id="homeBtn" title="Retour à l'accueil" aria-label="Retour à l'accueil"><svg viewBox="0 0 64 64"><use href="#swMark"/></svg></button>
     <div class="ed-doc"><input id="docTitle" class="ed-title" value="Document sans titre" aria-label="Titre du document" spellcheck="false" maxlength="120"><div class="ed-meta"><button type="button" class="ed-menu" id="fileBtn" aria-haspopup="true">Fichier</button><span id="docSub" hidden></span><span id="cloudState" class="cs" hidden></span></div></div>
     <span class="ed-sp"></span>
-    <button type="button" class="ed-spectre" id="spectreBtn" aria-haspopup="dialog"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/></svg><span>Chercher une action</span><kbd id="spectreKbd">Ctrl K</kbd></button>
+    <button type="button" class="ed-spectre" id="spectreBtn" aria-haspopup="dialog"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/></svg><span>Demander ou chercher…</span><kbd id="spectreKbd">Ctrl K</kbd></button>
     <button type="button" class="btn-ghost" id="shareBtn"><svg viewBox="0 0 24 24"><circle cx="18" cy="5" r="2.5"/><circle cx="6" cy="12" r="2.5"/><circle cx="18" cy="19" r="2.5"/><path d="m8.2 10.8 7.6-4.4M8.2 13.2l7.6 4.4"/></svg><span class="hide-s">Partager</span></button>
     <button type="button" class="btn-prism" id="exportBtn" aria-haspopup="true"><svg viewBox="0 0 24 24"><path d="M12 3v12M7 10l5 5 5-5M5 21h14"/></svg><span class="hide-s">Exporter</span></button>
     <button type="button" id="licBadge" hidden title="Offre gratuite">Gratuit</button>
@@ -112,7 +112,7 @@
   <div class="ctx-bar" id="imgBar" hidden></div>
   <div class="ctx-bar" id="tblBar" hidden></div>
   <div class="slash" id="slashMenu" hidden role="listbox"></div>
-  <div class="spectre" id="spectre" hidden role="dialog" aria-modal="true" aria-label="Chercher une action"><div class="sp-box"><div class="sp-in"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/></svg><input id="spQ" placeholder="Tapez une action, un bloc, un thème, un titre du document…" autocomplete="off" spellcheck="false"><kbd>Échap</kbd></div><div class="sp-list" id="spList" role="listbox"></div></div></div>
+  <div class="spectre" id="spectre" hidden role="dialog" aria-modal="true" aria-label="Chercher une action"><div class="sp-box"><div class="sp-in"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/></svg><input id="spQ" placeholder="Que voulez-vous faire ? « tableau 4 × 3 », « mets en bleu », « résume ce texte »…" autocomplete="off" spellcheck="false"><kbd>Échap</kbd></div><div class="sp-list" id="spList" role="listbox"></div></div></div>
   <input type="file" id="edImgFile" accept="image/png,image/jpeg,image/webp,image/gif" hidden>
   <input type="file" id="edInsFile" accept=".docx,.spectra,.json,.md,.markdown,.txt,.html,.htm" hidden>
 </div>

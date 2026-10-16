@@ -205,6 +205,10 @@ const DOC_CSS = `
 .swdoc .sw-total{margin-left:auto;width:min(320px,100%)}
 .swdoc .sw-total td{border:0;padding:4px 10px}
 .swdoc .sw-total tr:last-child td{border-top:2px solid var(--ac);font-weight:800;color:var(--ac);font-size:1.1em;padding-top:8px}
+.swdoc .sw-menu p{display:flex;flex-wrap:wrap;align-items:baseline;gap:0 .6em;margin:.85em 0}
+.swdoc .sw-menu p b{flex:1 1 auto}
+.swdoc .sw-menu p span{font-weight:700;color:var(--ac)}
+.swdoc .sw-menu p small{flex-basis:100%;color:var(--mut);font-size:.88em}
 .swdoc .sw-avatar{width:110px;height:110px;border-radius:50%;background:var(--grad);display:grid;place-items:center;color:#fff;font:var(--hw) 2.4em/1 var(--fh)}
 .swdoc .sw-skill{display:flex;justify-content:space-between;font-size:.9em;margin:.4em 0 .15em}
 `;
