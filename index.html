@@ -2784,7 +2784,8 @@ async function aiAsk(prompt, opts = {}){
   AIS.ctx = aiContext(); if (opts.doc) AIS.ctx.wantDoc = true;
   box.innerHTML = `<div class="ai-view"><p class="ai-q">${escH(prompt)}</p><div class="ai-wait"><i></i><span>Spectra prépare votre demande…</span></div></div>`;
   try {
-    const res = await window.SWAI.run(prompt, AIS.ctx);
+    const res = await window.SWAI.run(prompt, AIS.ctx, sec => { if (ctl !== AIS.ctl) return; const w = $('#spList .ai-wait span'); if (!w) return; let n = sec;
+      const tick = () => { if (ctl !== AIS.ctl || !w.isConnected) return; w.textContent = n > 0 ? `Quota gratuit atteint : nouvel essai automatique dans ${n} s…` : 'Spectra prépare votre demande…'; if (n-- > 0) setTimeout(tick, 1000); }; tick(); });
     if (ctl !== AIS.ctl || $('#spectre').hidden) return;
     AIS.res = res; aiShow(res);
   } catch(e){ if (ctl === AIS.ctl) aiShow({err:e?.message || String(e)}); }
@@ -5529,9 +5530,11 @@ $a('#homeBody').addEventListener('keydown', e => { if (e.key === 'Enter' && e.ta
    Limite quotidienne par compte (gratuit / licence), en plus des quotas configurables dans la console.
    ===================================================================== */
 const AI_SDK = '13.0.0';
-const AI_MODELS = ['gemini-3.6-flash', 'gemini-3.5-flash', 'gemini-3-flash', 'gemini-2.5-flash'];
+/* gemini-3.6-flash d'abord ; gemini-3.8-flash prend le relais quand le premier est saturé (quotas séparés) */
+const AI_MODELS = ['gemini-3.6-flash', 'gemini-3.8-flash', 'gemini-3.5-flash'];
 const AI_DAY = {free:25, pro:300, admin:1000};
-let aiInit = null, aiModelIdx = Math.max(0, AI_MODELS.indexOf(store.get('sw.ai.model') || '')), aiBlocked = '', aiBlockedAt = 0;
+let aiInit = null, aiBlocked = '', aiBlockedAt = 0;
+const aiGone = new Set();   // modèles introuvables pour ce projet
 const aiDayKey = () => `sw.ai.${me?.uid || 'x'}.${new Date().toISOString().slice(0, 10)}`;
 const aiUsed = () => +store.get(aiDayKey()) || 0;
 const aiLimit = () => AI_DAY[planKey()] || AI_DAY.free;
@@ -5542,7 +5545,7 @@ function aiWhy(){
   if (aiUsed() >= aiLimit()) return `Vous avez utilisé vos ${aiLimit()} demandes à l'IA du jour${planKey() === 'free' ? ' (offre gratuite). Une licence SPECTRA Writer en donne bien plus.' : '.'} Le compteur repart demain.`;
   return '';
 }
-async function aiModel(sys = AI_SYSTEM){
+async function aiModel(sys = AI_SYSTEM, name = AI_MODELS[0]){
   if (!aiInit) aiInit = (async () => {
     const base = `https://www.gstatic.com/firebasejs/${AI_SDK}/`;
     const [A, I] = await Promise.all([import(base + 'firebase-app.js'), import(base + 'firebase-ai.js')]);
@@ -5550,7 +5553,7 @@ async function aiModel(sys = AI_SYSTEM){
     return {I, ai:I.getAI(app, {backend:new I.GoogleAIBackend()})};
   })().catch(e => { aiInit = null; throw e; });
   const {I, ai} = await aiInit;
-  return I.getGenerativeModel(ai, {model:AI_MODELS[aiModelIdx], systemInstruction:sys,
+  return I.getGenerativeModel(ai, {model:name, systemInstruction:sys,
     generationConfig:{responseMimeType:'application/json', temperature:.7, maxOutputTokens:16384}});
 }
 const AI_SYSTEM = `Tu es Spectra, l'assistant intégré à SPECTRA Writer, le traitement de texte de Studio Prism. Tu réponds en français (sauf si on te demande une autre langue pour le contenu).
@@ -5596,31 +5599,43 @@ function aiErr(e){
   if (/API key|API_KEY|referer|referrer/i.test(m)) return {msg:'La clé du projet Firebase refuse cette demande (restriction de la clé API). Autorisez l\'API « Firebase AI Logic » pour cette clé dans Google Cloud → Identifiants.'};
   if (/403|PERMISSION_DENIED/i.test(m)) return {msg:'Le projet Firebase a refusé la demande (403) : ' + (m.match(/\[403[^\]]*\]\s*([^(]{0,220})/) || [, m.slice(0, 220)])[1].trim()};
   if (/404|not found|is not supported|unknown model/i.test(m)) return {model:true, msg:'Modèle indisponible.'};
-  if (/429|quota|RESOURCE_EXHAUSTED|rate/i.test(m)) return {msg:'L\'IA reçoit trop de demandes en ce moment. Réessayez dans une minute.'};
+  if (/\b429\b|RESOURCE_EXHAUSTED|exceeded your current quota/i.test(m)){
+    const wait = Math.ceil(parseFloat((m.match(/retry in ([\d.]+)s/i) || [])[1]) || 60), day = /per.?day|daily/i.test(m);
+    return {busy:true, wait:day ? 0 : wait, msg:day ? 'Le quota gratuit du jour de l\'IA (Google) est épuisé pour tout le projet Studio Prism. Il repart demain, ou tout de suite en passant le projet Firebase au forfait Blaze.'
+      : `Le quota gratuit de l'IA (quelques demandes par minute pour tout le projet Studio Prism) est atteint. Réessayez dans ${wait} s.`};
+  }
+  if (/\b(500|503)\b|high demand|overloaded|UNAVAILABLE/i.test(m)) return {busy:true, wait:3, msg:'Les serveurs de Google sont très sollicités en ce moment. Réessayez dans quelques secondes.'};
   if (/blocked|SAFETY|finishReason/i.test(m)) return {msg:'L\'IA a refusé cette demande. Reformulez-la autrement.'};
   if (/Failed to fetch|NetworkError|network|import/i.test(m)) return {msg:'Impossible de joindre l\'IA. Vérifiez votre connexion internet.'};
   return {msg:'Erreur de l\'IA : ' + m.slice(0, 220)};
 }
-async function aiCall(sys, prompt){
+async function aiCall(sys, prompt, onWait){
   const why = aiWhy(); if (why) throw new Error(why);
-  for (let tries = 0; tries < AI_MODELS.length; tries++){
+  const list = AI_MODELS.filter(n => !aiGone.has(n)); let last = null, waited = false;
+  for (let i = 0; i < list.length; i++){
     try {
-      const model = await aiModel(sys);
+      const model = await aiModel(sys, list[i]);
       const r = await withTimeout(model.generateContent(prompt), 90000, 'ai/timeout');
-      store.set(aiDayKey(), aiUsed() + 1); store.set('sw.ai.model', AI_MODELS[aiModelIdx]);
+      store.set(aiDayKey(), aiUsed() + 1);
       return aiParse(r.response.text());
     } catch(e){
       if (e?.code === 'ai/timeout') throw new Error('L\'IA a mis trop de temps à répondre. Réessayez avec une demande plus courte.');
-      const x = aiErr(e); console.warn('[SPECTRA Writer] IA', e);
-      if (x.model && aiModelIdx < AI_MODELS.length - 1){ aiModelIdx++; continue; }
+      const x = aiErr(e); console.warn('[SPECTRA Writer] IA', list[i], e); last = x;
+      if (x.model){ aiGone.add(list[i]); continue; }
+      if (x.busy){
+        if (i < list.length - 1) continue;                       // un autre modèle, avec son propre quota
+        if (!waited && x.wait && x.wait <= 30){                  // dernier recours : on patiente une fois, puis on recommence
+          waited = true; onWait?.(x.wait); await sleep(x.wait * 1000 + 300); i = -1; continue;
+        }
+      }
       if (x.fatal){ aiBlocked = x.msg; aiBlockedAt = Date.now(); }
       throw new Error(x.msg);
     }
   }
-  throw new Error('Aucun modèle d\'IA disponible pour le moment.');
+  throw new Error(last?.msg || 'Aucun modèle d\'IA disponible pour le moment.');
 }
-async function aiRun(q, ctx){
-  const out = await aiCall(AI_SYSTEM, aiPrompt(q, ctx));
+async function aiRun(q, ctx, onWait){
+  const out = await aiCall(AI_SYSTEM, aiPrompt(q, ctx), onWait);
   if (!out.reply && !out.html && !out.theme && !out.page && !out.replacements) throw new Error('L\'IA a renvoyé une réponse vide. Reformulez votre demande.');
   return out;
 }

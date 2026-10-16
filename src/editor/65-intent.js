@@ -247,7 +247,8 @@ async function aiAsk(prompt, opts = {}){
   AIS.ctx = aiContext(); if (opts.doc) AIS.ctx.wantDoc = true;
   box.innerHTML = `<div class="ai-view"><p class="ai-q">${escH(prompt)}</p><div class="ai-wait"><i></i><span>Spectra prépare votre demande…</span></div></div>`;
   try {
-    const res = await window.SWAI.run(prompt, AIS.ctx);
+    const res = await window.SWAI.run(prompt, AIS.ctx, sec => { if (ctl !== AIS.ctl) return; const w = $('#spList .ai-wait span'); if (!w) return; let n = sec;
+      const tick = () => { if (ctl !== AIS.ctl || !w.isConnected) return; w.textContent = n > 0 ? `Quota gratuit atteint : nouvel essai automatique dans ${n} s…` : 'Spectra prépare votre demande…'; if (n-- > 0) setTimeout(tick, 1000); }; tick(); });
     if (ctl !== AIS.ctl || $('#spectre').hidden) return;
     AIS.res = res; aiShow(res);
   } catch(e){ if (ctl === AIS.ctl) aiShow({err:e?.message || String(e)}); }
