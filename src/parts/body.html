@@ -1,0 +1,135 @@
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <linearGradient id="swg1" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#8B3CF7"/><stop offset=".28" stop-color="#3D63FF"/><stop offset=".46" stop-color="#14C2EC"/><stop offset=".6" stop-color="#78DD6A"/><stop offset=".72" stop-color="#FFD43F"/><stop offset=".85" stop-color="#FF8A3D"/><stop offset="1" stop-color="#FF3F86"/></linearGradient>
+    <radialGradient id="swg2" cx=".22" cy=".18" r=".75"><stop offset="0" stop-color="#fff" stop-opacity=".55"/><stop offset=".55" stop-color="#fff" stop-opacity=".06"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></radialGradient>
+    <linearGradient id="swg3" x1="1" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#FF3F86" stop-opacity=".0"/><stop offset=".6" stop-color="#7B2FF7" stop-opacity=".22"/><stop offset="1" stop-color="#2D1A6E" stop-opacity=".35"/></linearGradient>
+    <symbol id="swMark" viewBox="0 0 64 64"><rect x="1" y="1" width="62" height="62" rx="12" fill="url(#swg1)"/><rect x="1" y="1" width="62" height="62" rx="12" fill="url(#swg3)"/><rect x="1" y="1" width="62" height="62" rx="12" fill="url(#swg2)"/><path d="M12.5 17h8.2l6 19.8L32 22.5h0l5.3 14.3 1.7-5.4" fill="none" stroke="#fff" stroke-width="5.6" stroke-linejoin="round" stroke-linecap="round"/><path d="M34.5 38.5l5.2 6.8L53 21" fill="none" stroke="#fff" stroke-width="5.6" stroke-linejoin="round" stroke-linecap="round"/></symbol>
+  </defs>
+</svg>
+<div id="splash" role="status" aria-live="polite">
+  <div class="sp-aurora" aria-hidden="true"><i></i><i></i><i></i></div>
+  <div class="sp-center">
+    <div class="sp-mark"><svg viewBox="0 0 64 64" aria-hidden="true"><use href="#swMark"/></svg><i class="sp-shine"></i></div>
+    <div class="sp-word"><b>SPECTRA</b><span>Writer</span></div>
+    <p class="sp-tag">Écrire · mettre en page · publier</p>
+  </div>
+  <div class="sp-bar" aria-hidden="true"><i></i></div>
+  <p class="sp-msg" id="spMsg">Préparation de votre espace d'écriture…</p>
+</div>
+
+<div id="auth" hidden>
+  <aside class="ap-side">
+    <div class="ap-aurora" aria-hidden="true"><i></i><i></i><i></i><i></i></div>
+    <div class="ap-brand"><svg viewBox="0 0 64 64" aria-hidden="true"><use href="#swMark"/></svg><div><b>SPECTRA</b><span>Writer</span></div></div>
+    <div class="ap-pitch"><p class="ap-eyebrow">Gamme SPECTRA · Studio Prism</p><h1>Écrivez comme dans Word. Mettez en page comme dans Canva.</h1><p>Modèles prêts, thèmes en un clic, blocs à glisser, pages et sommaire automatiques. Vos documents vous suivent sur tous vos appareils.</p></div>
+    <ul class="ap-apps">
+      <li><span class="ap-ic w"><svg viewBox="0 0 64 64"><use href="#swMark"/></svg></span><b>SPECTRA Writer</b><span>Traitement de texte</span><em>Vous êtes ici</em></li>
+      <li><span class="ap-ic c"></span><b>SPECTRA Calc</b><span>Tableur</span><em>Bientôt</em></li>
+      <li><span class="ap-ic s"></span><b>SPECTRA Slide</b><span>Présentations</span><em>Bientôt</em></li>
+    </ul>
+    <p class="ap-foot">Un seul compte Studio Prism pour SPECTRA, ARCHIPLAN, Archi Vision et toutes les apps du studio.</p>
+  </aside>
+  <main class="ap-main"><div class="ap-card" id="apCard" aria-live="polite"></div></main>
+</div>
+<script>setTimeout(function(){if(!window.__swReady){var m=document.getElementById('spMsg');if(m){m.textContent="L'éditeur n'a pas pu se charger. Vérifiez la connexion, puis rechargez la page.";m.classList.add('err');}}},15000);</script>
+
+<section id="home" hidden aria-label="Accueil SPECTRA Writer">
+  <aside class="h-nav">
+    <div class="h-brand"><svg viewBox="0 0 64 64" aria-hidden="true"><use href="#swMark"/></svg><div><b>SPECTRA</b><span>Writer</span></div></div>
+    <button type="button" class="h-new" id="homeNew"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>Nouveau</button>
+    <nav id="homeNav" aria-label="Navigation">
+      <button type="button" data-htab="home"><svg viewBox="0 0 24 24"><path d="M3 11l9-7 9 7M5 10v10h5v-6h4v6h5V10"/></svg><span>Accueil</span></button>
+      <button type="button" data-htab="templates"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="8" height="10" rx="2"/><rect x="13" y="3" width="8" height="6" rx="2"/><rect x="13" y="11" width="8" height="10" rx="2"/><rect x="3" y="15" width="8" height="6" rx="2"/></svg><span>Modèles</span></button>
+      <button type="button" data-htab="mine"><svg viewBox="0 0 24 24"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg><span>Mes documents</span></button>
+      <button type="button" data-htab="shared"><svg viewBox="0 0 24 24"><circle cx="9" cy="8" r="3.2"/><path d="M3 20c0-3.3 2.7-6 6-6s6 2.7 6 6M16 4.5a3.2 3.2 0 0 1 0 6.4M18 14c2 .6 3.5 2.8 3.5 6"/></svg><span>Partagés avec moi</span></button>
+    </nav>
+    <div class="h-suite"><p>Gamme SPECTRA</p><a class="on"><svg viewBox="0 0 64 64"><use href="#swMark"/></svg>Writer</a><a class="soon"><i class="c"></i>Calc <small>bientôt</small></a><a class="soon"><i class="s"></i>Slide <small>bientôt</small></a></div>
+    <aside class="h-quota" id="homeQuota" aria-live="polite"></aside>
+  </aside>
+  <div class="h-main" id="homeMain">
+    <header class="h-top">
+      <button type="button" class="ib h-burger" id="homeNavBtn" aria-label="Menu"><svg viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button>
+      <div class="h-brand m"><svg viewBox="0 0 64 64" aria-hidden="true"><use href="#swMark"/></svg><div><b>SPECTRA</b><span>Writer</span></div></div>
+      <span class="h-sp"></span>
+      <button type="button" id="homeLic" class="h-lic" hidden>Gratuit</button>
+      <button type="button" class="avatar" id="homeUser" aria-haspopup="true" aria-label="Mon compte"></button>
+    </header>
+    <section class="h-hero" id="homeHero">
+      <div class="h-hello"><p class="h-eyebrow">Votre espace d'écriture</p><h1 id="homeHello">Bonjour</h1><p>Que voulez-vous créer aujourd'hui ? Tout s'enregistre automatiquement.</p></div>
+      <div class="h-quick">
+        <button type="button" class="hq primary" data-tpl="blank"><svg viewBox="0 0 24 24"><path d="M6 3h9l4 4v14H6z"/><path d="M12 10v6M9 13h6"/></svg><span><b>Document vierge</b><small>Partir d'une page blanche</small></span></button>
+        <button type="button" class="hq" data-htab="templates"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="8" height="10" rx="2"/><rect x="13" y="3" width="8" height="6" rx="2"/><rect x="13" y="11" width="8" height="10" rx="2"/><rect x="3" y="15" width="8" height="6" rx="2"/></svg><span><b>Depuis un modèle</b><small>CV, rapport, facture…</small></span></button>
+        <button type="button" class="hq" data-hact="import"><svg viewBox="0 0 24 24"><path d="M12 15V3M7 8l5-5 5 5M5 21h14"/></svg><span><b>Importer</b><small>Word, Markdown, texte</small></span></button>
+      </div>
+    </section>
+    <div class="h-title" id="homeTitle" hidden></div>
+    <div class="h-offer" id="homeOffer" hidden></div>
+    <main class="h-body" id="homeBody"></main>
+    <div class="h-dropzone" aria-hidden="true"><div><svg viewBox="0 0 24 24"><path d="M12 15V3M7 8l5-5 5 5M5 21h14"/></svg><b>Déposez le fichier pour l'importer</b><span>Word (.docx), Markdown, texte ou sauvegarde SPECTRA</span></div></div>
+  </div>
+  <div class="h-busy" id="homeBusy" hidden><div class="ap-spin" aria-hidden="true"></div><span></span></div>
+  <input type="file" id="homeFile" accept=".docx,.spectra,.json,.md,.markdown,.txt,.html,.htm" hidden>
+</section>
+
+<div id="app" hidden>
+  <header class="ed-top">
+    <button type="button" class="ib" id="homeBtn" title="Accueil" aria-label="Accueil"><svg viewBox="0 0 64 64"><use href="#swMark"/></svg></button>
+    <div class="ed-doc"><input id="docTitle" class="ed-title" value="Document sans titre" aria-label="Titre du document" spellcheck="false" maxlength="120"><div class="ed-meta"><button type="button" class="ed-menu" id="fileBtn" aria-haspopup="true">Fichier</button><span id="docSub" hidden></span><span id="cloudState" class="cs" hidden></span></div></div>
+    <span class="ed-sp"></span>
+    <button type="button" class="ib hide-s" id="focusBtn" title="Mode concentration" aria-label="Mode concentration"><svg viewBox="0 0 24 24"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg></button>
+    <button type="button" class="btn-ghost" id="shareBtn"><svg viewBox="0 0 24 24"><circle cx="18" cy="5" r="2.5"/><circle cx="6" cy="12" r="2.5"/><circle cx="18" cy="19" r="2.5"/><path d="m8.2 10.8 7.6-4.4M8.2 13.2l7.6 4.4"/></svg><span class="hide-s">Partager</span></button>
+    <button type="button" class="btn-prism" id="exportBtn" aria-haspopup="true"><svg viewBox="0 0 24 24"><path d="M12 3v12M7 10l5 5 5-5M5 21h14"/></svg><span class="hide-s">Exporter</span></button>
+    <button type="button" id="licBadge" hidden title="Offre gratuite">Gratuit</button>
+    <button type="button" class="avatar" id="userBtn" hidden aria-haspopup="true" aria-label="Mon compte"></button>
+  </header>
+  <nav class="ed-bar" id="edBar" role="toolbar" aria-label="Mise en forme"></nav>
+  <div class="ed-body">
+    <nav class="ed-rail" id="edRail" aria-label="Panneaux"></nav>
+    <aside class="ed-panel" id="edPanel" hidden><header><b id="edPanelTitle"></b><button type="button" class="ib" id="edPanelClose" aria-label="Fermer le panneau"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></svg></button></header><div class="ed-pbody" id="edPanelBody"></div></aside>
+    <main class="ed-scroll" id="edScroll">
+      <div class="ed-stage" id="edStage">
+        <div class="ed-canvas" id="edCanvas">
+          <div class="page-deco" id="pageDeco" aria-hidden="true"></div>
+          <div class="sheet swdoc" id="sheet" contenteditable="true" spellcheck="true" lang="fr" role="textbox" aria-multiline="true" aria-label="Document"></div>
+          <div class="ed-over" id="edOver">
+            <div class="blk-handle" id="blkHandle" hidden><button type="button" class="bh-add" title="Insérer un bloc dessous" aria-label="Insérer un bloc"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg></button><button type="button" class="bh-grip" draggable="true" title="Glisser pour déplacer · cliquer pour plus d'options" aria-label="Options du bloc"><svg viewBox="0 0 24 24" fill="currentColor"><circle cx="9" cy="6" r="1.6"/><circle cx="15" cy="6" r="1.6"/><circle cx="9" cy="12" r="1.6"/><circle cx="15" cy="12" r="1.6"/><circle cx="9" cy="18" r="1.6"/><circle cx="15" cy="18" r="1.6"/></svg></button></div>
+            <div class="drop-line" id="dropLine" hidden></div>
+            <div class="img-handle" id="imgHandle" hidden title="Redimensionner"></div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+  <footer class="ed-status"><div id="edStats"></div><span class="ed-sp"></span>
+    <div class="zoom"><button type="button" id="zoomOut" aria-label="Dézoomer">−</button><input type="range" id="zoomRange" min="30" max="200" value="100" aria-label="Zoom"><button type="button" id="zoomIn" aria-label="Zoomer">+</button><button type="button" id="zoomVal" title="Ajuster à la largeur">100 %</button></div></footer>
+  <div class="find-bar" id="findBar" hidden role="search">
+    <div class="fr-row"><span class="fr-ic"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/></svg></span><input id="frQ" placeholder="Rechercher" aria-label="Rechercher"><small id="frN"></small>
+      <button type="button" data-fr="prev" aria-label="Précédent"><svg viewBox="0 0 24 24"><path d="m6 14 6-6 6 6"/></svg></button><button type="button" data-fr="next" aria-label="Suivant"><svg viewBox="0 0 24 24"><path d="m6 10 6 6 6-6"/></svg></button>
+      <button type="button" data-fr="more" class="fr-more" title="Remplacer">⇄</button><button type="button" data-fr="close" aria-label="Fermer"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></svg></button></div>
+    <div class="fr-row fr-rep"><span class="fr-ic">↳</span><input id="frR" placeholder="Remplacer par" aria-label="Remplacer par"><button type="button" data-fr="rep" class="fr-txt">Remplacer</button><button type="button" data-fr="all" class="fr-txt">Tout</button></div>
+    <label class="fr-case"><input type="checkbox" id="frCase"> Respecter la casse</label>
+  </div>
+  <div class="float-bar" id="floatBar" hidden></div>
+  <div class="ctx-bar" id="imgBar" hidden></div>
+  <div class="ctx-bar" id="tblBar" hidden></div>
+  <div class="slash" id="slashMenu" hidden role="listbox"></div>
+  <input type="file" id="edImgFile" accept="image/png,image/jpeg,image/webp,image/gif" hidden>
+  <input type="file" id="edInsFile" accept=".docx,.spectra,.json,.md,.markdown,.txt,.html,.htm" hidden>
+</div>
+
+<div class="pop" id="edPop" hidden></div>
+<div class="menu" id="userMenu" hidden>
+  <div class="who"><span class="avatar big" id="umAv"></span><div><b id="umName"></b><span id="umMail"></span></div></div><span class="lic" id="umLic"></span><hr>
+  <button data-um="home"><b>Accueil</b><span>Mes documents, modèles et partages</span></button>
+  <button data-um="licence"><b>Ma licence SPECTRA Writer</b><span>Droits liés à votre compte Studio Prism</span></button>
+  <button data-um="fiche"><b>Fiche client</b><span>Coordonnées partagées entre les apps Studio Prism</span></button>
+  <button data-um="security"><b>Code PIN et sécurité</b><span>Code PIN du compte, empreinte ou visage (facultatif)</span></button>
+  <button data-um="lock" id="umLock"><b>Verrouiller</b><span>Le code PIN sera demandé pour revenir</span></button>
+  <button data-um="theme"><b>Thème clair / sombre</b><span>Apparence de l'interface sur cet appareil</span></button>
+  <hr><button data-um="logout"><b>Se déconnecter</b><span>Sur cet appareil</span></button>
+  <button data-um="delete" class="danger"><b>Supprimer mon compte</b><span>Sur le site Studio Prism, avec mot de passe et code PIN</span></button>
+</div>
+<div class="menu" id="homeMenu" hidden></div>
+<div id="apDlg" hidden role="dialog" aria-modal="true"><div class="dlg-card"></div></div>
+<div id="toast" hidden role="status"></div>
