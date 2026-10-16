@@ -1,22 +1,19 @@
 // =====================================================================================================================
-// SPECTRA Writer · MORCEAU de règles Firestore — NE PAS coller seul dans la console (erreurs « Unexpected 'match' »).
-// Pour la console : copier le fichier COMPLET firebase/firestore.rules (règles du site + ce bloc déjà inséré).
-// Sinon, à AJOUTER au fichier de règles commun du site Studio Prism
-// (dépôt Studio-Prism, firebase/firestore.rules), juste avant le bloc « ARCHITRAFIC », puis publier les règles.
+// SPECTRA Writer - Firestore rules BLOCK. Do NOT paste this file alone in the Firebase console (it would fail with
+// "Unexpected 'match'"). For the console, copy the COMPLETE file firebase/firestore.rules (site rules + this block).
+// Otherwise, insert this block inside "match /databases/{database}/documents { ... }" of the shared Studio Prism rules,
+// just before the final "match /{document=**}" block, then publish.
 //
-// Même modèle que le cloud ARCHIPLAN (copie adaptée, préfixe sw au lieu de ap) :
-//   swDocs/{id} (+ content/main)  fiche du document (nom, taille, aperçu texte, thème) + contenu JSON
-//   swFolders/{id}                dossiers (pids : documents du dossier)
-//   swShares/{cible}__{email}     partages par email (cible = id du document, ou F_ + id du dossier)
-//   swGrants/{cible}__{uid}       accès par lien
-//   swUsage/{uid}                 octets utilisés (quota imposé côté serveur)
-//   swLibrary/{uid}               modèles personnels
-// Quota : 10 Mo sans licence, 50 Mo avec licences/{uid}_spectrawriter active, 1 Go administrateur.
-// Les fonctions isSignedIn(), isActiveUser(), isAdmin(), isActiveAdminProfile(), isString(), isEmail() existent déjà dans le fichier commun.
-// Tant que ces règles ne sont pas publiées, SPECTRA Writer enregistre les documents sur l'appareil (rien n'est perdu).
-//
-// À créer aussi dans l'administration du site : le produit « spectrawriter » (products/spectrawriter, nom « SPECTRA Writer »),
-// pour pouvoir attribuer des licences et des clés.
+// Same model as the ARCHIPLAN cloud (sw prefix instead of ap):
+//   swDocs/{id} (+ content/main)  document record (name, size, text preview, theme) + JSON content
+//   swFolders/{id}                folders (pids: documents in the folder)
+//   swShares/{target}__{email}    email shares (target = document id, or F_ + folder id)
+//   swGrants/{target}__{uid}      link access
+//   swUsage/{uid}                 bytes used (quota enforced server-side)
+//   swLibrary/{uid}               personal templates
+// Quota: 10 MB without licence, 50 MB with an active licenses/{uid}_spectrawriter, 1 GB for administrators.
+// Uses isSignedIn(), isActiveUser(), isAdmin(), isActiveAdminProfile(), isString(), isEmail() from the shared rules file.
+// Also create the product "spectrawriter" (name "SPECTRA Writer") in the site administration to issue licences and keys.
 // =====================================================================================================================
 
     function swEmail() {
@@ -39,7 +36,7 @@
       return /databases/$(database)/documents/swUsage/$(uid);
     }
 
-    // Quota du compte uid (le propriétaire du stockage, pas forcément l'auteur de l'écriture)
+    // Storage quota of account uid (the storage owner, not necessarily the writer)
     function swQuota(uid) {
       let u = get(/databases/$(database)/documents/users/$(uid)).data;
       let lp = /databases/$(database)/documents/licenses/$(uid + '_spectrawriter');
@@ -49,7 +46,7 @@
         : 10000000;
     }
 
-    // Le compteur du propriétaire a bien été mis à jour dans ce lot, de la variation de taille du projet pid
+    // The owner's usage counter was updated in this same batch by the size change of document pid
     function swUsageOk(owner, pid, delta) {
       let before = exists(swU(owner)) ? get(swU(owner)).data.bytes : 0;
       return delta == 0
@@ -67,14 +64,14 @@
       return t.get('linkMode', 'off') in ['view', 'edit'] && t.get('linkKey', '') != '' && exists(gp) && get(gp).data.key == t.linkKey;
     }
 
-    // Droit d'un invité sur un dossier : 'edit', 'view' ou ''
+    // Guest role on a folder: 'edit', 'view' or ''
     function swFolderRole(fid) {
       let f = get(swF(fid)).data;
       let r = swShareRole('F_' + fid);
       return !swVerified() ? '' : r != '' ? r : swGrantOk('F_' + fid, f) ? f.linkMode : '';
     }
 
-    // Droit d'un invité sur un projet : directement, ou par le dossier (du même propriétaire) qui le contient
+    // Guest role on a document: directly, or through the folder (same owner) that contains it
     function swGuestRole(pid, p) {
       let r = swShareRole(pid);
       let viaLink = swGrantOk(pid, p) ? p.linkMode : '';
@@ -115,14 +112,14 @@
         && isString(d.get('linkToken', ''), 0, 64)
         && d.get('linkPw', false) is bool
         && d.updatedAt == request.time
-        // un projet rangé dans un dossier : dossier du même propriétaire (un ancien dossier disparu ne donne aucun accès)
+        // a document stored in a folder: the folder belongs to the same owner (a deleted folder grants no access)
         && (d.folderId == '' || !existsAfter(swF(d.folderId)) || getAfter(swF(d.folderId)).data.ownerUid == d.ownerUid);
     }
 
     match /swDocs/{pid} {
       allow get: if swCanRead(pid, resource.data);
       allow list: if isSignedIn() && (resource.data.ownerUid == request.auth.uid || isAdmin());
-      // création : par le propriétaire, ou par un invité « Modification » d'un dossier partagé (le projet appartient alors au propriétaire du dossier)
+      // create: by the owner, or by an 'edit' guest of a shared folder (the document then belongs to the folder owner)
       allow create: if isSignedIn() && isActiveUser()
                     && swValidProject(request.resource.data)
                     && request.resource.data.createdAt == request.time
@@ -137,7 +134,7 @@
                         || (swCanEdit(pid, resource.data)
                             && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['size', 'preview', 'theme', 'words', 'pageSize', 'updatedAt', 'updatedBy', 'updatedByName'])))
                     && swUsageOk(resource.data.ownerUid, pid, request.resource.data.get('size', 0) - resource.data.get('size', 0));
-      // suppression : le propriétaire (l'application décrémente le compteur dans le même lot ; ne pas le faire ne pénalise que lui)
+      // delete: the owner (the app decrements the usage counter in the same batch)
       allow delete: if isSignedIn() && (resource.data.ownerUid == request.auth.uid || isAdmin());
 
       match /content/{cid} {
@@ -147,7 +144,7 @@
                               && request.resource.data.keys().hasOnly(['data', 'updatedAt'])
                               && request.resource.data.data is string
                               && request.resource.data.data.size() <= 1000000
-                              // la taille déclarée sur la fiche (celle qui est comptée) correspond au contenu
+                              // the size declared on the document record (the counted one) matches the content
                               && request.resource.data.data.size() <= getAfter(swP(pid)).data.get('size', 0) + 2048
                               && request.resource.data.updatedAt == request.time;
         allow delete: if isSignedIn() && (!exists(swP(pid)) || get(swP(pid)).data.ownerUid == request.auth.uid || isAdmin());
@@ -156,7 +153,7 @@
 
     match /swUsage/{uid} {
       allow get: if isSignedIn() && request.auth.uid == uid;
-      // écrit avec la fiche d'un projet (lastPid) : cohérence vérifiée des deux côtés ; jamais au-delà du quota (une baisse reste permise)
+      // written together with a document record (lastPid): consistency checked both ways; never above quota (a decrease is always allowed)
       allow create, update: if isSignedIn() && isActiveUser()
                             && request.resource.data.keys().hasOnly(['bytes', 'lastPid', 'updatedAt'])
                             && request.resource.data.bytes is int && request.resource.data.bytes >= 0
@@ -166,9 +163,9 @@
                                 || request.resource.data.bytes <= (resource == null ? 0 : resource.data.bytes)
                                 || request.resource.data.bytes <= swQuota(uid))
                             && (
-                              // première création par le titulaire (somme de ses projets existants)
+                              // first creation by the account owner (sum of existing documents)
                               (resource == null && request.auth.uid == uid && request.resource.data.lastPid == '')
-                              // sinon : la variation correspond exactement à la taille du projet lastPid écrit dans le même lot
+                              // otherwise: the change equals exactly the size change of document lastPid written in the same batch
                               || (request.resource.data.lastPid != ''
                                   && (existsAfter(swP(request.resource.data.lastPid))
                                       ? (getAfter(swP(request.resource.data.lastPid)).data.ownerUid == uid
@@ -181,7 +178,7 @@
                                          && request.resource.data.bytes - (resource == null ? 0 : resource.data.bytes)
                                             == -get(swP(request.resource.data.lastPid)).data.get('size', 0))))
                             );
-      // supprimé seulement vide, ou avec le profil du compte (suppression du compte, même lot)
+      // deleted only when empty, or together with the account profile (account deletion, same batch)
       allow delete: if (isSignedIn() && request.auth.uid == uid
                     && (resource.data.bytes == 0 || !existsAfter(/databases/$(database)/documents/users/$(uid))))
                     || isAdmin();
@@ -210,7 +207,7 @@
       allow create: if isSignedIn() && isActiveUser() && swValidFolder(request.resource.data)
                     && request.resource.data.ownerUid == request.auth.uid
                     && request.resource.data.createdAt == request.time;
-      // propriétaire : tout ; invité « Modification » : seulement la liste des projets (création d'un projet dans le dossier)
+      // owner: everything; 'edit' guest: only the document list (creating a document in the folder)
       allow update: if isSignedIn() && isActiveUser() && swValidFolder(request.resource.data)
                     && request.resource.data.ownerUid == resource.data.ownerUid
                     && request.resource.data.createdAt == resource.data.createdAt
