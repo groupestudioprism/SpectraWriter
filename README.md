@@ -37,14 +37,15 @@ Même compte que le site Studio Prism, ARCHIPLAN et Archi Vision.
 | `src/editor/` | Éditeur : assainissement, thèmes, modèles, blocs, cœur (pagination, mise en forme, historique), panneaux, import/export, démarrage |
 | `src/js/` | Compte Studio Prism et code PIN (`auth.js`, repris d'ARCHIPLAN), cloud et accueil (`cloud.js`), menu du compte (`auth-end.js`) |
 | `tools/build.py` | `python3 tools/build.py` → `index.html` (en ligne) et `dist/spectrawriter-demo.html` |
-| `firebase/firestore-spectrawriter.rules` | Bloc de règles Firestore à ajouter aux règles communes du site |
+| `firebase/firestore.rules` | Règles Firestore complètes (site + SPECTRA Writer), à coller telles quelles dans la console |
+| `firebase/firestore-spectrawriter.rules` | Le seul bloc SPECTRA Writer (pour mémoire) |
 | `assets/` | Logos (tirés de la planche « Gamme SPECTRA »), favicon |
 
 On modifie `src/`, on lance `python3 tools/build.py`, on enregistre sur `main` : GitHub Pages publie en une minute.
 
 ## À faire côté Firebase (une fois)
 
-1. Ajouter le bloc `firebase/firestore-spectrawriter.rules` au fichier de règles du dépôt **Studio-Prism**, puis publier les règles.
+1. Copier **tout** le fichier `firebase/firestore.rules` (règles du site Studio Prism + bloc SPECTRA Writer déjà inséré) dans Firebase → Firestore → Règles, en remplaçant l'existant, puis Publier. Mettre aussi ce fichier dans le dépôt **Studio-Prism** (référence des règles). `firestore-spectrawriter.rules` n'est que le morceau ajouté : il ne se colle pas seul.
 2. Créer le produit `spectrawriter` (nom « SPECTRA Writer ») dans l'administration du site, pour attribuer licences et clés.
 
 Tant que les règles ne sont pas publiées, l'app fonctionne quand même : les documents sont enregistrés **sur l'appareil**, rattachés au compte, et un bandeau le signale.

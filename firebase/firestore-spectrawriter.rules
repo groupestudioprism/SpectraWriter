@@ -1,5 +1,7 @@
 // =====================================================================================================================
-// SPECTRA Writer · règles Firestore à AJOUTER au fichier de règles commun du site Studio Prism
+// SPECTRA Writer · MORCEAU de règles Firestore — NE PAS coller seul dans la console (erreurs « Unexpected 'match' »).
+// Pour la console : copier le fichier COMPLET firebase/firestore.rules (règles du site + ce bloc déjà inséré).
+// Sinon, à AJOUTER au fichier de règles commun du site Studio Prism
 // (dépôt Studio-Prism, firebase/firestore.rules), juste avant le bloc « ARCHITRAFIC », puis publier les règles.
 //
 // Même modèle que le cloud ARCHIPLAN (copie adaptée, préfixe sw au lieu de ap) :
