@@ -3555,6 +3555,7 @@ window.SPLicense = {prompt(reason){ if (me) show('licence', {reason}); },
     dlg(`<h3>Usage de cet export</h3><p class="dlg-p">${esc(u.label)}</p><p class="dlg-p">Un usage personnel reste libre : vous pouvez exporter vos fichiers. Les vendre, ou les remettre à un client dans le cadre d'une prestation, n'est pas couvert par votre licence actuelle.</p><div class="dlg-acts"><button type="button" class="ap-btn" data-dlg="close">Compris</button></div>`); }};
 
 function enterApp(msg){
+  hideSplashSoon();   // ouverture directe (session déjà ouverte, sans écran de compte) : l'intro doit aussi se retirer
   root().hidden = true; const app = $a('#app'); if (app) app.inert = false; const hh = $a('#home'); if (hh) hh.inert = false; ctx.onboarding = false;
   const ub = $a('#userBtn'); if (ub){ ub.hidden = false; ub.textContent = initials(); ub.title = `${me.firstName || ''} ${me.lastName || ''}`.trim() || me.email; }
   if (msg) toastA(msg);
