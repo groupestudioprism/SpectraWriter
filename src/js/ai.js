@@ -7,14 +7,14 @@
 const AI_SDK = '13.0.0';
 const AI_MODELS = ['gemini-3.6-flash', 'gemini-3.5-flash', 'gemini-3-flash', 'gemini-2.5-flash'];
 const AI_DAY = {free:25, pro:300, admin:1000};
-let aiInit = null, aiModelIdx = Math.max(0, AI_MODELS.indexOf(store.get('sw.ai.model') || '')), aiBlocked = '';
+let aiInit = null, aiModelIdx = Math.max(0, AI_MODELS.indexOf(store.get('sw.ai.model') || '')), aiBlocked = '', aiBlockedAt = 0;
 const aiDayKey = () => `sw.ai.${me?.uid || 'x'}.${new Date().toISOString().slice(0, 10)}`;
 const aiUsed = () => +store.get(aiDayKey()) || 0;
 const aiLimit = () => AI_DAY[planKey()] || AI_DAY.free;
 function aiWhy(){
   if (!FIREBASE_CONFIG) return 'Cette version de démonstration n\'a pas d\'IA : elle fonctionne sur le site en ligne de SPECTRA Writer, avec votre compte Studio Prism. Les commandes simples (« tableau 4 × 3 », « mets en rouge »…) marchent partout.';
   if (!me) return 'Connectez-vous pour utiliser l\'IA.';
-  if (aiBlocked) return aiBlocked;
+  if (aiBlocked && Date.now() - aiBlockedAt < 30000) return aiBlocked;   // on retente après 30 s : un réglage corrigé dans la console marche sans recharger
   if (aiUsed() >= aiLimit()) return `Vous avez utilisé vos ${aiLimit()} demandes à l'IA du jour${planKey() === 'free' ? ' (offre gratuite). Une licence SPECTRA Writer en donne bien plus.' : '.'} Le compteur repart demain.`;
   return '';
 }
@@ -64,8 +64,13 @@ function aiParse(t){
 }
 function aiErr(e){
   const m = String(e?.message || e || ''), code = String(e?.code || '');
-  if (/api-not-enabled|not been used|is disabled|SERVICE_DISABLED|AI Logic|firebasevertexai|generativelanguage.*(disabled|not enabled)|PERMISSION_DENIED|403/i.test(m + code))
-    return {fatal:true, msg:'L\'IA n\'est pas encore activée sur le projet Studio Prism. Un administrateur doit cliquer sur « Commencer » dans la console Firebase (AI Logic) : console.firebase.google.com/project/archivision-studioprism/ailogic. Ensuite, tout fonctionne ici sans rien changer.'};
+  if (/Template-Only Mode/i.test(m))
+    return {fatal:true, msg:'Le projet Firebase est en « mode modèles uniquement » : il refuse les demandes libres de SPECTRA Writer. Dans la console Firebase : AI Logic → onglet Paramètres → « Modèle » → désactiver « Appliquer le mode modèles uniquement » (Enforce template-only mode), puis Confirmer.'};
+  if (/api-not-enabled|has not been used|SERVICE_DISABLED|requires the Firebase AI API/i.test(m + ' ' + code))
+    return {fatal:true, msg:'L\'IA n\'est pas encore activée sur le projet Studio Prism. Un administrateur doit cliquer sur « Commencer » dans la console Firebase (AI Logic) : console.firebase.google.com/project/archivision-studioprism/ailogic. Si c\'est fait, patientez quelques minutes.'};
+  if (/app.?check/i.test(m)) return {msg:'La demande a été refusée par App Check (protection du projet Firebase). Vérifiez la configuration App Check d\'AI Logic dans la console.'};
+  if (/API key|API_KEY|referer|referrer/i.test(m)) return {msg:'La clé du projet Firebase refuse cette demande (restriction de la clé API). Autorisez l\'API « Firebase AI Logic » pour cette clé dans Google Cloud → Identifiants.'};
+  if (/403|PERMISSION_DENIED/i.test(m)) return {msg:'Le projet Firebase a refusé la demande (403) : ' + (m.match(/\[403[^\]]*\]\s*([^(]{0,220})/) || [, m.slice(0, 220)])[1].trim()};
   if (/404|not found|is not supported|unknown model/i.test(m)) return {model:true, msg:'Modèle indisponible.'};
   if (/429|quota|RESOURCE_EXHAUSTED|rate/i.test(m)) return {msg:'L\'IA reçoit trop de demandes en ce moment. Réessayez dans une minute.'};
   if (/blocked|SAFETY|finishReason/i.test(m)) return {msg:'L\'IA a refusé cette demande. Reformulez-la autrement.'};
@@ -84,7 +89,7 @@ async function aiCall(sys, prompt){
       if (e?.code === 'ai/timeout') throw new Error('L\'IA a mis trop de temps à répondre. Réessayez avec une demande plus courte.');
       const x = aiErr(e); console.warn('[SPECTRA Writer] IA', e);
       if (x.model && aiModelIdx < AI_MODELS.length - 1){ aiModelIdx++; continue; }
-      if (x.fatal) aiBlocked = x.msg;
+      if (x.fatal){ aiBlocked = x.msg; aiBlockedAt = Date.now(); }
       throw new Error(x.msg);
     }
   }
