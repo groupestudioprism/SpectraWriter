@@ -339,7 +339,7 @@ async function openInEditor(data, meta, role){
   await withTimeout(editorReady, 20000, 'app/engine');
   if (Save.pending()) try { await withTimeout(Save.flush(true), 8000); } catch(e){}
   Save.end(); Save.quotaWarned = false;
-  window.SWEditor.load(data, {name:meta ? meta.name : 'Document', readOnly:meta ? !(role === 'owner' || role === 'edit') : false, owner:meta ? (role === 'owner' ? '' : (meta.ownerName || meta.ownerEmail || '')) : '', role:role || 'owner', canRename:!meta || role === 'owner'});
+  window.SWEditor.load(data, {name:meta ? meta.name : 'Document', readOnly:meta ? !(role === 'owner' || role === 'edit') : false, owner:meta ? (role === 'owner' ? '' : (meta.ownerName || meta.ownerEmail || '')) : '', role:role || 'owner', canRename:!meta || role === 'owner', id:meta?.id || ''});
   if (meta) Save.begin(meta, role, window.SWEditor.get()); else Save.end();
   ctx.where = 'app'; hideHome();
   try { history.replaceState(null, '', meta ? '#/doc/' + meta.id : location.pathname + location.search); } catch(e){}
@@ -477,11 +477,11 @@ function renderHome(){
   const loadingSk = `<div class="hgrid">${'<div class="hcard sk"><div class="hthumb"></div><div class="hmeta"><b></b><span></span></div></div>'.repeat(4)}</div>`;
   let h = '';
   if (H.tab === 'home'){
-    const tpls = TPL().filter(t => t.featured || t.id === 'blank').slice(0, 7);
-    h += `<section class="hsec-wrap"><div class="hsec-h"><h2 class="hsec">Nouveau</h2><button type="button" class="hmore" data-htab="templates">Plus de modèles →</button></div><div class="tstrip">${tpls.map(t => tplCard(t)).join('')}</div></section>`;
+    const tpls = TPL().filter(t => t.id !== 'blank').slice(0, 10);
+    h += `<section class="hsec-wrap"><div class="hsec-h"><h2 class="hsec">Commencer avec un modèle</h2><button type="button" class="hmore" data-htab="templates">Voir les ${TPL().length - 1} modèles</button></div><div class="tstrip">${tpls.map(t => tplCard(t)).join('')}</div></section>`;
     const fav = allMine().filter(p => p.starred);
     if (fav.length) h += `<section class="hsec-wrap"><div class="hsec-h"><h2 class="hsec">Favoris</h2></div>${docsBlock(sortDocs(fav).slice(0, 8), false)}</section>`;
-    h += `<section class="hsec-wrap"><div class="hsec-h"><h2 class="hsec">Récents</h2>${toolsBar()}</div>`;
+    h += `<section class="hsec-wrap"><div class="hsec-h"><h2 class="hsec">Vos documents récents</h2>${toolsBar()}</div>`;
     if (H.loading && !H.mine) h += loadingSk;
     else if (H.err) h += `<div class="hempty"><p>${esc(H.err)}</p><button type="button" class="ap-btn alt" data-hact="reload">Réessayer</button></div>`;
     else { const all = [...allMine(), ...(H.shared?.docs || []).map(p => ({...p, _sh:1}))];
@@ -779,9 +779,7 @@ async function importFile(f){
 window.SWImport = importFile;
 
 /* Câblage de l'accueil */
-$a('#homeNav').addEventListener('click', e => { const b = e.target.closest('[data-htab]'); if (!b) return; H.tab = b.dataset.htab; H.sharedFolder = ''; H.q = ''; renderHome(); $a('#homeMain').scrollTop = 0; document.body.classList.remove('nav-open'); });
-$a('#homeNavBtn').addEventListener('click', () => document.body.classList.toggle('nav-open'));
-$a('#homeNew').addEventListener('click', () => { H.tab = 'templates'; H.cat = 'Tous'; renderHome(); });
+$a('#homeNav').addEventListener('click', e => { const b = e.target.closest('[data-htab]'); if (!b) return; H.tab = b.dataset.htab; H.sharedFolder = ''; H.q = ''; renderHome(); $a('#homeMain').scrollTop = 0; });
 $a('#homeFile').addEventListener('change', e => { const f = e.target.files[0]; e.target.value = ''; importFile(f); });
 $a('#homeLic').addEventListener('click', () => show('licence'));
 $a('#homeQuota').addEventListener('click', e => { if (e.target.closest('[data-hact="upgrade"]')) show('licence'); });
@@ -819,3 +817,34 @@ $a('#home').addEventListener('drop', e => { e.preventDefault(); $a('#home').clas
 H.view = store.get('sw.homeView') || 'grid';
 window.addEventListener('resize', () => { if (!$a('#home').hidden) window.SWScaleMinis?.($a('#homeBody')); });
 if (!FIREBASE_CONFIG) window.__swT = {PLANS, H, renderHome, FOLDER_LIMITS, Cloud};
+
+/* « Que voulez-vous écrire ? » : propose le bon modèle ou un document existant dès les premières lettres */
+const ASK = {items:[], i:0};
+const nrm = x => String(x || '').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '');
+function askDraw(){
+  const box = $a('#homeAskRes'), q = nrm($a('#homeAsk').value.trim());
+  if (!q){ box.hidden = true; ASK.items = []; return; }
+  const words = q.split(/\s+/);
+  const tpl = TPL().filter(t => t.id !== 'blank').map(t => ({k:'tpl', id:t.id, t:t.name, s:t.desc || t.cat, hay:nrm(t.name + ' ' + t.cat + ' ' + (t.desc || '') + ' ' + t.id.replace(/-/g, ' '))})).filter(x => words.every(w => x.hay.includes(w)));
+  const docs = allMine().map(p => ({k:'doc', id:p.id, t:p.name, s:'Ouvrir · ' + ago(p.updatedAt), hay:nrm(p.name)})).filter(x => words.every(w => x.hay.includes(w))).slice(0, 4);
+  ASK.items = [...tpl.slice(0, 5), ...docs, {k:'blank', t:`Page blanche « ${$a('#homeAsk').value.trim().slice(0, 50)} »`, s:'Un document vide, avec ce titre'}];
+  ASK.i = Math.min(ASK.i, ASK.items.length - 1);
+  box.hidden = false;
+  box.innerHTML = ASK.items.map((x, i) => `<button type="button" data-ask="${i}" class="${i === ASK.i ? 'on' : ''} k-${x.k}" role="option"><b>${x.k === 'tpl' ? 'Nouveau : ' : ''}${esc(x.t)}</b><span>${esc(x.s.replace(' · ', ', '))}</span></button>`).join('');
+}
+async function askRun(i){
+  const x = ASK.items[i]; if (!x) return; const typed = $a('#homeAsk').value.trim();
+  $a('#homeAsk').value = ''; $a('#homeAskRes').hidden = true;
+  if (x.k === 'tpl') return newDoc(x.id);
+  if (x.k === 'doc'){ const p = findP(x.id, false); if (p) return openDoc(p); }
+  if (x.k === 'blank'){ await newDoc('blank'); if (typed && window.SWEditor){ const h = document.querySelector('#sheet h1'); if (h){ h.textContent = typed; document.querySelector('#sheet').dispatchEvent(new Event('input', {bubbles:true})); } } }
+}
+$a('#homeAsk').addEventListener('input', () => { ASK.i = 0; askDraw(); });
+$a('#homeAsk').addEventListener('keydown', e => {
+  if (e.key === 'ArrowDown'){ e.preventDefault(); ASK.i = Math.min(ASK.items.length - 1, ASK.i + 1); askDraw(); }
+  else if (e.key === 'ArrowUp'){ e.preventDefault(); ASK.i = Math.max(0, ASK.i - 1); askDraw(); }
+  else if (e.key === 'Enter'){ e.preventDefault(); if (!$a('#homeAsk').value.trim()) return newDoc('blank'); askRun(ASK.i); }
+  else if (e.key === 'Escape'){ $a('#homeAsk').value = ''; askDraw(); }
+});
+$a('#homeAskRes').addEventListener('mousedown', e => { e.preventDefault(); const b = e.target.closest('[data-ask]'); if (b) askRun(+b.dataset.ask); });
+$a('#homeAsk').addEventListener('blur', () => setTimeout(() => { $a('#homeAskRes').hidden = true; }, 120));

@@ -16,7 +16,7 @@
 .sp-word{display:flex;align-items:baseline;gap:10px;animation:fadeUp .7s .55s ease-out both}
 .sp-word b{font:800 34px/1 var(--f-disp);letter-spacing:.06em}
 .sp-word span{font:500 30px/1 var(--f-disp);background:var(--prism);-webkit-background-clip:text;background-clip:text;color:transparent}
-.sp-tag{margin:0;font:500 12px/1 var(--f-mono);letter-spacing:.22em;text-transform:uppercase;color:rgb(255 255 255 / .6);animation:fadeUp .7s .8s ease-out both}
+.sp-tag{margin:0;font:500 14px/1 var(--f-ui);color:rgb(255 255 255 / .62);animation:fadeUp .7s .8s ease-out both}
 @keyframes fadeUp{from{opacity:0;transform:translateY(10px)}}
 .sp-bar{position:absolute;left:50%;bottom:72px;width:180px;height:3px;margin-left:-90px;border-radius:3px;background:rgb(255 255 255 / .12);overflow:hidden}
 .sp-bar i{display:block;height:100%;width:40%;border-radius:3px;background:var(--prism);animation:bar 1.3s ease-in-out infinite}

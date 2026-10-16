@@ -1,79 +1,108 @@
-/* ---------- Panneaux (modèles, blocs, thèmes, éléments, images, plan), menus, commande « / », glisser-déposer ---------- */
+/* ---------- Barre Prisme : les rayons (Insérer, Thème, Page, Plan, Modèles) ouvrent un tiroir au-dessus de la barre ---------- */
 const norm = s => String(s || '').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '');
 let panel = '';
 const PANELS = {
-  templates:{t:'Modèles', ic:'<svg viewBox="0 0 24 24"><rect x="3" y="3" width="8" height="10" rx="2"/><rect x="13" y="3" width="8" height="6" rx="2"/><rect x="13" y="11" width="8" height="10" rx="2"/><rect x="3" y="15" width="8" height="6" rx="2"/></svg>'},
-  blocks:{t:'Blocs', ic:'<svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="6" rx="2"/><rect x="3" y="14" width="8" height="6" rx="2"/><rect x="13" y="14" width="8" height="6" rx="2"/></svg>'},
-  themes:{t:'Thèmes', ic:'<svg viewBox="0 0 24 24"><path d="M12 3a9 9 0 1 0 0 18c1 0 1.6-.8 1.6-1.6 0-.5-.2-.8-.5-1.2-.3-.3-.5-.7-.5-1.2 0-.9.7-1.6 1.6-1.6H16a5 5 0 0 0 5-5C21 6.6 17 3 12 3z"/><circle cx="7.5" cy="11" r="1.3"/><circle cx="10.5" cy="7" r="1.3"/><circle cx="15" cy="7.5" r="1.3"/></svg>'},
-  elements:{t:'Éléments', ic:'<svg viewBox="0 0 24 24"><circle cx="7.5" cy="7.5" r="4"/><rect x="13" y="3.5" width="8" height="8" rx="2"/><path d="m7.5 13.5 4.5 7.5H3zM13 17h8M17 13v8"/></svg>'},
-  images:{t:'Images', ic:IC.img},
-  outline:{t:'Plan', ic:'<svg viewBox="0 0 24 24"><path d="M4 5h16M8 10h12M8 15h12M4 20h16"/></svg>'},
+  insert:{t:'Insérer', sub:'Cliquez pour ajouter sous le curseur, ou glissez sur la page.', c:'#7B3FF2', ic:'<svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>'},
+  theme:{t:'Thème', sub:'Les couleurs et les polices de tout le document, en un geste.', c:'#12B5E5', ic:'<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M12 3.5a8.5 8.5 0 0 1 0 17z" fill="currentColor" stroke="none"/></svg>'},
+  page:{t:'Page', sub:'Format, marges, en-tête, numéros : appliqué tout de suite.', c:'#2FBF71', ic:'<svg viewBox="0 0 24 24"><path d="M6 3h9l4 4v14H6z"/><path d="M9 12h7M9 16h5"/></svg>'},
+  outline:{t:'Plan', sub:'La structure du document, ses chiffres et votre objectif.', c:'#F5B82E', ic:'<svg viewBox="0 0 24 24"><path d="M4 6h16M8 12h12M8 18h12"/></svg>'},
+  templates:{t:'Modèles', sub:'Repartir d\'un modèle : dans un nouveau document, ou à la place de celui-ci.', c:'#FF7A2F', ic:'<svg viewBox="0 0 24 24"><rect x="3.5" y="3.5" width="7" height="9" rx="1.5"/><rect x="13.5" y="3.5" width="7" height="5" rx="1.5"/><rect x="13.5" y="11.5" width="7" height="9" rx="1.5"/><rect x="3.5" y="15.5" width="7" height="5" rx="1.5"/></svg>'},
 };
 function renderRail(){
-  $('#edRail').innerHTML = Object.entries(PANELS).map(([k, p]) => `<button type="button" data-panel="${k}" aria-pressed="${panel === k}" title="${p.t}">${p.ic}<span>${p.t}</span></button>`).join('');
+  $('#edRail').innerHTML = Object.entries(PANELS).map(([k, p]) => `<button type="button" class="ray" data-panel="${k}" aria-pressed="${panel === k}" style="--ray:${p.c}" title="${p.t}">${p.ic}<span>${p.t}</span></button>`).join('');
 }
 function openPanel(k){
   panel = panel === k ? '' : k; renderRail();
   const P = $('#edPanel'); P.hidden = !panel; document.body.classList.toggle('panel-open', !!panel);
-  if (panel) renderPanel();
-  setTimeout(() => { sizeStage(); placeTools(); }, 0);
+  if (panel){ P.style.setProperty('--ray', PANELS[panel].c); renderPanel(); $('#edPanelBody').scrollTop = 0; }
+  setTimeout(() => { placeTools(); }, 0);
 }
-function panelRefresh(){ if (panel === 'themes' || panel === 'outline') renderPanel(); }
-let blockQ = '', blockCat = 'Tous';
+function panelRefresh(){ if (['theme', 'outline', 'page'].includes(panel)) renderPanel(); }
+let blockQ = '', blockCat = 'Tout';
 function miniBlock(html){ return `<div class="bmini"><div class="bmini-in swdoc" style="${themeCss(E.doc.theme)};--mt:20px;--mr:20px;--ml:20px;--mb:20px;--ph:300px">${SAN(html)}</div></div>`; }
+const seg = (name, cur, opts) => `<div class="seg" role="radiogroup" data-seg="${name}">${opts.map(([v, t]) => `<button type="button" role="radio" data-v="${escH(v)}" aria-checked="${String(cur) === String(v)}">${t}</button>`).join('')}</div>`;
 function renderPanel(){
-  const P = $('#edPanelBody'); $('#edPanelTitle').textContent = PANELS[panel]?.t || '';
-  if (panel === 'templates'){
-    const list = [...(E.userLib.templates || []), ...SW_TEMPLATES];
-    P.innerHTML = `<p class="pn-hint">Partez d'un modèle : il s'ouvre dans un nouveau document, ou remplace celui-ci.</p><div class="pn-tpls">${list.map(t => `<button type="button" class="pn-tpl" data-tpl="${escH(t.id)}" title="${escH(t.desc || '')}"><div class="tthumb">${t.id === 'blank' ? '<div class="mini"><div class="mini-page swdoc blank"><span class="plus">+</span></div></div>' : `<div class="mini"><div class="mini-page swdoc" style="${themeCss(t.theme)}">${SAN(t.html.replace(/\{\{[^}]+\}\}/g, ''), {preview:true})}</div></div>`}</div><b>${escH(t.name)}</b></button>`).join('')}</div>
-      <button type="button" class="pn-wide" data-act="save-tpl">${IC.plus}<span>Enregistrer ce document comme modèle</span></button>`;
-    scaleMinis(P);
-  } else if (panel === 'blocks'){
-    const cats = ['Tous', ...new Set(BLOCKS.map(b => b.cat))];
-    const list = BLOCKS.filter(b => (blockCat === 'Tous' || b.cat === blockCat) && (!blockQ || norm(b.name + ' ' + b.kw).includes(norm(blockQ))));
-    P.innerHTML = `<label class="pn-search">${IC.search}<input id="pnBlockQ" placeholder="Rechercher un bloc" value="${escH(blockQ)}"></label>
-      <div class="pn-chips">${cats.map(c => `<button type="button" data-bcat="${escH(c)}" aria-pressed="${c === blockCat}">${escH(c)}</button>`).join('')}</div>
-      <p class="pn-hint">Cliquez pour insérer sous le curseur, ou glissez le bloc à l'endroit voulu.</p>
-      <div class="pn-blocks">${list.map(b => `<button type="button" class="pn-block" data-block="${b.id}" draggable="true"><span class="pn-bprev">${b.inline ? `<span class="bmini-txt">${escH(b.html())}</span>` : miniBlock(b.html())}</span><b>${escH(b.name)}</b></button>`).join('') || '<p class="pn-hint">Aucun bloc ne correspond.</p>'}</div>`;
-    const q = $('#pnBlockQ'); if (q && document.activeElement?.id !== 'pnBlockQ' && blockQ){ q.focus(); q.setSelectionRange(blockQ.length, blockQ.length); }
-  } else if (panel === 'themes'){
+  const P = $('#edPanelBody'); $('#edPanelTitle').textContent = PANELS[panel]?.t || ''; $('#edPanelSub').textContent = PANELS[panel]?.sub || '';
+  if (panel === 'insert'){
+    const cats = ['Tout', ...new Set(BLOCKS.map(b => b.cat)), 'Images', 'Éléments'];
+    const q = norm(blockQ);
+    const list = BLOCKS.filter(b => (blockCat === 'Tout' || b.cat === blockCat) && (!q || norm(b.name + ' ' + b.kw + ' ' + b.cat).includes(q)));
+    const imgs = $$('figure.sw-img img', sheet());
+    const showBlocks = blockCat !== 'Images' && blockCat !== 'Éléments';
+    const showImg = blockCat === 'Images' || (blockCat === 'Tout' && !q);
+    const showEl = blockCat === 'Éléments' || (blockCat === 'Tout' && !q);
+    P.innerHTML = `<div class="dr-top"><label class="pn-search">${IC.search}<input id="pnBlockQ" placeholder="Rechercher : tableau, encadré, couverture…" value="${escH(blockQ)}"></label>
+      <div class="pn-chips">${cats.map(c => `<button type="button" data-bcat="${escH(c)}" aria-pressed="${c === blockCat}">${escH(c)}</button>`).join('')}</div></div>
+      ${showBlocks ? `<div class="pn-blocks">${list.map(b => `<button type="button" class="pn-block" data-block="${b.id}" draggable="true"><span class="pn-bprev">${b.inline ? `<span class="bmini-txt">${escH(b.html())}</span>` : miniBlock(b.html())}</span><b>${escH(b.name)}</b></button>`).join('') || '<p class="pn-hint">Aucun bloc ne correspond. Essayez un autre mot.</p>'}</div>` : ''}
+      ${showImg ? `<h4 class="pn-h">Images</h4><div class="pn-imgrow"><button type="button" class="pn-drop" data-act="img-upload">${IC.img}<b>Ajouter une image</b><span>ou glissez-la sur la page</span></button>${imgs.map((im, i) => `<button type="button" class="pn-imgthumb" data-goimg="${i}" title="Aller à l'image"><img src="${im.src}" alt=""></button>`).join('')}</div>` : ''}
+      ${showEl ? `<h4 class="pn-h">Émojis <small>ou tapez « : » dans le texte</small></h4><div class="pn-emo">${EMOJIS.map(e => `<button type="button" data-ins="${e}">${e}</button>`).join('')}</div>
+      <h4 class="pn-h">Étiquettes</h4><div class="pn-tags">${TAGS.map(t => `<button type="button" data-tag="${escH(t)}" class="swdoc" style="${themeCss(E.doc.theme)}"><span class="sw-tag">${escH(t)}</span></button>`).join('')}</div>
+      <h4 class="pn-h">Symboles</h4><div class="pn-emo sym">${SYMBOLS.map(e => `<button type="button" data-ins="${escH(e)}">${escH(e)}</button>`).join('')}</div>
+      <h4 class="pn-h">Formes</h4><div class="pn-shapes">${SHAPES.map(s => `<button type="button" data-shape="${s.id}" draggable="true" class="swdoc" style="${themeCss(E.doc.theme)}" title="${escH(s.name)}">${s.svg}</button>`).join('')}</div>` : ''}`;
+    requestAnimationFrame(() => $$('.bmini', P).forEach(m => m.style.setProperty('--bs', m.clientWidth / 600)));
+    const qi = $('#pnBlockQ'); if (qi && blockQ){ qi.focus(); qi.setSelectionRange(blockQ.length, blockQ.length); }
+  } else if (panel === 'theme'){
     const v = themeVals(E.doc.theme);
-    P.innerHTML = `<div class="pn-themes">${THEMES.map(t => { ensureFont(t.fh); return `<button type="button" class="pn-theme${E.doc.theme.id === t.id ? ' on' : ''}" data-theme="${t.id}"><span class="th-grad" style="background:${t.grad}"></span><span class="th-aa" style="font-family:${fontStack(t.fh)};color:${t.ink}">Aa</span><span class="th-sw"><i style="background:${t.ac}"></i><i style="background:${t.ac2}"></i><i style="background:${t.ac3}"></i></span><b>${escH(t.name)}</b><small>${escH(t.fh)}${t.fb !== t.fh ? ' · ' + escH(t.fb) : ''}</small></button>`; }).join('')}</div>
-      <h4 class="pn-h">Personnaliser</h4>
-      <div class="pn-form">
+    P.innerHTML = `<div class="th-row">${THEMES.map(t => { ensureFont(t.fh); return `<button type="button" class="pn-theme${E.doc.theme.id === t.id ? ' on' : ''}" data-thm="${t.id}" aria-pressed="${E.doc.theme.id === t.id}">
+        <span class="th-card" style="background:#fff"><span class="th-band" style="background:${t.grad}"></span><span class="th-aa" style="font-family:${fontStack(t.fh)};color:${t.ink};font-weight:${t.hw}">Aa</span><span class="th-line" style="background:${t.ac}"></span><span class="th-line s" style="background:${t.line}"></span></span>
+        <b>${escH(t.name)}</b><small>${escH(t.fh)}</small></button>`; }).join('')}</div>
+      <div class="th-custom">
         <label>Couleur principale<span class="pn-color"><input type="color" id="thAc" value="${v.ac}"><code>${v.ac}</code></span></label>
-        <label>Couleur secondaire<span class="pn-color"><input type="color" id="thAc2" value="${v.ac2}"><code>${v.ac2}</code></span></label>
+        <label>Couleur d'accompagnement<span class="pn-color"><input type="color" id="thAc2" value="${v.ac2}"><code>${v.ac2}</code></span></label>
         <label>Police des titres<select id="thFh">${FONTS.map(f => `<option${f[0] === v.fh ? ' selected' : ''}>${f[0]}</option>`).join('')}</select></label>
         <label>Police du texte<select id="thFb">${FONTS.map(f => `<option${f[0] === v.fb ? ' selected' : ''}>${f[0]}</option>`).join('')}</select></label>
         <label>Taille du texte <output id="thFsO">${Math.round(v.fs * .75 * 2) / 2} pt</output><input type="range" id="thFs" min="11" max="22" step="0.5" value="${v.fs}"></label>
         <label>Interligne <output id="thLhO">${String(v.lh).replace('.', ',')}</output><input type="range" id="thLh" min="1.1" max="2.2" step="0.05" value="${v.lh}"></label>
         <button type="button" class="pn-wide alt" data-act="theme-reset">Revenir au thème d'origine</button>
       </div>`;
-  } else if (panel === 'elements'){
-    P.innerHTML = `<h4 class="pn-h">Émojis</h4><div class="pn-emo">${EMOJIS.map(e => `<button type="button" data-ins="${e}">${e}</button>`).join('')}</div>
-      <h4 class="pn-h">Étiquettes</h4><div class="pn-tags">${TAGS.map(t => `<button type="button" data-tag="${escH(t)}" class="swdoc" style="${themeCss(E.doc.theme)}"><span class="sw-tag">${escH(t)}</span></button>`).join('')}</div>
-      <h4 class="pn-h">Symboles</h4><div class="pn-emo sym">${SYMBOLS.map(e => `<button type="button" data-ins="${escH(e)}">${escH(e)}</button>`).join('')}</div>
-      <h4 class="pn-h">Formes décoratives</h4><div class="pn-shapes">${SHAPES.map(s => `<button type="button" data-shape="${s.id}" draggable="true" class="swdoc" style="${themeCss(E.doc.theme)}" title="${escH(s.name)}">${s.svg}</button>`).join('')}</div>`;
-  } else if (panel === 'images'){
-    const imgs = $$('figure.sw-img img', sheet());
-    P.innerHTML = `<button type="button" class="pn-drop" data-act="img-upload">${IC.img}<b>Importer une image</b><span>ou glissez-la directement sur la page · PNG, JPEG, WebP</span></button>
-      <p class="pn-hint">Les images sont optimisées automatiquement pour garder le document léger. Cliquez sur une image de la page pour la redimensionner, l'aligner ou l'habiller.</p>
-      <button type="button" class="pn-wide alt" data-block-ins="imgtext">Bloc image + texte</button>
-      ${imgs.length ? `<h4 class="pn-h">Dans ce document</h4><div class="pn-imgs">${imgs.map((im, i) => `<button type="button" data-goimg="${i}"><img src="${im.src}" alt=""></button>`).join('')}</div>` : ''}`;
-  } else if (panel === 'outline') renderOutline();
+  } else if (panel === 'page'){
+    const p = E.doc.page;
+    P.innerHTML = `<div class="pg-grid">
+      <div class="pgf"><span>Format</span>${seg('size', p.size, Object.keys(PAGE_SIZES).map(k => [k, k === 'Letter' ? 'Lettre US' : k === 'Legal' ? 'Légal US' : k]))}</div>
+      <div class="pgf"><span>Orientation</span>${seg('orient', p.orient || 'p', [['p', 'Portrait'], ['l', 'Paysage']])}</div>
+      <div class="pgf"><span>Marges</span>${seg('margins', p.margins, [['normal', 'Normales'], ['narrow', 'Étroites'], ['wide', 'Larges'], ['none', 'Aucune']])}</div>
+      <div class="pgf"><span>Numéros de page</span>${seg('num', p.numbers ? (p.numStyle === 'np' ? 'np' : 'n') : '', [['', 'Aucun'], ['n', '1, 2, 3'], ['np', 'Page 1 sur 5']])}</div>
+      <div class="pgf"><span>Position des numéros</span>${seg('numPos', p.numPos === 'r' ? 'r' : 'c', [['c', 'Au centre'], ['r', 'À droite']])}</div>
+      <div class="pgf"><span>Couleur des pages</span><div class="pg-bg">${['#ffffff', '#FBFAF7', '#F6F8FB', '#FFF8F1', '#F4F9F4', '#F7F4FC', '#16141F'].map(c => `<button type="button" data-pgbg="${c}" style="background:${c}" aria-pressed="${(p.bg || '#ffffff').toLowerCase() === c.toLowerCase()}" title="${c}"></button>`).join('')}<input type="color" class="pg-cc" id="pgBgC" value="${escH(p.bg || '#ffffff')}" title="Autre couleur" aria-label="Autre couleur"></div></div>
+      <label class="pgf wide"><span>En-tête <small>vous pouvez écrire {titre}, {date}, {page}, {pages}</small></span><input id="pgHdr" value="${escH(p.header)}" placeholder="Par exemple : {titre}"></label>
+      <label class="pgf wide"><span>Pied de page</span><input id="pgFtr" value="${escH(p.footer)}" placeholder="Par exemple : Ma société, document confidentiel"></label>
+      <label class="pgf"><span>Filigrane</span><input id="pgWm" list="pgWL" value="${escH(p.watermark)}" placeholder="Aucun"><datalist id="pgWL"><option>BROUILLON</option><option>CONFIDENTIEL</option><option>COPIE</option><option>EXEMPLE</option></datalist></label>
+    </div>`;
+  } else if (panel === 'outline'){
+    renderOutline();
+  } else if (panel === 'templates'){
+    const list = [...(E.userLib.templates || []), ...SW_TEMPLATES];
+    P.innerHTML = `<div class="pn-tpls">${list.map(t => `<button type="button" class="pn-tpl" data-tpl="${escH(t.id)}" title="${escH(t.desc || '')}"><div class="tthumb">${t.id === 'blank' ? '<div class="mini"><div class="mini-page swdoc blank"><span class="plus">+</span></div></div>' : `<div class="mini"><div class="mini-page swdoc" style="${themeCss(t.theme)}">${SAN(t.html.replace(/\{\{[^}]+\}\}/g, ''), {preview:true})}</div></div>`}</div><b>${escH(t.name)}</b></button>`).join('')}</div>
+      <button type="button" class="pn-wide" data-act="save-tpl">${IC.plus}<span>Enregistrer ce document comme modèle</span></button>`;
+    scaleMinis(P);
+  }
 }
 function renderOutline(){
   const P = $('#edPanelBody'); if (panel !== 'outline' || !P) return;
   const step = E.geo.ph + E.geo.G;
   const hs = $$('h1, h2, h3', sheet()).filter(h => h.textContent.trim() && !h.closest('.sw-toc'));
-  P.innerHTML = hs.length ? `<nav class="pn-outline">${hs.map((h, i) => `<button type="button" data-go="${i}" class="l${h.tagName[1]}"><span>${escH(h.textContent.trim())}</span><em>${Math.floor(relTop(h) / step) + 1}</em></button>`).join('')}</nav>`
-    : '<p class="pn-hint">Le plan se construit tout seul à partir des titres (Titre 1, 2 et 3) du document.</p>';
+  const t = sheet().innerText.replace(/​/g, ''), w = countWords(t), goal = +E.doc.page.goal || 0, pct = goal ? Math.min(100, Math.round(w / goal * 100)) : 0;
+  P.innerHTML = `<div class="ol-wrap"><div class="ol-list">${hs.length ? `<nav class="pn-outline">${hs.map((h, i) => `<button type="button" data-go="${i}" class="l${h.tagName[1]}"><span>${escH(h.textContent.trim())}</span><em>p. ${Math.floor(relTop(h) / step) + 1}</em></button>`).join('')}</nav>`
+    : '<p class="pn-hint">Le plan se construit tout seul avec les titres du document. Choisissez « Titre 1, 2 ou 3 » dans la barre, ou tapez # suivi d\'un espace.</p>'}</div>
+    <aside class="ol-side"><div class="ol-stats"><div><b>${w.toLocaleString('fr-FR')}</b><span>mots</span></div><div><b>${E.pages}</b><span>page${E.pages > 1 ? 's' : ''}</span></div><div><b>${Math.max(1, Math.round(w / 230))} min</b><span>de lecture</span></div><div><b>${t.replace(/\s/g, '').length.toLocaleString('fr-FR')}</b><span>caractères</span></div></div>
+    <label class="ol-goal"><span>Objectif de mots</span><input id="olGoal" type="number" min="0" step="50" value="${goal || ''}" placeholder="Par exemple : 1000"></label>
+    ${goal ? `<div class="ol-bar"><i style="width:${pct}%"></i></div><p class="pn-hint">${pct >= 100 ? 'Objectif atteint, bravo.' : `Encore ${(goal - w).toLocaleString('fr-FR')} mots.`}</p>` : ''}</aside></div>`;
   P.dataset.n = hs.length;
 }
-const outlineRefresh = debounce(() => { if (panel === 'outline') renderOutline(); }, 400);
-function scaleMinis(root){ requestAnimationFrame(() => $$('.mini', root).forEach(m => { const w = m.clientWidth; if (w) m.style.setProperty('--s', w / 794); })); }
+const outlineRefresh = debounce(() => { if (panel === 'outline' && !$('#edPanelBody').contains(document.activeElement)) renderOutline(); renderThread(); }, 400);
+function scaleMinis(root){ requestAnimationFrame(() => $$('.mini', root).forEach(m => { const w = m.clientWidth; if (w) m.style.setProperty('--s', w / (m.classList.contains('land') ? 1123 : 794)); })); }
 window.SWScaleMinis = scaleMinis;
 function applyTheme(t){ flushRecord(); record(); E.doc.theme = t; applyGeometry(); paginate(); emitChange(true); record(); }
+function setPage(patch){ flushRecord(); record(); E.doc.page = {...E.doc.page, ...patch}; applyGeometry(); paginate(); emitChange(true); recPending = true; recordLater(); }
+
+/* --- Fil du document : un repère par titre, à droite de la zone de travail --- */
+function renderThread(){
+  const th = $('#edThread'); if (!th || !sheet()) return;
+  const total = sheet().offsetHeight || 1;
+  const hs = $$('h1, h2, h3', sheet()).filter(h => h.textContent.trim() && !h.closest('.sw-toc, .sw-cover'));
+  th.innerHTML = hs.map((h, i) => `<button type="button" class="tk l${h.tagName[1]}" data-tk="${i}" style="top:${(relTop(h) / total * 100).toFixed(2)}%"><span>${escH(h.textContent.trim().slice(0, 60))}</span></button>`).join('');
+  th.hidden = hs.length < 2;
+}
 
 /* --- cadres contextuels (popovers) --- */
 let popClose = null;
@@ -146,25 +175,7 @@ function linkDlg(){
 function insertHTMLInline(html){ restoreSelIfNeeded(); flushRecord(); record(); document.execCommand('insertHTML', false, SAN(html)); changed({record:true}); }
 
 /* --- mise en page --- */
-function pageDlg(){
-  const p = E.doc.page;
-  SWDlg.open(`<h3>Mise en page</h3><form id="pgF" class="pg-form">
-    <div class="ap-grid2"><label class="ap-field"><span>Format</span><span class="ap-in"><select id="pgS">${Object.keys(PAGE_SIZES).map(k => `<option value="${k}"${p.size === k ? ' selected' : ''}>${PAGE_LABEL[k]}</option>`).join('')}</select></span></label>
-    <label class="ap-field"><span>Orientation</span><span class="ap-in"><select id="pgO"><option value="p"${p.orient !== 'l' ? ' selected' : ''}>Portrait</option><option value="l"${p.orient === 'l' ? ' selected' : ''}>Paysage</option></select></span></label></div>
-    <label class="ap-field"><span>Marges</span><span class="ap-in"><select id="pgM">${Object.keys(MARGINS).map(k => `<option value="${k}"${p.margins === k ? ' selected' : ''}>${MARGIN_LABEL[k]}</option>`).join('')}</select></span></label>
-    <div class="ap-grid2"><label class="ap-field"><span>Numéros de page</span><span class="ap-in"><select id="pgN"><option value="">Aucun</option><option value="n"${p.numbers && p.numStyle !== 'np' ? ' selected' : ''}>1, 2, 3…</option><option value="np"${p.numbers && p.numStyle === 'np' ? ' selected' : ''}>Page 1 / 5</option></select></span></label>
-    <label class="ap-field"><span>Position</span><span class="ap-in"><select id="pgNP"><option value="c"${p.numPos !== 'r' ? ' selected' : ''}>En bas, au centre</option><option value="r"${p.numPos === 'r' ? ' selected' : ''}>En bas, à droite</option></select></span></label></div>
-    <label class="ap-field"><span>En-tête <small>· {titre} {date} {page} {pages}</small></span><span class="ap-in"><input id="pgH" value="${escH(p.header)}" placeholder="Ex. : {titre}"></span></label>
-    <label class="ap-field"><span>Pied de page</span><span class="ap-in"><input id="pgFt" value="${escH(p.footer)}" placeholder="Ex. : Société · Confidentiel"></span></label>
-    <div class="ap-grid2"><label class="ap-field"><span>Couleur des pages</span><span class="ap-in pn-color"><input type="color" id="pgBg" value="${escH(p.bg || '#ffffff')}"></span></label>
-    <label class="ap-field"><span>Filigrane</span><span class="ap-in"><input id="pgW" list="pgWL" value="${escH(p.watermark)}" placeholder="Aucun"><datalist id="pgWL"><option>BROUILLON</option><option>CONFIDENTIEL</option><option>COPIE</option><option>EXEMPLE</option></datalist></span></label></div>
-    <div class="dlg-acts"><button type="button" class="ap-btn alt" data-dlg="close">Annuler</button><button class="ap-btn" type="submit">Appliquer</button></div></form>`, d => {
-    $('#pgF', d).onsubmit = e => { e.preventDefault(); flushRecord(); record();
-      const n = $('#pgN', d).value;
-      E.doc.page = {...p, size:$('#pgS', d).value, orient:$('#pgO', d).value, margins:$('#pgM', d).value, numbers:!!n, numStyle:n || 'n', numPos:$('#pgNP', d).value, header:$('#pgH', d).value.slice(0, 120), footer:$('#pgFt', d).value.slice(0, 120), bg:$('#pgBg', d).value, watermark:$('#pgW', d).value.slice(0, 24)};
-      SWDlg.close(); applyGeometry(); paginate(); record(); emitChange(true); toast('Mise en page appliquée'); };
-  }, 'wide');
-}
+function pageDlg(){ if (panel !== 'page') openPanel('page'); }
 
 /* --- rechercher / remplacer --- */
 const FR = {hits:[], i:-1};
@@ -219,14 +230,22 @@ const SL = {open:false, items:[], i:0, node:null, start:0};
 function slashCheck(){
   const s = getSelection(); if (!s.rangeCount || !s.isCollapsed || E.ro) return slashClose();
   const n = s.anchorNode; if (!n || n.nodeType !== 3 || !sheet().contains(n)) return slashClose();
-  const before = n.data.slice(0, s.anchorOffset), m = before.match(/(?:^|[\s ])\/([\wÀ-ÿ -]{0,24})$/);
+  const before = n.data.slice(0, s.anchorOffset);
+  const em = before.match(/(?:^|[\s\u00A0(]):([a-zà-ÿ]{2,16})$/i);
+  if (em){ const q = norm(em[1]); const items = EMOJI_KW.filter(([e, k]) => norm(k).split(' ').some(w => w.startsWith(q))).slice(0, 12);
+    if (items.length){ SL.node = n; SL.start = s.anchorOffset - em[1].length - 1; SL.items = items.map(([e, k]) => ({t:k.split(' ')[0], k, ic:e, run:() => insertInline(e)})); SL.emoji = true; return drawSlash('', s); } }
+  SL.emoji = false;
+  const m = before.match(/(?:^|[\s ])\/([\wÀ-ÿ -]{0,24})$/);
   if (!m || /\s{2}/.test(m[1])) return slashClose();
   const q = norm(m[1]); SL.node = n; SL.start = s.anchorOffset - m[1].length - 1;
   SL.items = SLASH().filter(it => !q || norm(it.t + ' ' + it.k).includes(q)).slice(0, 40);
   if (!SL.items.length) return slashClose();
+  drawSlash(q, s);
+}
+function drawSlash(q, s){
   SL.open = true; SL.i = Math.min(SL.i, SL.items.length - 1);
-  const box = $('#slashMenu'); box.hidden = false;
-  box.innerHTML = `<p class="sl-h">${q ? 'Résultats' : 'Insérer'}</p>` + SL.items.map((it, i) => `<button type="button" data-sl="${i}" class="${i === SL.i ? 'on' : ''}"><i>${it.ic}</i><span>${escH(it.t)}${it.cat ? `<small>${escH(it.cat)}</small>` : ''}</span></button>`).join('');
+  const box = $('#slashMenu'); box.hidden = false; box.classList.toggle('emo', !!SL.emoji);
+  box.innerHTML = `<p class="sl-h">${SL.emoji ? 'Émojis' : q ? 'Résultats' : 'Insérer'}</p>` + SL.items.map((it, i) => `<button type="button" data-sl="${i}" class="${i === SL.i ? 'on' : ''}"><i>${it.ic}</i><span>${escH(it.t)}${it.cat ? `<small>${escH(it.cat)}</small>` : ''}</span></button>`).join('');
   const r = s.getRangeAt(0).getBoundingClientRect(); const h = box.offsetHeight;
   box.style.left = clamp(r.left, 8, innerWidth - box.offsetWidth - 8) + 'px'; box.style.top = (r.bottom + h + 8 > innerHeight ? r.top - h - 6 : r.bottom + 6) + 'px';
   box.querySelector('.on')?.scrollIntoView({block:'nearest'});
@@ -286,3 +305,80 @@ function showDropLine(t){
   const l = $('#dropLine'); if (!t.el){ l.hidden = true; return; }
   const p = overlayPos(t.el.getBoundingClientRect()); l.hidden = false; l.style.top = (t.where === 'before' ? p.y - 4 : p.y + p.h + 2) + 'px'; l.style.left = E.geo.ml + 'px'; l.style.width = (E.geo.pw - E.geo.ml - E.geo.mr) + 'px';
 }
+
+/* --- émojis par mot-clé (« : » dans le texte) --- */
+const EMOJI_KW = [['✅', 'valide ok fait check'], ['❌', 'non croix erreur'], ['⚠️', 'attention alerte'], ['💡', 'idee astuce ampoule'], ['📌', 'epingle important'], ['📅', 'date calendrier agenda'], ['⏰', 'heure reveil delai'],
+  ['📞', 'telephone appel'], ['✉️', 'mail email courrier'], ['📍', 'lieu adresse'], ['🏠', 'maison accueil'], ['🏗️', 'chantier construction'], ['📐', 'plan equerre architecture'], ['🔧', 'outil reglage'], ['🌳', 'arbre nature'],
+  ['☀️', 'soleil ete'], ['⭐', 'etoile favori'], ['✨', 'brillant nouveau magie'], ['🔥', 'feu urgent top'], ['⚡', 'eclair rapide energie'], ['🎯', 'objectif cible'], ['🚀', 'fusee lancement'], ['📈', 'hausse croissance graphique'],
+  ['📉', 'baisse'], ['💰', 'argent budget'], ['💶', 'euro prix'], ['🧾', 'facture recu'], ['📊', 'statistiques donnees'], ['📝', 'note ecrire'], ['📚', 'livres cours'], ['🎓', 'diplome ecole etudes'], ['💬', 'message discussion'],
+  ['👍', 'pouce bien bravo'], ['👏', 'applaudir bravo'], ['🙌', 'bravo merci'], ['🤝', 'accord partenariat'], ['❤️', 'coeur amour'], ['😊', 'sourire content'], ['😉', 'clin oeil'], ['😂', 'rire'], ['🎉', 'fete bravo celebration'],
+  ['🎁', 'cadeau'], ['☕', 'cafe pause'], ['🍽️', 'repas restaurant'], ['🚗', 'voiture trajet'], ['✈️', 'avion voyage'], ['🔒', 'cadenas securite prive'], ['🔗', 'lien'], ['📎', 'piece jointe trombone'], ['🧠', 'cerveau reflexion'], ['👉', 'doigt voir'],
+  ['➡️', 'fleche droite suite'], ['❓', 'question'], ['❗', 'exclamation important'], ['🟢', 'vert ok'], ['🟠', 'orange moyen'], ['🔴', 'rouge stop']];
+
+/* --- Le Spectre : chercher et lancer n'importe quelle action (Ctrl + K) --- */
+const SPX = {items:[], all:[], i:0};
+function spectreActions(){
+  const A = [], add = (g, t, run, k = '') => A.push({g, t, run, k});
+  STYLES.forEach(([tag, cls, n]) => add('Écrire', n, () => setBlock(tag, cls), 'style paragraphe ' + tag));
+  [['bold', 'Gras', 'Ctrl B'], ['italic', 'Italique', 'Ctrl I'], ['underline', 'Souligné', 'Ctrl U'], ['strikeThrough', 'Barré', '']].forEach(([c, n, kb]) => add('Écrire', n, () => cmd(c), kb));
+  add('Écrire', 'Liste à puces', () => cmd('insertUnorderedList')); add('Écrire', 'Liste numérotée', () => cmd('insertOrderedList')); add('Écrire', 'Liste de tâches', toggleChecklist, 'checklist cases');
+  [['justifyLeft', 'Aligner à gauche'], ['justifyCenter', 'Centrer'], ['justifyRight', 'Aligner à droite'], ['justifyFull', 'Justifier']].forEach(([c, n]) => add('Écrire', n, () => cmd(c)));
+  add('Écrire', 'Effacer la mise en forme', clearFormat); add('Écrire', 'Lien', linkDlg, 'url Ctrl K'); add('Écrire', 'Augmenter le retrait', () => indent(1)); add('Écrire', 'Diminuer le retrait', () => indent(-1));
+  add('Insérer', 'Image', () => $('#edImgFile').click(), 'photo'); add('Insérer', 'Tableau 3 × 3', () => insertHTMLBlock(tableHtml(3, 3, 'sw-table')), 'table');
+  BLOCKS.forEach(b => add('Insérer', b.name, () => insertBlockById(b.id), b.kw + ' ' + b.cat));
+  THEMES.forEach(t => add('Thème', 'Thème ' + t.name, () => { applyTheme({id:t.id, fs:E.doc.theme.fs, lh:E.doc.theme.lh}); toast('Thème ' + t.name + ' appliqué'); }, t.fh + ' ' + t.fb + ' couleur'));
+  Object.keys(PAGE_SIZES).forEach(k => add('Page', 'Format ' + k, () => setPage({size:k}), 'taille papier'));
+  add('Page', 'Orientation paysage', () => setPage({orient:'l'})); add('Page', 'Orientation portrait', () => setPage({orient:'p'}));
+  [['normal', 'normales'], ['narrow', 'étroites'], ['wide', 'larges'], ['none', 'aucune']].forEach(([k, n]) => add('Page', 'Marges ' + n, () => setPage({margins:k})));
+  add('Page', E.doc.page.numbers ? 'Retirer les numéros de page' : 'Ajouter les numéros de page', () => setPage({numbers:!E.doc.page.numbers}), 'pagination');
+  add('Page', 'Filigrane Brouillon', () => setPage({watermark:'BROUILLON'})); add('Page', 'Retirer le filigrane', () => setPage({watermark:''}));
+  add('Page', 'Saut de page', () => insertHTMLBlock(PAGEBREAK + '<p><br></p>'), 'nouvelle page Ctrl Entrée');
+  [['pdf', 'Exporter en PDF'], ['docx', 'Exporter en Word (.docx)'], ['html', 'Exporter en page web'], ['md', 'Exporter en Markdown'], ['txt', 'Exporter en texte'], ['spectra', 'Télécharger une sauvegarde']].forEach(([k, n]) => add('Exporter', n, () => doExport(k), 'telecharger fichier'));
+  add('Document', 'Rechercher', () => openFind(false), 'Ctrl F'); add('Document', 'Remplacer', () => openFind(true), 'Ctrl H');
+  add('Document', 'Typographie française', frenchTypo, 'espaces insecables guillemets'); add('Document', 'Historique des versions', historyDlg, 'restaurer revenir ancienne version');
+  add('Document', 'Mode concentration', () => toggleFocus(true), 'focus'); add('Document', 'Informations et statistiques', infoDlg, 'mots compte'); add('Document', 'Raccourcis clavier', shortcutsDlg, 'aide');
+  add('Document', 'Imprimer', printDoc, 'Ctrl P'); add('Document', 'Partager', () => window.SWShareCurrent?.(), 'email lien'); add('Document', 'Dupliquer', () => window.SWHome?.duplicateCurrent(), 'copie');
+  add('Document', 'Enregistrer comme modèle', saveTplDlg); add('Document', 'Insérer le contenu d\'un fichier', () => $('#edInsFile').click(), 'importer word');
+  add('Aller', 'Nouveau document', () => window.SWHome?.show('templates')); add('Aller', 'Accueil', () => window.SWHome?.show('home'));
+  add('Aller', 'Interface claire ou sombre', () => { const t = document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark'; document.documentElement.dataset.theme = t; lsSet('sw.theme', t); }, 'theme sombre nuit');
+  $$('h1, h2, h3', sheet()).filter(h => h.textContent.trim() && !h.closest('.sw-toc')).forEach(h => add('Dans le document', h.textContent.trim().slice(0, 80), () => h.scrollIntoView({behavior:'smooth', block:'start'}), 'titre aller'));
+  return A;
+}
+const SP_START = ['Titre 1', 'Titre 2', 'Image', 'Tableau 3 × 3', 'Lien', 'Rechercher', 'Exporter en PDF', 'Exporter en Word (.docx)', 'Historique des versions', 'Mode concentration'];
+function openSpectre(){ saveSel(); closePop(); $('#spectre').hidden = false; const q = $('#spQ'); q.value = ''; SPX.all = spectreActions(); SPX.i = 0; drawSpectre(); setTimeout(() => q.focus(), 10); }
+function closeSpectre(){ $('#spectre').hidden = true; }
+function drawSpectre(){
+  const q = norm($('#spQ').value.trim()), words = q.split(/\s+/).filter(Boolean);
+  let l;
+  if (words.length) l = SPX.all.map(a => { const hay = norm(a.t + ' ' + a.g + ' ' + a.k); if (!words.every(w => hay.includes(w))) return null; const tt = norm(a.t); return {...a, sc:tt.startsWith(words[0]) ? 0 : tt.includes(words[0]) ? 1 : 2}; }).filter(Boolean).sort((a, b) => a.sc - b.sc);
+  else l = SP_START.map(t => SPX.all.find(a => a.t === t)).filter(Boolean);
+  SPX.items = l.slice(0, 60); SPX.i = clamp(SPX.i, 0, Math.max(0, SPX.items.length - 1));
+  $('#spList').innerHTML = (words.length ? '' : '<p class="sp-h">Suggestions</p>') + (SPX.items.length ? SPX.items.map((a, i) => `<button type="button" data-sp="${i}" class="${i === SPX.i ? 'on' : ''}" role="option"><span>${escH(a.t)}</span><small>${escH(a.g)}</small></button>`).join('')
+    : '<p class="sp-none">Rien ne correspond. Essayez « tableau », « titre », « export » ou « thème ».</p>');
+  $('#spList .on')?.scrollIntoView({block:'nearest'});
+}
+function runSpectre(i){ const a = SPX.items[i]; if (!a) return; closeSpectre(); restoreSel(); setTimeout(() => a.run(), 10); }
+
+/* --- Historique des versions (gardé sur cet appareil, par document) --- */
+const VER = {key:'', last:0, lastHtml:''};
+const verKey = () => VER.key ? 'sw.ver.' + VER.key : '';
+const verList = () => (verKey() && lsGet(verKey())) || [];
+function verSnap(force){
+  if (!verKey() || E.ro) return; const now = Date.now();
+  if (!force && now - VER.last < 5 * 60e3) return;
+  const h = cleanHtml(); if (h === VER.lastHtml) return;
+  VER.last = now; VER.lastHtml = h;
+  let l = verList(); l.unshift({at:now, words:countWords(sheet().innerText), data:getJSON()}); l = l.slice(0, 25);
+  for (let n = l.length; n >= 1; n--){ try { localStorage.setItem(verKey(), JSON.stringify(l.slice(0, n))); return; } catch(e){} }
+}
+function historyDlg(){
+  verSnap(true); const l = verList();
+  const fmt = t => new Date(t).toLocaleString('fr-FR', {weekday:'long', day:'numeric', month:'long', hour:'2-digit', minute:'2-digit'});
+  SWDlg.open(`<h3>Historique des versions</h3><p class="dlg-p">Une version est gardée sur cet appareil à chaque ouverture, puis toutes les cinq minutes de travail. Restaurer remplace le contenu actuel ; Ctrl + Z permet de revenir en arrière.</p>
+    <div class="ver-list">${l.length ? l.map((v, i) => `<div class="ver"><div><b>${i === 0 ? 'Version actuelle' : fmt(v.at)}</b><span>${v.words.toLocaleString('fr-FR')} mots</span></div>${i ? `<button type="button" class="ap-btn alt" data-ver="${i}">Restaurer</button>` : ''}</div>`).join('') : '<p class="pn-hint">Aucune version pour l\'instant.</p>'}</div>
+    <div class="dlg-acts"><button type="button" class="ap-btn" data-dlg="close">Fermer</button></div>`, d => {
+    d.querySelectorAll('[data-ver]').forEach(b => b.onclick = () => { const j = parseDoc(l[+b.dataset.ver].data); SWDlg.close(); flushRecord(); record();
+      sheet().innerHTML = j.html; E.doc.theme = j.theme; E.doc.page = j.page; applyGeometry(); paginate(); changed({record:true}); toast('Version restaurée. Ctrl + Z pour revenir en arrière.'); });
+  }, 'wide');
+}
+setInterval(() => { if (!$('#app').hidden) verSnap(false); }, 60e3);

@@ -10,15 +10,16 @@ Même compte que le site Studio Prism, ARCHIPLAN et Archi Vision.
 
 **Connexion** — compte Studio Prism (Firebase `archivision-studioprism`, comme ARCHIPLAN) : connexion, création de compte, fiche client, code PIN du compte (haché), empreinte / visage facultatifs, clé de licence, suppression du compte via le site. Écran au style SPECTRA (panneau prismatique).
 
-**Accueil façon Word** — Accueil (nouveau document, modèles mis en avant, favoris, récents avec recherche, tri, vignettes ou liste), Modèles (par catégorie, + mes modèles), Mes documents (dossiers), Partagés avec moi. Glisser un fichier sur l'accueil l'importe. Aperçus vivants des pages (avec le thème du document).
+**Accueil** — « Que voulez-vous écrire ? » : tapez « facture », « cv », « compte rendu »… et le bon modèle est proposé, ou un document existant. Étagère de modèles, documents récents en vraies pages (vignettes ou liste, recherche, tri, favoris), onglets Mes documents (dossiers), Partagés avec moi, Modèles. Glisser un fichier sur l'accueil l'ouvre.
 
-**Éditeur**
-- Pages réelles A4 / A5 / A3 / Lettre / Légal, portrait ou paysage, marges, saut de page automatique et manuel, en-tête, pied de page, numéros de page, couleur des pages, filigrane.
-- Barre d'outils unique (pas de rubans) : styles de paragraphe, polices, taille, gras/italique/souligné/barré, couleurs (dont couleurs du thème), surlignage, alignements, listes, listes de tâches, retraits, interligne, liens, images, tableaux.
-- **Façon Canva** : 13 thèmes appliqués à tout le document en un clic (couleurs + paire de polices, personnalisables), 35 blocs prêts à glisser (couvertures, bandeaux, encadrés, colonnes, chiffres clés, chronologie, étapes, tarifs, signatures…), éléments (émojis, étiquettes, symboles, formes), 14 modèles.
-- **Puissance** : commande « / » (insérer n'importe quoi au clavier), raccourcis Markdown (`#`, `-`, `1.`, `[]`, `>`, `---`), sommaire automatique avec numéros de page, plan du document, poignée de bloc (déplacer, dupliquer, transformer), barre flottante sur la sélection, outils d'image (taille, habillage, style, légende, redimensionnement à la souris) et de tableau, rechercher / remplacer, typographie française automatique (espaces insécables, « guillemets », ’), statistiques, mode concentration, zoom, titre automatique, historique annuler / rétablir.
-- **Exports** : PDF (pages fidèles), Word **.docx** (vrai fichier Word), page web, Markdown, texte, sauvegarde `.spectra`. **Import** : Word .docx, Markdown, texte, HTML, `.spectra`.
-- Enregistrement automatique, partage par email ou par lien (lecture / modification, mot de passe), dossiers partagés, quotas.
+**Éditeur : l'interface Prisme**
+- La page au centre, une seule barre en bas : la **barre Prisme**. À gauche l'écriture (style, police et taille, gras, couleurs, listes, alignement, lien), à droite cinq rayons colorés qui ouvrent un tiroir : **Insérer** (blocs, images, émojis, symboles, formes), **Thème** (13 thèmes + couleurs, polices, taille, interligne), **Page** (format, orientation, marges, numéros, en-tête, pied de page, couleur, filigrane, appliqués en direct), **Plan** (titres avec numéros de page, statistiques, objectif de mots), **Modèles**.
+- **Le Spectre** (Ctrl + K, ⌘ K) : chercher et lancer n'importe quelle action, un bloc, un thème, un export ou un titre du document.
+- **Le fil du document** : un repère par titre sur le bord droit, pour sauter d'une partie à l'autre.
+- Commande « / », raccourcis Markdown, émojis avec « : » (`:idee`, `:ok`…), poignée de bloc, barres d'image et de tableau, sommaire automatique avec numéros de page, rechercher / remplacer, typographie française automatique, **historique des versions** (sur l'appareil), mode concentration, interface claire ou sombre.
+- Pages réelles A4 / A5 / A3 / Lettre / Légal, sauts de page automatiques, impression et PDF fidèles.
+- **Exports** : PDF, Word **.docx**, page web, Markdown, texte, sauvegarde `.spectra`. **Import** : Word .docx, Markdown, texte, HTML, `.spectra`.
+- Enregistrement automatique, partage par email ou par lien, dossiers partagés, quotas. L'app s'installe comme une application (service worker).
 
 ## Offres
 

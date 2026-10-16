@@ -106,10 +106,10 @@ function renderDeco(){
 }
 function sizeStage(){
   const g = E.geo, H = E.pages * (g.ph + g.G) - g.G, pad = innerWidth < 700 ? 12 : 36;
-  if (E.fit){ const avail = E.scroll.clientWidth - pad * 2; E.zoom = clamp(Math.min(1, avail / g.pw), .3, 1); }
+  if (E.fit){ const avail = E.scroll.clientWidth - pad * 2 - (innerWidth > 760 ? 56 : 0); E.zoom = clamp(Math.min(1, avail / g.pw), .3, 1); }
   E.canvas.style.transform = `scale(${E.zoom})`;
   E.stage.style.width = (g.pw * E.zoom) + 'px';
-  E.stage.style.height = (H * E.zoom + pad * 2) + 'px';
+  E.stage.style.height = (H * E.zoom + pad + 130) + 'px';   // de la place sous la dernière page pour la barre Prisme
   E.stage.style.paddingTop = pad + 'px';
   const zl = $('#zoomVal'); if (zl) zl.textContent = Math.round(E.zoom * 100) + ' %';
   const zr = $('#zoomRange'); if (zr) zr.value = Math.round(E.zoom * 100);
@@ -383,6 +383,7 @@ function updateStatus(){
   const t = sheet().innerText.replace(/​/g, ''), w = countWords(t), c = t.replace(/\s/g, '').length, min = Math.max(1, Math.round(w / 230));
   E.words = w;
   let cur = 1; if (inSheet()){ try { const r = getSelection().getRangeAt(0).getBoundingClientRect(); if (r.top || r.bottom) cur = clamp(Math.floor(((r.top - sheet().getBoundingClientRect().top) / E.zoom) / (E.geo.ph + E.geo.G)) + 1, 1, E.pages); } catch(e){} }
-  st.innerHTML = `<span>Page ${cur} / ${E.pages}</span><span>${w.toLocaleString('fr-FR')} mot${w > 1 ? 's' : ''}</span><span class="hide-s">${c.toLocaleString('fr-FR')} caractères</span><span class="hide-s">${w ? min + ' min de lecture' : ''}</span>`;
+  const goal = +E.doc.page.goal || 0;
+  st.innerHTML = `<span>Page ${cur} sur ${E.pages}</span><span>${w.toLocaleString('fr-FR')} mot${w > 1 ? 's' : ''}${goal ? ` sur ${goal.toLocaleString('fr-FR')}` : ''}</span>${goal ? `<i class="goal"><b style="width:${Math.min(100, w / goal * 100).toFixed(1)}%"></b></i>` : ''}`;
 }
 const statusSoon = debounce(updateStatus, 300);

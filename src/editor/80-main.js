@@ -21,6 +21,7 @@ function fromTemplate(id, lib){
 function load(data, opts = {}){
   const d = parseDoc(data);
   E.doc = {title:d.title, theme:d.theme, page:d.page}; E.autoTitle = false;
+  VER.key = opts.id || ''; VER.last = 0; VER.lastHtml = '';
   E.ro = !!opts.readOnly; tocSig = '';
   sheet().innerHTML = d.html;
   sheet().contentEditable = E.ro ? 'false' : 'true';
@@ -30,7 +31,7 @@ function load(data, opts = {}){
   selectFigure(null); closeFind(); slashClose(); closePop();
   E.fit = innerWidth < 1100 || E.fit;
   applyGeometry(); E.hist = []; E.hi = -1;
-  requestAnimationFrame(() => { paginate(); record(); E.scroll.scrollTop = 0; if (panel) renderPanel(); document.fonts?.ready.then(() => paginate()); });
+  requestAnimationFrame(() => { paginate(); record(); verSnap(true); E.scroll.scrollTop = 0; if (panel) renderPanel(); document.fonts?.ready.then(() => paginate()); });
   setTimeout(paginate, 700);
 }
 function setReadOnly(ro){ E.ro = ro; sheet().contentEditable = ro ? 'false' : 'true'; document.body.classList.toggle('ro', ro); }
@@ -40,21 +41,11 @@ function buildToolbar(){
   const b = (attrs, ic, title) => `<button type="button" class="tb" ${attrs} title="${title}" aria-label="${title}">${ic}</button>`;
   $('#edBar').innerHTML = `
     <div class="tg">${b('id="undoBtn" data-act="undo"', IC.undo, 'Annuler (Ctrl+Z)')}${b('id="redoBtn" data-act="redo"', IC.redo, 'Rétablir (Ctrl+Y)')}</div>
-    <div class="tg"><select id="fStyle" class="tsel w-style" aria-label="Style du paragraphe" title="Style du paragraphe">${STYLES.map((s, i) => `<option value="${i}">${s[2]}</option>`).join('')}</select></div>
-    <div class="tg hide-m"><select id="fFont" class="tsel w-font" aria-label="Police" title="Police"><option value="">Police du thème</option>${FONTS.map(f => `<option style="font-family:${fontStack(f[0]).replace(/"/g, '')}">${f[0]}</option>`).join('')}</select>
-      <span class="tsize">${b('data-act="size-"', IC.minus, 'Réduire la taille')}<input id="fSize" class="tsz" value="11" inputmode="decimal" aria-label="Taille (pt)" title="Taille (pt)" list="fSizes"><datalist id="fSizes">${[8, 9, 10, 11, 12, 14, 16, 18, 20, 24, 28, 32, 36, 48, 60, 72].map(s => `<option>${s}</option>`).join('')}</datalist>${b('data-act="size+"', IC.plus, 'Augmenter la taille')}</span></div>
-    <div class="tg">${b('data-cmd="bold"', IC.b, 'Gras (Ctrl+B)')}${b('data-cmd="italic"', IC.i, 'Italique (Ctrl+I)')}${b('data-cmd="underline"', IC.u, 'Souligné (Ctrl+U)')}${b('data-cmd="strikeThrough" class="hide-s"', IC.s, 'Barré')}
+    <div class="tg"><select id="fStyle" class="tsel" aria-label="Style du paragraphe" title="Style du paragraphe">${STYLES.map((s, i) => `<option value="${i}">${s[2]}</option>`).join('')}</select>
+      <button type="button" class="tb tb-aa" data-act="font" title="Police et taille" aria-haspopup="true"><span>Aa</span></button></div>
+    <div class="tg">${b('data-cmd="bold"', IC.b, 'Gras (Ctrl+B)')}${b('data-cmd="italic"', IC.i, 'Italique (Ctrl+I)')}${b('data-cmd="underline"', IC.u, 'Souligné (Ctrl+U)')}
       <button type="button" class="tb tcol" data-act="color" title="Couleur du texte" aria-label="Couleur du texte">${IC.color}<i id="fColorBar"></i></button>${b('data-act="hl"', IC.hl, 'Surligner')}</div>
-    <div class="tg hide-s">${b('data-cmd="justifyLeft"', IC.al, 'Aligner à gauche')}${b('data-cmd="justifyCenter"', IC.ac, 'Centrer')}${b('data-cmd="justifyRight"', IC.ar, 'Aligner à droite')}${b('data-cmd="justifyFull"', IC.aj, 'Justifier')}</div>
-    <div class="tg">${b('data-cmd="insertUnorderedList"', IC.ul, 'Liste à puces')}${b('data-cmd="insertOrderedList"', IC.ol, 'Liste numérotée')}${b('data-act="check"', IC.check, 'Liste de tâches')}
-      <span class="hide-s">${b('data-act="outdent"', IC.indL, 'Diminuer le retrait')}${b('data-act="indent"', IC.indR, 'Augmenter le retrait')}${b('data-act="spacing"', IC.spacing, 'Interligne et espacement')}</span></div>
-    <div class="tg">${b('data-act="link"', IC.link, 'Lien (Ctrl+K)')}${b('data-act="image"', IC.img, 'Image')}${b('data-act="table"', IC.table, 'Tableau')}
-      <button type="button" class="tb tb-txt" data-act="insert" title="Insérer" aria-haspopup="true">${IC.plus}<span>Insérer</span></button></div>
-    <div class="tg hide-m">${b('data-act="clear"', IC.clear, 'Effacer la mise en forme')}${b('data-act="find"', IC.search, 'Rechercher et remplacer (Ctrl+F)')}${b('data-act="page"', IC.page, 'Mise en page')}
-      <button type="button" class="tb tb-txt" data-act="tools" title="Outils" aria-haspopup="true">${IC.sparkle}<span>Outils</span></button></div>`;
-  $('#floatBar').innerHTML = `${b('data-fc="bold"', IC.b, 'Gras')}${b('data-fc="italic"', IC.i, 'Italique')}${b('data-fc="underline"', IC.u, 'Souligné')}${b('data-fc="strikeThrough"', IC.s, 'Barré')}<span class="fsep"></span>
-    <button type="button" class="tb" data-fa="h1" title="Titre 1">H1</button><button type="button" class="tb" data-fa="h2" title="Titre 2">H2</button><span class="fsep"></span>
-    ${b('data-fa="color"', IC.color, 'Couleur')}${b('data-fa="hl"', IC.hl, 'Surligner')}${b('data-fa="link"', IC.link, 'Lien')}${b('data-fa="clear"', IC.clear, 'Effacer la mise en forme')}`;
+    <div class="tg">${b('data-act="lists" aria-haspopup="true"', IC.ul, 'Listes et retraits')}${b('data-act="align" id="alignBtn" aria-haspopup="true"', IC.al, 'Alignement')}${b('data-act="link"', IC.link, 'Lien')}${b('data-act="more" aria-haspopup="true"', '<svg viewBox="0 0 24 24"><circle cx="5" cy="12" r="1.6" fill="currentColor"/><circle cx="12" cy="12" r="1.6" fill="currentColor"/><circle cx="19" cy="12" r="1.6" fill="currentColor"/></svg>', 'Plus d\'outils')}</div>`;
   $('#imgBar').innerHTML = `<span class="tl">Taille</span>${[33, 50, 75, 100].map(w => `<button type="button" class="tb tb-txt" data-img="w" data-v="${w}">${w === 100 ? 'Pleine' : w + ' %'}</button>`).join('')}<span class="fsep"></span>
     <button type="button" class="tb" data-img="align" data-v="left" title="À gauche, texte autour">${IC.al}</button><button type="button" class="tb" data-img="align" data-v="center" title="Centrée">${IC.ac}</button><button type="button" class="tb" data-img="align" data-v="right" title="À droite, texte autour">${IC.ar}</button><span class="fsep"></span>
     <button type="button" class="tb tb-txt" data-img="stylepop">Style</button><button type="button" class="tb tb-txt" data-img="caption">Légende</button><button type="button" class="tb" data-img="replace" title="Remplacer l'image">${IC.img}</button><button type="button" class="tb danger" data-img="del" title="Supprimer l'image">${IC.trash}</button>`;
@@ -62,9 +53,40 @@ function buildToolbar(){
     <button type="button" class="tb tb-txt" data-t="delRow">− Ligne</button><button type="button" class="tb tb-txt" data-t="delCol">− Colonne</button><span class="fsep"></span>
     <button type="button" class="tb tb-txt" data-t="head">En-tête</button><button type="button" class="tb tb-txt" data-t="style">Style</button><button type="button" class="tb" data-t="right" title="Aligner la colonne à droite (nombres)">${IC.ar}</button><button type="button" class="tb danger" data-t="del" title="Supprimer le tableau">${IC.trash}</button>`;
 }
+function fontPop(anchor){
+  const el = getSelection().anchorNode?.parentElement, cs = el && sheet().contains(el) ? getComputedStyle(el) : null;
+  const fam = cs ? (cs.fontFamily.split(',')[0] || '').replace(/["']/g, '').trim() : '', pt = cs ? Math.round(parseFloat(cs.fontSize) * .75 * 2) / 2 : 11;
+  openPop(anchor, `<p class="pop-h">Police</p><div class="pop-fonts">${['', ...FONTS.map(f => f[0])].map(f => { if (f) ensureFont(f); return `<button type="button" data-ff="${escH(f)}" class="${f === fam ? 'on' : ''}" style="${f ? `font-family:${fontStack(f).replace(/"/g, '')}` : ''}">${f || 'Police du thème'}</button>`; }).join('')}</div>
+    <p class="pop-h">Taille</p><div class="pop-size"><button type="button" data-fs="-">${IC.minus}</button><input id="fSize" value="${String(pt).replace('.', ',')}" inputmode="decimal" aria-label="Taille en points"><button type="button" data-fs="+">${IC.plus}</button><span>pt</span></div>
+    <div class="pop-sizes">${[9, 10, 11, 12, 14, 16, 20, 24, 32, 48].map(n => `<button type="button" data-fsv="${n}">${n}</button>`).join('')}</div>`, p => {
+    p.addEventListener('mousedown', e => { if (!e.target.closest('input')) e.preventDefault(); });
+    p.onclick = e => { const f = e.target.closest('[data-ff]'); if (f){ restoreSel(); const v = f.dataset.ff; if (v){ ensureFont(v); inlineStyle('font-family', fontStack(v)); } else inlineStyle('font-family', 'inherit'); setTimeout(paginate, 400); $$('[data-ff]', p).forEach(x => x.classList.toggle('on', x === f)); return; }
+      const st = e.target.closest('[data-fs]'); if (st){ stepSize(st.dataset.fs === '+' ? 1 : -1); return; }
+      const sv = e.target.closest('[data-fsv]'); if (sv){ $('#fSize').value = sv.dataset.fsv; restoreSel(); inlineStyle('font-size', sv.dataset.fsv + 'pt'); } };
+    const sz = $('#fSize', p); sz.onkeydown = e => { if (e.key === 'Enter'){ e.preventDefault(); const v = parseFloat(sz.value.replace(',', '.')); if (v >= 4 && v <= 200){ restoreSel(); inlineStyle('font-size', v + 'pt'); } } };
+  }, 'wide');
+}
+function listPop(anchor){
+  openPop(anchor, `<div class="pop-list">
+    <button type="button" data-l="ul">${IC.ul}<span>Liste à puces</span><kbd>- espace</kbd></button><button type="button" data-l="ol">${IC.ol}<span>Liste numérotée</span><kbd>1. espace</kbd></button>
+    <button type="button" data-l="check">${IC.check}<span>Liste de tâches</span><kbd>[] espace</kbd></button><hr>
+    <button type="button" data-l="in">${IC.indR}<span>Augmenter le retrait</span><kbd>Tab</kbd></button><button type="button" data-l="out">${IC.indL}<span>Diminuer le retrait</span><kbd>Maj Tab</kbd></button>
+    <button type="button" data-l="sp">${IC.spacing}<span>Interligne et espacement…</span></button></div>`, p => {
+    p.onclick = e => { const b = e.target.closest('[data-l]'); if (!b) return; const k = b.dataset.l; if (k === 'sp') return spacingPop(anchor); closePop(); restoreSel();
+      ({ul:() => cmd('insertUnorderedList'), ol:() => cmd('insertOrderedList'), check:toggleChecklist, in:() => indent(1), out:() => indent(-1)})[k](); };
+  });
+}
+function alignPop(anchor){
+  openPop(anchor, `<div class="pop-row4">${[['justifyLeft', IC.al, 'À gauche'], ['justifyCenter', IC.ac, 'Centré'], ['justifyRight', IC.ar, 'À droite'], ['justifyFull', IC.aj, 'Justifié']].map(([c, ic, t]) => `<button type="button" data-al="${c}" class="${safeState(c) ? 'on' : ''}" title="${t}">${ic}<span>${t}</span></button>`).join('')}</div>`, p => {
+    p.onclick = e => { const b = e.target.closest('[data-al]'); if (!b) return; closePop(); restoreSel(); cmd(b.dataset.al); };
+  });
+}
 function toolsPop(anchor){
   openPop(anchor, `<div class="pop-menu">
-    <button type="button" data-o="typo"><b>Typographie française</b><span>Espaces insécables, « guillemets », apostrophes ’, points de suspension…</span></button>
+    <button type="button" data-o="strike"><b>Barré</b><span>Pour rayer un mot sans l'effacer</span></button>
+    <button type="button" data-o="clear"><b>Effacer la mise en forme</b><span>Revenir au texte normal du thème</span></button>
+    <button type="button" data-o="history"><b>Historique des versions</b><span>Revenir à une version précédente</span></button>
+    <hr><button type="button" data-o="typo"><b>Typographie française</b><span>Espaces insécables, « guillemets », apostrophes ’, points de suspension…</span></button>
     <label class="pop-toggle"><input type="checkbox" id="optTypo"${E.frTypo ? ' checked' : ''}><span><b>Typographie automatique pendant la frappe</b><small>' → ’ · " → « » · espace fine avant ; ! ?</small></span></label>
     <button type="button" data-o="find"><b>Rechercher et remplacer</b><span>Ctrl + F · Ctrl + H</span></button>
     <button type="button" data-o="page"><b>Mise en page</b><span>Format, marges, en-tête, pied de page, numéros, filigrane</span></button>
@@ -74,7 +96,7 @@ function toolsPop(anchor){
     <button type="button" data-o="shortcuts"><b>Raccourcis et astuces</b><span>Commande /, Markdown, clavier</span></button></div>`, p => {
     $('#optTypo', p).onchange = e => { E.frTypo = e.target.checked; lsSet('sw.frTypo', E.frTypo); toast(E.frTypo ? 'Typographie automatique activée' : 'Typographie automatique désactivée'); };
     p.onclick = e => { const b = e.target.closest('[data-o]'); if (!b) return; closePop(); const k = b.dataset.o;
-      if (k === 'typo') frenchTypo(); else if (k === 'find') openFind(true); else if (k === 'page') pageDlg(); else if (k === 'focus') toggleFocus(true);
+      if (k === 'strike') { restoreSel(); cmd('strikeThrough'); } else if (k === 'clear'){ restoreSel(); clearFormat(); } else if (k === 'history') historyDlg(); else if (k === 'typo') frenchTypo(); else if (k === 'find') openFind(true); else if (k === 'page') pageDlg(); else if (k === 'focus') toggleFocus(true);
       else if (k === 'insert-file') $('#edInsFile').click(); else if (k === 'save-tpl') saveTplDlg(); else if (k === 'shortcuts') shortcutsDlg(); };
   }, 'menu');
 }
@@ -86,11 +108,12 @@ function filePop(anchor){
     <button type="button" data-f="share"><b>Partager…</b><span>Par email ou par lien, en lecture ou modification</span></button>
     <hr><button type="button" data-f="page"><b>Mise en page</b><span>Format, marges, en-tête et pied de page</span></button>
     <button type="button" data-f="print"><b>Imprimer</b><span>Ctrl + P</span></button>
+    <button type="button" data-f="history"><b>Historique des versions</b><span>Revenir à une version précédente</span></button>
     <button type="button" data-f="info"><b>Informations</b><span>Statistiques du document</span></button>
     <hr><button type="button" data-f="home"><b>Retour à l'accueil</b><span>Vos documents et modèles</span></button></div>`, p => {
     p.onclick = e => { const b = e.target.closest('[data-f]'); if (!b) return; closePop(); const k = b.dataset.f;
       if (k === 'new') window.SWHome?.show('templates'); else if (k === 'dup') window.SWHome?.duplicateCurrent(); else if (k === 'import') $('#homeFile').click();
-      else if (k === 'share') window.SWShareCurrent?.(); else if (k === 'page') pageDlg(); else if (k === 'print') printDoc(); else if (k === 'info') infoDlg(); else if (k === 'home') window.SWHome?.show('home'); };
+      else if (k === 'share') window.SWShareCurrent?.(); else if (k === 'page') pageDlg(); else if (k === 'print') printDoc(); else if (k === 'info') infoDlg(); else if (k === 'history') historyDlg(); else if (k === 'home') window.SWHome?.show('home'); };
   }, 'menu');
 }
 function saveTplDlg(){ SWAsk('Enregistrer comme modèle', 'Nom du modèle', E.doc.title, 'Enregistrer', async v => { await SWHome.saveTemplate(v); }); }
@@ -104,7 +127,7 @@ function infoDlg(){
 function shortcutsDlg(){
   const k = (a, b) => `<tr><td>${a}</td><td>${b}</td></tr>`;
   SWDlg.open(`<h3>Raccourcis et astuces</h3><div class="sc-wrap"><table class="sc">${k('<kbd>/</kbd> en début de ligne', 'Insérer un bloc, un titre, un tableau…')}${k('<kbd>#</kbd> <kbd>##</kbd> <kbd>###</kbd> + espace', 'Titre 1, 2, 3')}${k('<kbd>-</kbd> ou <kbd>*</kbd> + espace', 'Liste à puces')}${k('<kbd>1.</kbd> + espace', 'Liste numérotée')}${k('<kbd>[]</kbd> + espace', 'Liste de tâches')}${k('<kbd>&gt;</kbd> + espace', 'Citation')}${k('<kbd>---</kbd> + Entrée', 'Séparateur')}
-    ${k('<kbd>Ctrl</kbd> <kbd>B</kbd> / <kbd>I</kbd> / <kbd>U</kbd>', 'Gras, italique, souligné')}${k('<kbd>Ctrl</kbd> <kbd>Alt</kbd> <kbd>1</kbd> <kbd>2</kbd> <kbd>3</kbd> · <kbd>0</kbd>', 'Titre 1, 2, 3 · texte normal')}${k('<kbd>Ctrl</kbd> <kbd>K</kbd>', 'Lien')}${k('<kbd>Ctrl</kbd> <kbd>Entrée</kbd>', 'Saut de page')}${k('<kbd>Ctrl</kbd> <kbd>F</kbd> · <kbd>H</kbd>', 'Rechercher · remplacer')}${k('<kbd>Ctrl</kbd> <kbd>Maj</kbd> <kbd>V</kbd>', 'Coller sans mise en forme')}${k('<kbd>Ctrl</kbd> <kbd>P</kbd>', 'Imprimer ou PDF')}${k('<kbd>Ctrl</kbd> <kbd>S</kbd>', 'Enregistrer tout de suite (sinon automatique)')}
+    ${k('<kbd>Ctrl</kbd> <kbd>B</kbd> / <kbd>I</kbd> / <kbd>U</kbd>', 'Gras, italique, souligné')}${k('<kbd>Ctrl</kbd> <kbd>Alt</kbd> <kbd>1</kbd> <kbd>2</kbd> <kbd>3</kbd> · <kbd>0</kbd>', 'Titre 1, 2, 3 · texte normal')}${k('<kbd>Ctrl</kbd> <kbd>K</kbd>', 'Chercher une action (le Spectre)')}${k('<kbd>:</kbd> + un mot', 'Émoji (:idee, :ok, :date…)')}${k('<kbd>Ctrl</kbd> <kbd>Entrée</kbd>', 'Saut de page')}${k('<kbd>Ctrl</kbd> <kbd>F</kbd> · <kbd>H</kbd>', 'Rechercher · remplacer')}${k('<kbd>Ctrl</kbd> <kbd>Maj</kbd> <kbd>V</kbd>', 'Coller sans mise en forme')}${k('<kbd>Ctrl</kbd> <kbd>P</kbd>', 'Imprimer ou PDF')}${k('<kbd>Ctrl</kbd> <kbd>S</kbd>', 'Enregistrer tout de suite (sinon automatique)')}
     ${k('Poignée <b>⋮⋮</b> à gauche d\'un bloc', 'Glisser pour déplacer, cliquer pour dupliquer, supprimer…')}${k('Glisser une image sur la page', 'Elle s\'insère à cet endroit')}</table></div><div class="dlg-acts"><button type="button" class="ap-btn" data-dlg="close">Compris</button></div>`, null, 'wide');
 }
 function toggleFocus(on){ document.body.classList.toggle('focus-mode', on ?? !document.body.classList.contains('focus-mode')); setTimeout(() => { sizeStage(); placeTools(); }, 50); if (document.body.classList.contains('focus-mode')) toast('Mode concentration · Échap pour sortir'); }
@@ -114,7 +137,7 @@ function wire(){
   const S = sheet();
   S.addEventListener('input', e => { $$('.ph-cur', S).forEach(x => { if (x.textContent.replace(/\u200B/g, '').trim()) x.classList.remove('ph-cur'); }); changed(); slashCheck(); placeFloat(); });
   S.addEventListener('focus', () => document.body.classList.add('editing'));
-  S.addEventListener('blur', () => { saveSel(); document.body.classList.remove('editing'); setTimeout(() => { if (!inSheet()) $('#floatBar').hidden = true; }, 150); });
+  S.addEventListener('blur', () => { saveSel(); document.body.classList.remove('editing');  });
   document.addEventListener('selectionchange', () => { if (!sheet() || $('#app').hidden) return; if (inSheet()){ saveSel(); refreshSoon(); statusSoon(); if (!SL.open || !getSelection().isCollapsed) slashCheckSoon(); } requestAnimationFrame(() => { placeFloat(); placeTools(); }); });
   S.addEventListener('beforeinput', e => {
     if (E.ro){ e.preventDefault(); return; }
@@ -166,24 +189,13 @@ function wire(){
   ih.addEventListener('pointerup', () => { if (rs){ rs = null; changed({record:true}); paginate(); } });
   /* barres */
   const keep = el => el.addEventListener('mousedown', e => { if (!e.target.closest('select,input')) e.preventDefault(); });
-  ['#edBar', '#floatBar', '#imgBar', '#tblBar', '#slashMenu'].forEach(s => keep($(s)));
+  ['#edBar', '#imgBar', '#tblBar', '#slashMenu'].forEach(s => keep($(s)));
   $('#edBar').addEventListener('click', e => {
     const c = e.target.closest('[data-cmd]'); if (c) return cmd(c.dataset.cmd);
     const a = e.target.closest('[data-act]'); if (!a) return; const k = a.dataset.act; restoreSel();
-    ({undo, redo, check:toggleChecklist, indent:() => indent(1), outdent:() => indent(-1), link:linkDlg, image:() => $('#edImgFile').click(), table:() => tablePop(a), insert:() => insertPop(a),
-      color:() => colorPop(a, false), hl:() => colorPop(a, true), spacing:() => spacingPop(a), clear:clearFormat, find:() => openFind(false), page:pageDlg, tools:() => toolsPop(a),
-      'size-':() => stepSize(-1), 'size+':() => stepSize(1)})[k]?.();
+    ({undo, redo, link:linkDlg, color:() => colorPop(a, false), hl:() => colorPop(a, true), font:() => fontPop(a), lists:() => listPop(a), align:() => alignPop(a), more:() => toolsPop(a)})[k]?.();
   });
   $('#fStyle').addEventListener('change', e => { const s = STYLES[+e.target.value]; restoreSel(); setBlock(s[0], s[1]); sheet().focus({preventScroll:true}); });
-  $('#fFont').addEventListener('change', e => { const f = e.target.value; restoreSel(); if (f){ ensureFont(f); inlineStyle('font-family', fontStack(f)); } else inlineStyle('font-family', 'inherit'); sheet().focus({preventScroll:true}); setTimeout(paginate, 400); });
-  const sz = $('#fSize');
-  const applySize = () => { const v = parseFloat(String(sz.value).replace(',', '.')); if (!(v >= 4 && v <= 200)) return refreshToolbar(); restoreSel(); inlineStyle('font-size', v + 'pt'); sheet().focus({preventScroll:true}); };
-  sz.addEventListener('change', applySize); sz.addEventListener('keydown', e => { if (e.key === 'Enter'){ e.preventDefault(); applySize(); } });
-  $('#floatBar').addEventListener('click', e => {
-    const c = e.target.closest('[data-fc]'); if (c) return cmd(c.dataset.fc);
-    const a = e.target.closest('[data-fa]'); if (!a) return; const k = a.dataset.fa;
-    if (k === 'h1' || k === 'h2') setBlock(k); else if (k === 'color') colorPop(a, false); else if (k === 'hl') colorPop(a, true); else if (k === 'link') linkDlg(); else if (k === 'clear') clearFormat();
-  });
   $('#imgBar').addEventListener('click', e => { const b = e.target.closest('[data-img]'); if (!b) return; const k = b.dataset.img;
     if (k === 'replace'){ E.replaceFig = selFig; return $('#edImgFile').click(); }
     if (k === 'stylepop') return openPop(b, `<div class="pop-list">${[['', 'Aucun'], ['rounded', 'Coins arrondis'], ['shadow', 'Ombre portée'], ['frame', 'Cadre photo'], ['circle', 'Cercle']].map(([v, t]) => `<button type="button" data-st="${v}">${t}</button>`).join('')}<hr><button type="button" data-st="alt">Texte alternatif…</button></div>`, p => {
@@ -197,6 +209,11 @@ function wire(){
   $('#edInsFile').addEventListener('change', e => { const f = e.target.files[0]; e.target.value = ''; if (f){ restoreSel(); insertFileHere(f); } });
   /* panneaux */
   $('#edRail').addEventListener('click', e => { const b = e.target.closest('[data-panel]'); if (b) openPanel(b.dataset.panel); });
+  $('#edThread').addEventListener('click', e => { const b = e.target.closest('[data-tk]'); if (!b) return; const hs = $$('h1, h2, h3', sheet()).filter(h => h.textContent.trim() && !h.closest('.sw-toc, .sw-cover')); hs[+b.dataset.tk]?.scrollIntoView({behavior:'smooth', block:'start'}); });
+  $('#spQ').addEventListener('input', () => { SPX.i = 0; drawSpectre(); });
+  $('#spQ').addEventListener('keydown', e => { if (e.key === 'ArrowDown'){ e.preventDefault(); SPX.i = Math.min(SPX.items.length - 1, SPX.i + 1); drawSpectre(); } else if (e.key === 'ArrowUp'){ e.preventDefault(); SPX.i = Math.max(0, SPX.i - 1); drawSpectre(); } else if (e.key === 'Enter'){ e.preventDefault(); runSpectre(SPX.i); } else if (e.key === 'Escape'){ e.preventDefault(); closeSpectre(); restoreSel(); } });
+  $('#spList').addEventListener('click', e => { const b = e.target.closest('[data-sp]'); if (b) runSpectre(+b.dataset.sp); });
+  $('#spectre').addEventListener('mousedown', e => { if (e.target.id === 'spectre') closeSpectre(); });
   $('#edPanelClose').addEventListener('click', () => openPanel(panel));
   const PB = $('#edPanelBody');
   PB.addEventListener('mousedown', e => { if (e.target.closest('[data-block],[data-ins],[data-tag],[data-shape]')) e.preventDefault(); });
@@ -205,13 +222,16 @@ function wire(){
     const bl = t.closest('[data-block]'); if (bl){ restoreSel(); return insertBlockById(bl.dataset.block); }
     const bi = t.closest('[data-block-ins]'); if (bi){ restoreSel(); return insertBlockById(bi.dataset.blockIns); }
     const bc = t.closest('[data-bcat]'); if (bc){ blockCat = bc.dataset.bcat; return renderPanel(); }
-    const th = t.closest('[data-theme]'); if (th){ applyTheme({id:th.dataset.theme, fs:E.doc.theme.fs, lh:E.doc.theme.lh}); toast('Thème « ' + themeVals(E.doc.theme).name + ' » appliqué'); return renderPanel(); }
+    const th = t.closest('[data-thm]'); if (th){ applyTheme({id:th.dataset.thm, fs:E.doc.theme.fs, lh:E.doc.theme.lh}); toast('Thème « ' + themeVals(E.doc.theme).name + ' » appliqué'); return renderPanel(); }
     const ins = t.closest('[data-ins]'); if (ins){ restoreSel(); return insertInline(ins.dataset.ins); }
     const tg = t.closest('[data-tag]'); if (tg){ restoreSel(); insertHTMLInline(`<span class="sw-tag">${escH(tg.dataset.tag)}</span>&nbsp;`); return; }
     const sh = t.closest('[data-shape]'); if (sh){ restoreSel(); const s = SHAPES.find(x => x.id === sh.dataset.shape); return insertHTMLBlock(`<div class="sw-shape" contenteditable="false">${s.svg}</div>`); }
     const tp = t.closest('[data-tpl]'); if (tp) return tplChoice(tp.dataset.tpl);
     const go = t.closest('[data-go]'); if (go){ const hs = $$('h1, h2, h3', sheet()).filter(h => h.textContent.trim() && !h.closest('.sw-toc')); hs[+go.dataset.go]?.scrollIntoView({behavior:'smooth', block:'start'}); return; }
     const gi = t.closest('[data-goimg]'); if (gi){ const f = $$('figure.sw-img', sheet())[+gi.dataset.goimg]; if (f){ f.scrollIntoView({behavior:'smooth', block:'center'}); selectFigure(f); } return; }
+    const sg = t.closest('.seg [data-v]'); if (sg){ const k = sg.closest('.seg').dataset.seg, v = sg.dataset.v;
+      if (k === 'num') setPage({numbers:!!v, numStyle:v || 'n'}); else setPage({[k]:v}); return renderPanel(); }
+    const bg = t.closest('[data-pgbg]'); if (bg){ setPage({bg:bg.dataset.pgbg}); return renderPanel(); }
     const a = t.closest('[data-act]'); if (!a) return;
     if (a.dataset.act === 'img-upload') $('#edImgFile').click();
     else if (a.dataset.act === 'save-tpl') saveTplDlg();
@@ -220,6 +240,9 @@ function wire(){
   PB.addEventListener('dragstart', e => { const b = e.target.closest('[data-block]'); if (b){ e.dataTransfer.setData('text/sw-block', b.dataset.block); e.dataTransfer.effectAllowed = 'copy'; } const s = e.target.closest('[data-shape]'); if (s){ e.dataTransfer.setData('text/sw-shape', s.dataset.shape); } });
   PB.addEventListener('input', e => {
     if (e.target.id === 'pnBlockQ'){ blockQ = e.target.value; renderPanel(); return; }
+    if (e.target.id === 'pgHdr' || e.target.id === 'pgFtr' || e.target.id === 'pgWm'){ const k = {pgHdr:'header', pgFtr:'footer', pgWm:'watermark'}[e.target.id]; pageField(k, e.target.value.slice(0, k === 'watermark' ? 24 : 120)); return; }
+    if (e.target.id === 'pgBgC'){ setPage({bg:e.target.value}); return; }
+    if (e.target.id === 'olGoal'){ E.doc.page.goal = Math.max(0, +e.target.value || 0); emitChange(); goalSoon(); return; }
     const id = e.target.id, th = {...E.doc.theme};
     if (id === 'thAc'){ th.ac = e.target.value; e.target.nextElementSibling.textContent = e.target.value; }
     else if (id === 'thAc2'){ th.ac2 = e.target.value; e.target.nextElementSibling.textContent = e.target.value; }
@@ -242,7 +265,7 @@ function wire(){
   $('#fileBtn').addEventListener('click', e => filePop(e.currentTarget));
   $('#shareBtn').addEventListener('click', () => window.SWShareCurrent?.());
   $('#homeBtn').addEventListener('click', () => window.SWHome?.show('home'));
-  $('#focusBtn').addEventListener('click', () => toggleFocus());
+  $('#spectreBtn').addEventListener('click', openSpectre);
   $('#zoomOut').addEventListener('click', () => setZoom(E.zoom - .1));
   $('#zoomIn').addEventListener('click', () => setZoom(E.zoom + .1));
   $('#zoomRange').addEventListener('input', e => setZoom(+e.target.value / 100));
@@ -254,6 +277,9 @@ function wire(){
   addEventListener('afterprint', () => { if (E.printing){ E.printing = false; document.body.classList.remove('printing'); applyGeometry(); sizeStage(); paginate(); } });
 }
 const renderDecoSoon = debounce(() => renderDeco(), 300);
+const pageFieldSoon = debounce(() => { applyGeometry(); paginate(); emitChange(true); recPending = true; recordLater(); }, 250);
+function pageField(k, v){ E.doc.page = {...E.doc.page, [k]:v}; renderDeco(); pageFieldSoon(); }
+const goalSoon = debounce(() => renderOutline(), 500);
 const slashCheckSoon = debounce(() => { if (SL.open) slashCheck(); }, 30);
 function stepSize(d){ const cur = parseFloat(String($('#fSize').value).replace(',', '.')) || 11; const steps = [8, 9, 10, 11, 12, 14, 16, 18, 20, 24, 28, 32, 36, 48, 60, 72];
   const nx = d > 0 ? steps.find(s => s > cur) || cur + 8 : [...steps].reverse().find(s => s < cur) || Math.max(4, cur - 1); $('#fSize').value = nx; restoreSel(); inlineStyle('font-size', nx + 'pt'); }
@@ -280,7 +306,6 @@ function onKey(e){
     if (lk === 'b'){ e.preventDefault(); return cmd('bold'); }
     if (lk === 'i'){ e.preventDefault(); return cmd('italic'); }
     if (lk === 'u'){ e.preventDefault(); return cmd('underline'); }
-    if (lk === 'k'){ e.preventDefault(); return linkDlg(); }
     if (k === 'Enter'){ e.preventDefault(); return insertHTMLBlock(PAGEBREAK + '<p><br></p>'); }
     if (lk === 'e' && e.shiftKey){ e.preventDefault(); return cmd('justifyCenter'); }
   }
@@ -315,8 +340,9 @@ function mdShortcut(){
 function globalKeys(e){
   if ($('#app').hidden || !$('#auth').hidden) return;
   const mod = e.ctrlKey || e.metaKey, lk = e.key.toLowerCase();
-  if (e.key === 'Escape'){ if (!$('#edPop').hidden) return closePop(); if (!$('#findBar').hidden) return closeFind(); if (document.body.classList.contains('focus-mode')) return toggleFocus(false); if (selFig) return selectFigure(null); }
+  if (e.key === 'Escape'){ if (!$('#spectre').hidden){ closeSpectre(); return restoreSel(); } if (!$('#edPop').hidden) return closePop(); if (panel) return openPanel(panel); if (!$('#findBar').hidden) return closeFind(); if (document.body.classList.contains('focus-mode')) return toggleFocus(false); if (selFig) return selectFigure(null); }
   if (!mod) return;
+  if (lk === 'k' || e.key === '/'){ e.preventDefault(); return $('#spectre').hidden ? openSpectre() : closeSpectre(); }
   if (lk === 's'){ e.preventDefault(); window.SWHome?.flush(); toast('Enregistré'); }
   else if (lk === 'p'){ e.preventDefault(); printDoc(); }
   else if (lk === 'f' && !e.shiftKey){ e.preventDefault(); openFind(false); }
@@ -353,6 +379,7 @@ function onPaste(e){
   const st = document.createElement('style'); st.id = 'swDocCss'; st.textContent = DOC_CSS; document.head.appendChild(st);
   E.sheet = $('#sheet'); E.canvas = $('#edCanvas'); E.scroll = $('#edScroll'); E.stage = $('#edStage'); E.deco = $('#pageDeco'); E.over = $('#edOver');
   buildToolbar(); renderRail(); wire();
+  if (/Mac|iPhone|iPad/.test(navigator.platform || navigator.userAgent)) $('#spectreKbd').textContent = '⌘ K';
   addEventListener('keydown', e => { if ((e.ctrlKey || e.metaKey) && e.shiftKey && e.key.toLowerCase() === 'v' && inSheet()) E.plainNext = true; }, true);
   E.sheet.innerHTML = '<p><br></p>'; applyGeometry(); layout();
   const ro = new ResizeObserver(debounce(() => { if (!$('#app').hidden){ sizeStage(); } }, 100)); ro.observe(E.scroll);
