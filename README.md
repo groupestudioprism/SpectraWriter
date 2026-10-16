@@ -42,7 +42,7 @@ Même compte que le site Studio Prism, ARCHIPLAN et Archi Vision.
 | `src/editor/` | Éditeur : assainissement, thèmes, modèles, blocs, cœur (pagination, mise en forme, historique), panneaux, import/export, démarrage |
 | `src/js/` | Compte Studio Prism et code PIN (`auth.js`, repris d'ARCHIPLAN), cloud et accueil (`cloud.js`), Communauté et modération (`community.js`), IA (`ai.js`), menu du compte (`auth-end.js`) |
 | `tools/build.py` | `python3 tools/build.py` → `index.html` (en ligne) et `dist/spectrawriter-demo.html` |
-| `firebase/firestore.rules` | Règles Firestore complètes (site + SPECTRA Writer), à coller telles quelles dans la console |
+| `firebase/firestore.rules` | Règles Firestore complètes (site + SPECTRA Writer + SPECTRA Calc), à coller telles quelles dans la console |
 | `firebase/firestore-spectrawriter.rules` | Le seul bloc SPECTRA Writer (pour mémoire) |
 | `assets/` | Logos (tirés de la planche « Gamme SPECTRA »), favicon |
 
