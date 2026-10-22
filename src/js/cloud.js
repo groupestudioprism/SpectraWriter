@@ -5,7 +5,7 @@
    swShares/{cible}__{email} (cible = id du document, ou F_{id} pour un dossier), swGrants/{cible}__{uid} (accès par lien),
    swUsage/{uid} (octets utilisés), swLibrary/{uid} (modèles personnels).
    Offres : gratuit 10 Mo, licence 50 Mo, administrateur 1 Go ; 5 dossiers et 3 dossiers partagés.
-   Tant que les règles Firestore de SPECTRA Writer ne sont pas publiées (firebase/firestore-spectrawriter.rules), l'app bascule
+   Tant que les règles Firestore de SPECTRA Writer ne sont pas publiées (les règles Firestore (dépôt Studio-Prism, firebase/rules)), l'app bascule
    d'elle-même sur un stockage « sur cet appareil » rattaché au compte : rien n'est perdu, tout pourra être envoyé au cloud ensuite.
    ===================================================================== */
 const APP_URL = location.origin + location.pathname;
