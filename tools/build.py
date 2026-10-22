@@ -5,6 +5,7 @@
   src/css/*.css               styles (ordre : CSS_ORDER)
   src/parts/body.html         structure : intro, compte, accueil, éditeur
   src/editor/*.js             éditeur (script classique, fichiers concaténés dans l'ordre alphabétique, une seule IIFE)
+  src/js/intro.js             animation d'ouverture (insérée juste après le bloc #splash)
   src/js/auth.js + cloud.js + community.js + ai.js + auth-end.js   compte Studio Prism, cloud, accueil (une seule IIFE)
 
 Sorties :
@@ -30,7 +31,7 @@ CONFIG = '''const FIREBASE_CONFIG = {
 def rd(p): return (S / p).read_text(encoding='utf-8')
 def assemble():
     editor = ''.join(f'/* ==== {f.name} ==== */\n' + f.read_text(encoding='utf-8') + '\n' for f in sorted((S / 'editor').glob('*.js')))
-    return (rd('parts/head.html') + '<style>\n' + ''.join(rd('css/' + c) for c in CSS_ORDER) + '</style>\n</head><body>\n' + rd('parts/body.html')
+    return (rd('parts/head.html') + '<style>\n' + ''.join(rd('css/' + c) for c in CSS_ORDER) + '</style>\n</head><body>\n' + rd('parts/body.html').replace('<!--INTRO-JS-->', '<script>\n' + rd('js/intro.js') + '</script>')
             + "<script>\n(() => {\n'use strict';\n" + editor + '})();\n</script>\n'
             + '<script>\n' + rd('js/auth.js') + rd('js/cloud.js') + rd('js/community.js') + rd('js/ai.js') + rd('js/auth-end.js') + '</script>\n')
 def head(desc):
