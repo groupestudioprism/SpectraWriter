@@ -1,4 +1,5 @@
 <!doctype html><html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="description" content="SPECTRA Writer · Studio Prism : le traitement de texte simple comme Canva et plus puissant que Word."><meta name="theme-color" content="#0C0A16"><meta property="og:title" content="SPECTRA Writer · Studio Prism"><meta property="og:description" content="Le traitement de texte de la gamme SPECTRA : simple comme Canva, puissant comme jamais."><link rel="preconnect" href="https://www.gstatic.com" crossorigin><link rel="preconnect" href="https://firestore.googleapis.com"><link rel="preconnect" href="https://identitytoolkit.googleapis.com"><link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin><link rel="x-preload" as="script" href="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"><link rel="x-preload" as="script" href="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"><link rel="x-preload" as="script" href="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"><style>[hidden]{display:none!important}</style>
+<style id="spBg">html{background:#0C0A16}</style>
 <script>try{document.documentElement.dataset.theme=localStorage.getItem('sw.theme')==='dark'?'dark':'light'}catch(e){document.documentElement.dataset.theme='light'}</script>
 <title>SPECTRA Writer · démo</title>
 <link rel="icon" type="image/svg+xml" href="../assets/favicon.svg">
@@ -7,7 +8,7 @@
 <link rel="manifest" href="../manifest.webmanifest">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,650;12..96,800&family=Inter:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400&family=Plus+Jakarta+Sans:ital,wght@0,400;0,600;0,700;0,800;1,400&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,650;12..96,800&family=Inter:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400&family=Plus+Jakarta+Sans:ital,wght@0,400;0,600;0,700;0,800;1,400&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet" media="print" onload="this.media='all'"><noscript><link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,650;12..96,800&family=Inter:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400&family=Plus+Jakarta+Sans:ital,wght@0,400;0,600;0,700;0,800;1,400&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet"></noscript>
 <script>if('serviceWorker' in navigator && location.protocol==='https:' && !/\/dist\//.test(location.pathname)){addEventListener('load',function(){navigator.serviceWorker.register('sw.js').catch(function(){})})}</script>
 <style>
 /* ===== SPECTRA Writer · charte de la gamme SPECTRA (dégradé prismatique du logo) ===== */
@@ -103,8 +104,11 @@ kbd{display:inline-block;min-width:22px;padding:1px 6px;border:1px solid var(--l
 /* ===== Intro SPECTRA Writer : un curseur frappe le nom, le symbole se dessine (voir src/js/intro.js) =====
    Jetons de la gamme : entrée cubic-bezier(.22,.8,.2,1) · va-et-vient (.65,0,.35,1) · sortie 450 ms.
    L'état par défaut de chaque élément EST l'état final ; les animations partent d'un état initial (fill both). */
-#splash{position:fixed;inset:0;z-index:100;display:grid;place-items:center;background:#0C0A16;color:#fff;overflow:hidden;transition:opacity .45s ease,visibility .45s}
+#splash{position:fixed;inset:0;z-index:100;display:grid;place-items:center;background:#0C0A16;color:#fff;overflow:hidden;transition:opacity .35s ease .2s,visibility 0s .55s}
+/* sortie en deux temps : le contenu (.sp-stage) s'efface d'abord (200 ms), puis le fond (350 ms) */
 #splash.done{opacity:0;visibility:hidden}
+.sp-stage{position:absolute;inset:0;display:grid;place-items:center;transition:opacity .2s ease}
+#splash.done .sp-stage{opacity:0}
 .sp-glow{position:absolute;inset:0;pointer-events:none;animation:spfadein 1.1s cubic-bezier(.22,.8,.2,1) both,spdrift 3.2s cubic-bezier(.4,0,.2,1) both}
 .sp-glow::before,.sp-glow::after{content:"";position:absolute;width:72vmax;height:72vmax;border-radius:50%}
 .sp-glow::before{left:-24vmax;top:-34vmax;background:radial-gradient(circle,rgb(123 47 247 / .20),transparent 62%)}
@@ -117,10 +121,8 @@ kbd{display:inline-block;min-width:22px;padding:1px 6px;border:1px solid var(--l
 .sp-halo{position:absolute;inset:-38%;border-radius:50%;background:radial-gradient(closest-side,rgb(123 47 247 / .40),rgb(20 194 236 / .10) 62%,transparent);animation:sphalo .9s 2s cubic-bezier(.22,.8,.2,1) both}
 @keyframes sphalo{from{opacity:0;transform:scale(.7)}}
 .sp-mark{position:relative;width:100%;height:100%;border-radius:calc(var(--m) * .2);overflow:hidden}
-.sp-mark::before{content:"";position:absolute;inset:calc(var(--m) * .0156);border-radius:calc(var(--m) * .1875);border:1.5px dashed rgb(255 255 255 / .26);animation:spguide 1.9s .5s cubic-bezier(.22,.8,.2,1) both}
-@keyframes spguide{0%{opacity:0;transform:scale(.94)}25%{opacity:1;transform:none}80%{opacity:1}100%{opacity:0}}
-.sp-mark svg{position:relative;width:100%;height:100%;display:block;animation:splight .55s 1.75s cubic-bezier(.22,.8,.2,1) both}
-@keyframes splight{from{clip-path:inset(0 100% 0 0)}to{clip-path:inset(0 0 0 0)}}
+.sp-mark svg{position:relative;width:100%;height:100%;display:block;animation:splight .6s 1.7s cubic-bezier(.22,.8,.2,1) both}
+@keyframes splight{from{opacity:0;transform:scale(.88);filter:saturate(.2) brightness(.65)}}
 .sp-st{stroke-dasharray:1;stroke-dashoffset:0}
 .sp-st1{animation:spdraw .5s 1.95s cubic-bezier(.65,0,.35,1) both}
 .sp-st2{animation:spdraw .32s 2.38s cubic-bezier(.22,.8,.2,1) both}
@@ -131,6 +133,7 @@ kbd{display:inline-block;min-width:22px;padding:1px 6px;border:1px solid var(--l
 .sp-word{--u:clamp(25px,8.2vw,34px);margin:0;white-space:nowrap;text-align:center;font-size:var(--u);line-height:1.15}
 .sp-w1{font:800 var(--u)/1 var(--f-disp);letter-spacing:.06em}
 .sp-w2{font:500 calc(var(--u) * .88)/1 var(--f-disp);background:var(--prism);-webkit-background-clip:text;background-clip:text;color:transparent}
+.sp-sys .sp-w1,.sp-sys .sp-w2{font-family:system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
 .sp-g{animation:spkey 1ms var(--d) both}
 .sp-sp{display:inline-block;width:0;margin-right:.3em}
 @keyframes spkey{from{visibility:hidden}to{visibility:visible}}
@@ -895,8 +898,9 @@ body.ro .ray:not([data-panel="outline"]):not([data-panel="templates"]){opacity:.
   </defs>
 </svg>
 <div id="splash" role="status" aria-live="polite">
-  <button type="button" class="sp-skip">Passer l'animation</button>
   <div class="sp-glow" aria-hidden="true"></div>
+  <div class="sp-stage">
+  <button type="button" class="sp-skip">Passer l'animation</button>
   <div class="sp-center">
     <div class="sp-logo" role="img" aria-label="SPECTRA Writer">
       <div class="sp-markw" aria-hidden="true">
@@ -909,6 +913,7 @@ body.ro .ray:not([data-panel="outline"]):not([data-panel="templates"]){opacity:.
   </div>
   <div class="sp-bar" aria-hidden="true"><i></i></div>
   <p class="sp-msg" id="spMsg">Préparation de votre espace d'écriture…</p>
+  </div>
 </div>
 <script>
 /* SPECTRA Writer · intro : la frappe. Insérée juste après le bloc #splash ; la scène est en CSS (splash.css), ce code ne fait que
@@ -927,9 +932,11 @@ body.ro .ray:not([data-panel="outline"]):not([data-panel="templates"]){opacity:.
     if (closed || !released || !over) return;
     closed = true;
     document.removeEventListener('keydown', onKey, true);
-    sp.classList.add('done');
-    setTimeout(function(){ try { if (sp.contains(document.activeElement)) document.body.focus(); } catch (e) {} sp.remove(); }, 600);
+    try { if (sp.contains(document.activeElement)) document.activeElement.blur(); } catch (e) {}   // le focus ne reste pas sur le bouton « Passer »
+    sp.classList.add('done');                                    // contenu 200 ms, puis fond 350 ms (voir splash.css)
+    setTimeout(function(){ sp.remove(); dropBg(); }, 600);
   }
+  function dropBg(){ var b = document.getElementById('spBg'); if (b) b.remove(); }   // fond sombre posé sur <html> dès le <head> (pas d'écran blanc)
   function finishScene(){ if (over) return; over = true; clearTimeout(timer); sp.classList.add('sp-over'); tryClose(); }
   function skip(){ if (over) return; sp.classList.add('sp-skipped'); finishScene(); }
   function onKey(e){
@@ -937,6 +944,7 @@ body.ro .ray:not([data-panel="outline"]):not([data-panel="templates"]){opacity:.
     if (e.key === 'Escape' || (e.key === 'Enter' && (e.target === document.body || sp.contains(e.target)))) { e.preventDefault(); skip(); }
   }
   window.__spRelease = function(){ released = true; tryClose(); };
+  setTimeout(function(){ released = true; tryClose(); }, 20000);   // garde-fou : jamais d'intro bloquée si l'auth ne répond pas
 
   var btn = sp.querySelector('.sp-skip');
   if (btn) btn.addEventListener('click', skip);
@@ -974,6 +982,13 @@ body.ro .ray:not([data-panel="outline"]):not([data-panel="templates"]){opacity:.
     if (prevCaret) prevCaret.style.setProperty('--l', '520ms');
     prevCaret.classList.add('sp-crend');
   } catch (e) { sp.classList.add('sp-static'); }
+  /* Police du nom : si Bricolage Grotesque n'est pas arrivée à l'instant où la frappe commence, tout le nom reste en police système
+     pour la durée de la scène (aucun changement de largeur en cours de frappe, curseur toujours exact) ; on n'attend jamais la police. */
+  setTimeout(function(){
+    var ok = false;
+    try { document.fonts.forEach(function(f){ if (/Bricolage/.test(f.family) && f.status === 'loaded') ok = true; }); } catch (e) {}
+    if (!ok) sp.classList.add('sp-sys');
+  }, START - 40);
   timer = setTimeout(finishScene, Math.max(0, END - (performance.now() - t0)));
 })();
 </script>

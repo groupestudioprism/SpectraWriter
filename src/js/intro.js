@@ -14,9 +14,11 @@
     if (closed || !released || !over) return;
     closed = true;
     document.removeEventListener('keydown', onKey, true);
-    sp.classList.add('done');
-    setTimeout(function(){ try { if (sp.contains(document.activeElement)) document.body.focus(); } catch (e) {} sp.remove(); }, 600);
+    try { if (sp.contains(document.activeElement)) document.activeElement.blur(); } catch (e) {}   // le focus ne reste pas sur le bouton « Passer »
+    sp.classList.add('done');                                    // contenu 200 ms, puis fond 350 ms (voir splash.css)
+    setTimeout(function(){ sp.remove(); dropBg(); }, 600);
   }
+  function dropBg(){ var b = document.getElementById('spBg'); if (b) b.remove(); }   // fond sombre posé sur <html> dès le <head> (pas d'écran blanc)
   function finishScene(){ if (over) return; over = true; clearTimeout(timer); sp.classList.add('sp-over'); tryClose(); }
   function skip(){ if (over) return; sp.classList.add('sp-skipped'); finishScene(); }
   function onKey(e){
@@ -24,6 +26,7 @@
     if (e.key === 'Escape' || (e.key === 'Enter' && (e.target === document.body || sp.contains(e.target)))) { e.preventDefault(); skip(); }
   }
   window.__spRelease = function(){ released = true; tryClose(); };
+  setTimeout(function(){ released = true; tryClose(); }, 20000);   // garde-fou : jamais d'intro bloquée si l'auth ne répond pas
 
   var btn = sp.querySelector('.sp-skip');
   if (btn) btn.addEventListener('click', skip);
@@ -61,5 +64,12 @@
     if (prevCaret) prevCaret.style.setProperty('--l', '520ms');
     prevCaret.classList.add('sp-crend');
   } catch (e) { sp.classList.add('sp-static'); }
+  /* Police du nom : si Bricolage Grotesque n'est pas arrivée à l'instant où la frappe commence, tout le nom reste en police système
+     pour la durée de la scène (aucun changement de largeur en cours de frappe, curseur toujours exact) ; on n'attend jamais la police. */
+  setTimeout(function(){
+    var ok = false;
+    try { document.fonts.forEach(function(f){ if (/Bricolage/.test(f.family) && f.status === 'loaded') ok = true; }); } catch (e) {}
+    if (!ok) sp.classList.add('sp-sys');
+  }, START - 40);
   timer = setTimeout(finishScene, Math.max(0, END - (performance.now() - t0)));
 })();
