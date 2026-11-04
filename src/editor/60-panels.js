@@ -4,6 +4,7 @@ let panel = '';
 const PANELS = {
   insert:{t:'Insérer', sub:'Cliquez pour ajouter sous le curseur, ou glissez sur la page.', c:'#7B3FF2', ic:'<svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>'},
   theme:{t:'Thème', sub:'Les couleurs et les polices de tout le document, en un geste.', c:'#12B5E5', ic:'<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M12 3.5a8.5 8.5 0 0 1 0 17z" fill="currentColor" stroke="none"/></svg>'},
+  style:{t:'Style', sub:'Effets de texte, paragraphes, listes, objets : tout ce que Word et Canva savent faire.', c:'#EC4899', ic:'<svg viewBox="0 0 24 24"><path d="M12 3l1.8 4.6L18.5 9l-4.7 1.8L12 15.5l-1.8-4.7L5.5 9l4.7-1.4zM18 15l.8 2 2 .8-2 .8-.8 2-.8-2-2-.8 2-.8z"/></svg>'},
   page:{t:'Page', sub:'Format, marges, en-tête, numéros : appliqué tout de suite.', c:'#2FBF71', ic:'<svg viewBox="0 0 24 24"><path d="M6 3h9l4 4v14H6z"/><path d="M9 12h7M9 16h5"/></svg>'},
   outline:{t:'Plan', sub:'La structure du document, ses chiffres et votre objectif.', c:'#F5B82E', ic:'<svg viewBox="0 0 24 24"><path d="M4 6h16M8 12h12M8 18h12"/></svg>'},
   templates:{t:'Modèles', sub:'Repartir d\'un modèle : dans un nouveau document, ou à la place de celui-ci.', c:'#FF7A2F', ic:'<svg viewBox="0 0 24 24"><rect x="3.5" y="3.5" width="7" height="9" rx="1.5"/><rect x="13.5" y="3.5" width="7" height="5" rx="1.5"/><rect x="13.5" y="11.5" width="7" height="9" rx="1.5"/><rect x="3.5" y="15.5" width="7" height="5" rx="1.5"/></svg>'},
@@ -24,16 +25,18 @@ const seg = (name, cur, opts) => `<div class="seg" role="radiogroup" data-seg="$
 function renderPanel(){
   const P = $('#edPanelBody'); $('#edPanelTitle').textContent = PANELS[panel]?.t || ''; $('#edPanelSub').textContent = PANELS[panel]?.sub || '';
   if (panel === 'insert'){
-    const cats = ['Tout', ...new Set(BLOCKS.map(b => b.cat)), 'Images', 'Éléments'];
+    const cats = ['Tout', ...new Set(BLOCKS.map(b => b.cat)), 'Objets', 'Images', 'Éléments'];
     const q = norm(blockQ);
     const list = BLOCKS.filter(b => (blockCat === 'Tout' || b.cat === blockCat) && (!q || norm(b.name + ' ' + b.kw + ' ' + b.cat).includes(q)));
     const imgs = $$('figure.sw-img img', sheet());
-    const showBlocks = blockCat !== 'Images' && blockCat !== 'Éléments';
+    const showBlocks = blockCat !== 'Images' && blockCat !== 'Éléments' && blockCat !== 'Objets';
+    const showObj = blockCat === 'Objets' || (blockCat === 'Tout' && !q) || (q && OBJ_ITEMS.some(o => norm(o.n + ' ' + o.d).includes(q)));
     const showImg = blockCat === 'Images' || (blockCat === 'Tout' && !q);
     const showEl = blockCat === 'Éléments' || (blockCat === 'Tout' && !q);
     P.innerHTML = `<div class="dr-top"><label class="pn-search">${IC.search}<input id="pnBlockQ" placeholder="Rechercher : tableau, encadré, couverture…" value="${escH(blockQ)}"></label>
       <div class="pn-chips">${cats.map(c => `<button type="button" data-bcat="${escH(c)}" aria-pressed="${c === blockCat}">${escH(c)}</button>`).join('')}</div></div>
       ${showBlocks ? `<div class="pn-blocks">${list.map(b => `<button type="button" class="pn-block" data-block="${b.id}" draggable="true"><span class="pn-bprev">${b.inline ? `<span class="bmini-txt">${escH(b.html())}</span>` : miniBlock(b.html())}</span><b>${escH(b.name)}</b></button>`).join('') || '<p class="pn-hint">Aucun bloc ne correspond. Essayez un autre mot.</p>'}</div>` : ''}
+      ${showObj ? `<h4 class="pn-h">Objets <small>formes, graphiques, schémas, équations, notes…</small></h4><div class="obj-grid">${OBJ_ITEMS.filter(o => !q || norm(o.n + ' ' + o.d).includes(q)).map(o => `<button type="button" data-obj="${o.id}">${o.ic}<span><b>${o.n}</b><span>${o.d}</span></span></button>`).join('')}</div>` : ''}
       ${showImg ? `<h4 class="pn-h">Images</h4><div class="pn-imgrow"><button type="button" class="pn-drop" data-act="img-upload">${IC.img}<b>Ajouter une image</b><span>ou glissez-la sur la page</span></button>${imgs.map((im, i) => `<button type="button" class="pn-imgthumb" data-goimg="${i}" title="Aller à l'image"><img src="${im.src}" alt=""></button>`).join('')}</div>` : ''}
       ${showEl ? `<h4 class="pn-h">Émojis <small>ou tapez « : » dans le texte</small></h4><div class="pn-emo">${EMOJIS.map(e => `<button type="button" data-ins="${e}">${e}</button>`).join('')}</div>
       <h4 class="pn-h">Étiquettes</h4><div class="pn-tags">${TAGS.map(t => `<button type="button" data-tag="${escH(t)}" class="swdoc" style="${themeCss(E.doc.theme)}"><span class="sw-tag">${escH(t)}</span></button>`).join('')}</div>
@@ -55,6 +58,8 @@ function renderPanel(){
         <label>Interligne <output id="thLhO">${String(v.lh).replace('.', ',')}</output><input type="range" id="thLh" min="1.1" max="2.2" step="0.05" value="${v.lh}"></label>
         <button type="button" class="pn-wide alt" data-act="theme-reset">Revenir au thème d'origine</button>
       </div>`;
+  } else if (panel === 'style'){
+    renderStylePanel(P);
   } else if (panel === 'page'){
     const p = E.doc.page;
     P.innerHTML = `<div class="pg-grid">
@@ -67,7 +72,7 @@ function renderPanel(){
       <label class="pgf wide"><span>En-tête <small>vous pouvez écrire {titre}, {date}, {page}, {pages}</small></span><input id="pgHdr" value="${escH(p.header)}" placeholder="Par exemple : {titre}"></label>
       <label class="pgf wide"><span>Pied de page</span><input id="pgFtr" value="${escH(p.footer)}" placeholder="Par exemple : Ma société, document confidentiel"></label>
       <label class="pgf"><span>Filigrane</span><input id="pgWm" list="pgWL" value="${escH(p.watermark)}" placeholder="Aucun"><datalist id="pgWL"><option>BROUILLON</option><option>CONFIDENTIEL</option><option>COPIE</option><option>EXEMPLE</option></datalist></label>
-    </div>`;
+    </div>${pageExtrasHtml()}`;
   } else if (panel === 'outline'){
     renderOutline();
   } else if (panel === 'templates'){
@@ -86,7 +91,7 @@ function renderOutline(){
     : '<p class="pn-hint">Le plan se construit tout seul avec les titres du document. Choisissez « Titre 1, 2 ou 3 » dans la barre, ou tapez # suivi d\'un espace.</p>'}</div>
     <aside class="ol-side"><div class="ol-stats"><div><b>${w.toLocaleString('fr-FR')}</b><span>mots</span></div><div><b>${E.pages}</b><span>page${E.pages > 1 ? 's' : ''}</span></div><div><b>${Math.max(1, Math.round(w / 230))} min</b><span>de lecture</span></div><div><b>${t.replace(/\s/g, '').length.toLocaleString('fr-FR')}</b><span>caractères</span></div></div>
     <label class="ol-goal"><span>Objectif de mots</span><input id="olGoal" type="number" min="0" step="50" value="${goal || ''}" placeholder="Par exemple : 1000"></label>
-    ${goal ? `<div class="ol-bar"><i style="width:${pct}%"></i></div><p class="pn-hint">${pct >= 100 ? 'Objectif atteint, bravo.' : `Encore ${(goal - w).toLocaleString('fr-FR')} mots.`}</p>` : ''}</aside></div>`;
+    ${goal ? `<div class="ol-bar"><i style="width:${pct}%"></i></div><p class="pn-hint">${pct >= 100 ? 'Objectif atteint, bravo.' : `Encore ${(goal - w).toLocaleString('fr-FR')} mots.`}</p>` : ''}${commentsHtml()}</aside></div>`;
   P.dataset.n = hs.length;
 }
 const outlineRefresh = debounce(() => { if (panel === 'outline' && !$('#edPanelBody').contains(document.activeElement)) renderOutline(); renderThread(); }, 400);

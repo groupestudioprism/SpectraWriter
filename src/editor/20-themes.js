@@ -61,7 +61,7 @@ function shade(a, t){ return t < 0 ? mix(a, '#000000', -t) : mix(a, '#ffffff', t
 window.SWThemes = {css:themeCss, vals:themeVals, list:THEMES, key:themeKey};
 
 /* Feuille de style des documents (édition, vignettes ; résolue en valeurs fixes pour les exports Word et page web) */
-const DOC_CSS = `
+let DOC_CSS = `
 .swdoc{font-family:var(--fb);font-size:var(--fs);line-height:var(--lh);color:var(--ink);word-wrap:break-word;overflow-wrap:break-word}
 .swdoc>*:first-child{margin-top:0}
 .swdoc p{margin:0 0 .75em}

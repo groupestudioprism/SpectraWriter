@@ -4,8 +4,8 @@ const SAN = (() => {
     + 'table thead tbody tfoot tr th td colgroup col caption figure figcaption img section article header footer aside nav label time abbr cite q kbd').split(' '));
   const SVG = new Set('svg path circle rect g defs lineargradient radialgradient stop ellipse polygon line polyline text tspan'.split(' '));
   const DROP = new Set('script style iframe object embed link meta form input textarea select button noscript template frame frameset base title head foreignobject animate animatemotion animatetransform set use image audio video source track canvas map area applet math'.split(' '));
-  const ATTR = new Set('class style href src alt title colspan rowspan width height contenteditable lang dir start type datetime'.split(' '));
-  const SVGATTR = new Set('viewbox d fill stroke stroke-width stroke-linecap stroke-linejoin stroke-dasharray cx cy r rx ry x y x1 x2 y1 y2 width height offset stop-color stop-opacity points transform opacity fill-opacity preserveaspectratio xmlns gradienttransform gradientunits id class style text-anchor font-size font-weight font-family'.split(' '));
+  const ATTR = new Set('class style href src alt title colspan rowspan width height contenteditable lang dir start type datetime role aria-label'.split(' '));
+  const SVGATTR = new Set('viewbox d fill stroke stroke-width stroke-linecap stroke-linejoin stroke-dasharray cx cy r rx ry x y x1 x2 y1 y2 width height offset stop-color stop-opacity points transform opacity fill-opacity preserveaspectratio xmlns gradienttransform gradientunits id class style text-anchor font-size font-weight font-family vector-effect fill-rule stroke-opacity font-style letter-spacing dominant-baseline stroke-dashoffset role aria-label'.split(' '));
   const okUrl = (u, img) => { const v = String(u || '').trim().replace(/[\u0000-\u001F\s]+/g, ''); if (!v) return false;
     // une image SVG affichée par <img> ne peut exécuter aucun script : on l'accepte comme les autres formats
     if (img) return /^data:image\/(png|jpe?g|gif|webp|svg\+xml);base64,/i.test(v) || /^https:\/\//i.test(v);

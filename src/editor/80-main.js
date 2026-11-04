@@ -137,6 +137,7 @@ function toggleFocus(on){ document.body.classList.toggle('focus-mode', on ?? !do
 /* --- événements --- */
 function wire(){
   const S = sheet();
+  proObjInit(); stylePanelWire(); S.addEventListener('click', proClick); S.addEventListener('dblclick', proDbl);
   S.addEventListener('input', e => { $$('.ph-cur', S).forEach(x => { if (x.textContent.replace(/\u200B/g, '').trim()) x.classList.remove('ph-cur'); }); changed(); slashCheck(); placeFloat(); });
   S.addEventListener('focus', () => document.body.classList.add('editing'));
   S.addEventListener('blur', () => { saveSel(); document.body.classList.remove('editing');  });

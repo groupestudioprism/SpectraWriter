@@ -4,17 +4,18 @@ const LIB_MAMMOTH = 'https://cdn.jsdelivr.net/npm/mammoth@1.13.0/mammoth.browser
 function loadScriptOnce(src){ return new Promise((res, rej) => { if ($$('script').some(s => s.src === src)) return res(); const s = document.createElement('script'); s.src = src; s.onload = res; s.onerror = () => rej(new Error('Bibliothèque indisponible : vérifiez votre connexion.')); document.head.appendChild(s); }); }
 
 /* HTML propre du document (sans repères de pagination ni éléments d'interface) */
-function cleanClone(){
+function cleanClone(forExport){
   const c = sheet().cloneNode(true);
+  if (forExport) c.querySelectorAll('.sw-cm').forEach(m => { const p = m.parentNode; while (m.firstChild) p.insertBefore(m.firstChild, m); m.remove(); });
   c.querySelectorAll('.sw-pbs').forEach(x => x.remove());
   c.querySelectorAll('[data-swpb]').forEach(el => { const o = el.dataset.swpb; el.style.marginTop = o === '-' ? '' : o; if (!el.getAttribute('style')) el.removeAttribute('style'); el.removeAttribute('data-swpb'); });
-  c.querySelectorAll('.ph-cur,.sw-sel').forEach(el => { el.classList.remove('ph-cur', 'sw-sel'); if (!el.className) el.removeAttribute('class'); });
+  c.querySelectorAll('.ph-cur,.sw-sel,.sw-objsel').forEach(el => { el.classList.remove('ph-cur', 'sw-sel', 'sw-objsel'); if (!el.className) el.removeAttribute('class'); });
   const w = document.createTreeWalker(c, NodeFilter.SHOW_TEXT); let t; const zw = []; while ((t = w.nextNode())) if (t.data.includes('​')) zw.push(t);
   zw.forEach(t => { t.data = t.data.replace(/​/g, ''); });
   c.querySelectorAll('span').forEach(s => { if (!s.attributes.length){ const p = s.parentNode; while (s.firstChild) p.insertBefore(s.firstChild, s); s.remove(); } });
   return c;
 }
-function cleanHtml(){ return cleanClone().innerHTML; }
+function cleanHtml(forExport){ return cleanClone(forExport).innerHTML; }
 
 /* Variables de thème → valeurs fixes (pour les logiciels qui ne lisent pas les variables CSS) */
 function themeMap(){
@@ -39,7 +40,7 @@ function exportHTML(){
   return `<!doctype html><html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${escH(E.doc.title)}</title><meta name="generator" content="SPECTRA Writer · Studio Prism">${fontsLinks()}
 <style>body{margin:0;background:#EEEDF4}main{max-width:${Math.round(g.pw)}px;margin:32px auto;background:${E.doc.page.bg || '#fff'};box-shadow:0 10px 40px rgb(20 16 40 / .14);padding:${g.mt}px ${g.mr}px ${g.mb}px ${g.ml}px;box-sizing:border-box;overflow:hidden}
 .swdoc{${themeCss(E.doc.theme)};--mt:${g.mt}px;--mr:${g.mr}px;--mb:${g.mb}px;--ml:${g.ml}px;--ph:${g.ph}px}.swdoc .sw-pagebreak{height:0;border-top:1px dashed #ccc;margin:2em 0}.swdoc .sw-toc a i{display:none}
-@media (max-width:${Math.round(g.pw)}px){main{margin:0;padding:24px 18px}}${DOC_CSS}</style></head><body><main class="swdoc">${cleanHtml()}</main></body></html>`;
+@media (max-width:${Math.round(g.pw)}px){main{margin:0;padding:24px 18px}}${DOC_CSS}</style></head><body><main class="swdoc">${cleanHtml(true)}</main></body></html>`;
 }
 
 /* Markdown */
@@ -143,13 +144,19 @@ async function buildDocx(D, root, opt){
   const runsOf = (node, st = {}) => {
     const out = [];
     const walk = (n, s) => {
-      if (n.nodeType === 3){ const t = n.data.replace(/​/g, ''); if (t) out.push(new D.TextRun({text:t, bold:s.b, italics:s.i, underline:s.u ? {} : undefined, strike:s.s, color:s.color, size:s.size, font:s.font, superScript:s.sup, subScript:s.sub, shading:s.bg ? {type:D.ShadingType.CLEAR, fill:s.bg, color:'auto'} : undefined, allCaps:s.caps})); return; }
+      if (n.nodeType === 3){ const t = n.data.replace(/​/g, ''); if (t) out.push(new D.TextRun({text:t, bold:s.b, italics:s.i, allCaps:s.caps, smallCaps:s.sc, underline:s.u ? {} : undefined, strike:s.s, color:s.color, size:s.size, font:s.font, superScript:s.sup, subScript:s.sub, shading:s.bg ? {type:D.ShadingType.CLEAR, fill:s.bg, color:'auto'} : undefined, allCaps:s.caps})); return; }
       if (n.nodeType !== 1) return;
       const t = n.tagName, ns = {...s};
       if (t === 'BR'){ out.push(new D.TextRun({break:1})); return; }
+      if (n.classList?.contains('sw-eq')){ out.push(new D.TextRun({text:eqPlain(n.dataset.swEq || n.textContent), italics:true, size:s.size, font:'Cambria Math', color:s.color})); return; }
+      if (n.classList?.contains('sw-fn')){ out.push(new D.TextRun({text:String([...root.querySelectorAll('.sw-fn')].indexOf(n) + 1), superScript:true, color:colorHex(map.ac, map)})); return; }
+      if (n.classList?.contains('sw-ico')) return;
       if (t === 'B' || t === 'STRONG') ns.b = true; if (t === 'I' || t === 'EM' || t === 'CITE') ns.i = true; if (t === 'U' || t === 'INS') ns.u = true; if (t === 'S' || t === 'DEL' || t === 'STRIKE') ns.s = true;
       if (t === 'SUP') ns.sup = true; if (t === 'SUB') ns.sub = true; if (t === 'CODE') ns.font = 'Courier New'; if (t === 'MARK') ns.bg = 'FFF1A8';
-      if (n.style){ const c = colorHex(n.style.color, map); if (c) ns.color = c; const bg = colorHex(n.style.backgroundColor, map); if (bg) ns.bg = bg;
+      if (n.style){ const c = colorHex(n.style.color, map); if (c) ns.color = c;
+        else if (/gradient/.test(n.style.backgroundImage || '') && n.style.color === 'transparent'){ const gm = (n.style.backgroundImage.match(/#[0-9a-f]{6}|rgb\([^)]+\)/i) || [])[0], gc = gm && colorHex(gm, map); if (gc) ns.color = gc; }
+        else if (n.style.webkitTextStroke){ const sm = (n.style.webkitTextStroke.match(/#[0-9a-f]{6}|rgb\([^)]+\)/i) || [])[0], sc = sm && colorHex(sm, map); if (sc) ns.color = sc; }
+        if (/uppercase/.test(n.style.textTransform)) ns.caps = true; if (n.style.fontVariant === 'small-caps') ns.sc = true; const bg = colorHex(n.style.backgroundColor, map); if (bg) ns.bg = bg;
         if (n.style.fontSize){ const fsz = n.style.fontSize; const px = fsz.endsWith('pt') ? parseFloat(fsz) / .75 : fsz.endsWith('px') ? parseFloat(fsz) : fsz.endsWith('em') ? parseFloat(fsz) * v.fs : 0; if (px) ns.size = halfPt(px); }
         if (n.style.fontFamily) ns.font = n.style.fontFamily.split(',')[0].replace(/["']/g, '').trim(); if (/^(bold|[6-9]00)$/.test(n.style.fontWeight)) ns.b = true; if (n.style.fontStyle === 'italic') ns.i = true; }
       if (n.classList?.contains('sw-tag')){ ns.bg = colorHex(map.soft, map); ns.color = colorHex(map.ac, map); ns.b = true; }
@@ -243,6 +250,14 @@ async function buildDocx(D, root, opt){
         out.push(new D.Paragraph({children:[new D.TextRun({text:'█'.repeat(Math.round(pct / 5)), color:colorHex(map.ac, map)}), new D.TextRun({text:'█'.repeat(20 - Math.round(pct / 5)), color:colorHex(map.soft, map)})], spacing:{after:120}})); }
       else if (cls?.contains('sw-space')) out.push(new D.Paragraph({children:[], spacing:{after:400}}));
       else if (cls?.contains('sw-shape')) continue;
+      else if (n.dataset?.swGfx){ const svg = n.querySelector('svg'); const im = svg && await svgToPng(svg, 1400);
+        if (im){ const pct = parseFloat(n.style.width) || 100, w = Math.min(contentPx, contentPx * pct / 100), al = n.dataset.swAlign;
+          out.push(new D.Paragraph({children:[new D.ImageRun({type:'png', data:im.data, transformation:{width:Math.round(w), height:Math.round(w * im.h / im.w)}})], alignment:/left/.test(al || '') ? D.AlignmentType.LEFT : /right/.test(al || '') ? D.AlignmentType.RIGHT : D.AlignmentType.CENTER, spacing:{after:120}}));
+          const tt = n.querySelector('.sw-obj-t'); if (tt && tt.textContent.trim()) out.push(new D.Paragraph({children:[new D.TextRun({text:tt.textContent.trim(), bold:true, italics:true, color:colorHex(map.mut, map)})], alignment:D.AlignmentType.CENTER, spacing:{after:160}})); } }
+      else if (cls?.contains('sw-textbox')){ const sub = []; await flow(n, sub, st); const fill = colorHex(n.style.backgroundColor || n.style.background, map) || colorHex(map.soft, map), bc = colorHex((n.style.border || '').split(' ').slice(2).join(' '), map) || colorHex(map.ac, map);
+        const sd = {style:D.BorderStyle.SINGLE, size:8, color:bc};
+        out.push(new D.Table({rows:[new D.TableRow({children:[new D.TableCell({children:sub.length ? sub : [new D.Paragraph({children:[]})], shading:{type:D.ShadingType.CLEAR, fill, color:'auto'}, margins:{top:120, bottom:120, left:200, right:200}, borders:{top:sd, bottom:sd, left:sd, right:sd}})]})], width:{size:100, type:D.WidthType.PERCENTAGE}}));
+        out.push(new D.Paragraph({children:[], spacing:{after:80}})); }
       else await flow(n, out, st, inCell);
     }
   }
@@ -269,7 +284,7 @@ async function buildDocx(D, root, opt){
 }
 async function exportDocx(){
   const D = await import(LIB_DOCX);
-  const doc = await buildDocx(D, cleanClone(), {map:themeMap(), theme:themeVals(E.doc.theme), geo:E.geo, page:E.doc.page, title:E.doc.title, img:imgForDocx});
+  const doc = await buildDocx(D, cleanClone(true), {map:themeMap(), theme:themeVals(E.doc.theme), geo:E.geo, page:E.doc.page, title:E.doc.title, img:imgForDocx});
   return D.Packer.toBlob(doc);
 }
 window.__swBuildDocx = buildDocx; // tests
@@ -291,9 +306,9 @@ async function doExport(kind){
   if (!free && window.SWHome && !SWHome.canExport()) return SWHome.licence('export');
   try {
     if (kind === 'pdf') return printDoc();
-    if (kind === 'txt'){ const t = cleanClone(); t.querySelectorAll('[data-sw="toc"]').forEach(x => x.remove()); t.style.cssText += ';position:fixed;left:-99999px;top:0'; document.body.appendChild(t); const txt = t.innerText; t.remove(); return SWDownload(name + '.txt', new Blob([E.doc.title + '\n\n' + txt.replace(/\n{3,}/g, '\n\n')], {type:'text/plain;charset=utf-8'})); }
+    if (kind === 'txt'){ const t = cleanClone(true); t.querySelectorAll('[data-sw="toc"]').forEach(x => x.remove()); t.style.cssText += ';position:fixed;left:-99999px;top:0'; document.body.appendChild(t); const txt = t.innerText; t.remove(); return SWDownload(name + '.txt', new Blob([E.doc.title + '\n\n' + txt.replace(/\n{3,}/g, '\n\n')], {type:'text/plain;charset=utf-8'})); }
     if (kind === 'html') return SWDownload(name + '.html', new Blob([exportHTML()], {type:'text/html;charset=utf-8'}));
-    if (kind === 'md') return SWDownload(name + '.md', new Blob([toMarkdown(cleanClone())], {type:'text/markdown;charset=utf-8'}));
+    if (kind === 'md') return SWDownload(name + '.md', new Blob([toMarkdown(cleanClone(true))], {type:'text/markdown;charset=utf-8'}));
     if (kind === 'spectra') return SWDownload(name + '.spectra', new Blob([getJSON()], {type:'application/json'}));
     if (kind === 'docx'){ toast('Création du fichier Word…'); const b = await exportDocx(); await SWDownload(name + '.docx', b); toast('Fichier Word téléchargé'); }
   } catch(e){ console.error(e); toast(e.message ? 'Export impossible : ' + e.message : 'Export impossible'); }

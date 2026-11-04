@@ -14,7 +14,7 @@ const sheet = () => E.sheet;
 
 /* --- géométrie de la page --- */
 function geometry(){
-  const p = E.doc.page, s = PAGE_SIZES[p.size] || PAGE_SIZES.A4, m = MARGINS[p.margins] || MARGINS.normal;
+  const p = E.doc.page, s = PAGE_SIZES[p.size] || PAGE_SIZES.A4, m = p.margins === 'custom' && Array.isArray(p.mm) ? p.mm.map(x => clamp(+x || 0, 0, 80)) : (MARGINS[p.margins] || MARGINS.normal);
   const [w, h] = p.orient === 'l' ? [s[1], s[0]] : s;
   return {pw:w * MM, ph:h * MM, mt:m[0] * MM, mr:m[1] * MM, mb:m[2] * MM, ml:m[3] * MM, G:E.printing ? 0 : GAP};
 }
@@ -87,7 +87,7 @@ function updateTOC(){
   tocs.forEach(t => { t.dataset.swSig = sig; t.innerHTML = `<b>Sommaire</b>${items.length ? items.map(i => `<a href="#${i.id}" class="l${i.l - minL + 1}" data-sw-to="${i.id}">${escH(i.t)}<i></i><em>${i.p}</em></a>`).join('') : '<span class="sw-small">Ajoutez des titres (Titre 1, 2 ou 3) : ils apparaîtront ici avec leur numéro de page.</span>'}`; });
   return true;
 }
-function paginate(){ if (!sheet()) return; layout(); if (updateTOC()) layout(); updateStatus(); outlineRefresh(); }
+function paginate(){ if (!sheet()) return; updateNotes(); layout(); if (updateTOC()) layout(); updateStatus(); outlineRefresh(); }
 const paginateSoon = debounce(() => requestAnimationFrame(paginate), 90);
 function tokens(s, i){ return String(s || '').replace(/\{page\}/g, i + 1).replace(/\{pages\}/g, E.pages).replace(/\{titre\}/g, escH(E.doc.title)).replace(/\{date\}/g, today()); }
 function renderDeco(){
@@ -95,7 +95,8 @@ function renderDeco(){
   for (let i = 0; i < E.pages; i++){
     const num = p.numbers ? (p.numStyle === 'np' ? `Page ${i + 1} / ${E.pages}` : String(i + 1)) : '';
     const coverFirst = i === 0 && sheet().firstElementChild?.classList.contains('sw-cover');
-    h += `<div class="pg" style="top:${i * step}px;height:${g.ph}px;width:${g.pw}px;background:${escH(p.bg || '#fff')}">`
+    h += `<div class="pg" style="top:${i * step}px;height:${g.ph}px;width:${g.pw}px;background:${escH(p.bg || '#fff')}${pageBgx(p)}">`
+      + pageBorder(p)
       + (p.watermark ? `<div class="pg-wm">${escH(p.watermark)}</div>` : '')
       + (p.header && !coverFirst ? `<div class="pg-h" style="top:${Math.max(10, g.mt * .38)}px;left:${Math.max(18, g.ml)}px;right:${Math.max(18, g.mr)}px">${tokens(escH(p.header), i)}</div>` : '')
       + ((p.footer || num) && !coverFirst ? `<div class="pg-f" style="bottom:${Math.max(10, g.mb * .38)}px;left:${Math.max(18, g.ml)}px;right:${Math.max(18, g.mr)}px"><span>${tokens(escH(p.footer), i)}</span><span class="pg-n ${p.numPos === 'r' ? 'r' : ''}">${num}</span></div>` : '')
@@ -180,8 +181,11 @@ function cmd(name, val, css = false){
   if (E.ro) return; restoreSelIfNeeded(); flushRecord(); record();
   try { document.execCommand('styleWithCSS', false, css); } catch(e){}
   document.execCommand(name, false, val ?? null);
+  if (/List$/.test(name)) fixLists();
   changed({record:true}); refreshToolbar();
 }
+/* Chrome enveloppe parfois la liste dans le paragraphe (<p><ol>) : on remonte la liste au niveau du bloc */
+function fixLists(){ $$('p > ul, p > ol, h1 > ul, h1 > ol, h2 > ul, h2 > ol, h3 > ul, h3 > ol, blockquote > ul, blockquote > ol', sheet()).forEach(l => { const p = l.parentElement; if ([...p.childNodes].every(n => n === l || (n.nodeType === 3 && !n.data.replace(/[\u200B\s]/g, '')))){ const sel = selPaths(); p.replaceWith(l); setSelPaths(sel); } }); }
 function restoreSelIfNeeded(){ if (!inSheet()) restoreSel(); }
 const MARK = '#fe0102', MARK_RGB = 'rgb(254, 1, 2)';
 /* style en ligne (police, taille, couleur du thème…) : appliqué via une couleur repère, puis remplacé par le vrai style */
@@ -342,6 +346,7 @@ function placeTools(){
     let y = r.top - el.offsetHeight - 10; if (y < sc.top + 6) y = Math.min(r.bottom + 10, sc.bottom - el.offsetHeight - 8); el.style.top = y + 'px'; };
   if (ib && !ib.hidden && selFig && sheet().contains(selFig)){ placeFixed(ib, selFig.getBoundingClientRect()); const hdl = $('#imgHandle'); const p = overlayPos(selFig.querySelector('img')?.getBoundingClientRect() || selFig.getBoundingClientRect()); hdl.hidden = E.ro; hdl.style.left = (p.x + p.w - 7) + 'px'; hdl.style.top = (p.y + p.h - 7) + 'px'; }
   else { if (ib) ib.hidden = true; const hdl = $('#imgHandle'); if (hdl) hdl.hidden = true; }
+  placeObjBar(placeFixed);
   const cell = curCell(); if (cell) E.lastCell = cell;
   if (tb && cell && !E.ro){ tb.hidden = false; placeFixed(tb, cell.closest('table').getBoundingClientRect()); } else if (tb) tb.hidden = true;
 }
