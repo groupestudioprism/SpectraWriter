@@ -347,6 +347,11 @@ function spectreActions(){
   add('Aller', 'Nouveau document', () => window.SWHome?.show('templates')); add('Aller', 'Accueil', () => window.SWHome?.show('home'));
   add('Aller', 'Interface claire ou sombre', () => { const t = document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark'; document.documentElement.dataset.theme = t; lsSet('sw.theme', t); }, 'theme sombre nuit');
   $$('h1, h2, h3', sheet()).filter(h => h.textContent.trim() && !h.closest('.sw-toc')).forEach(h => add('Dans le document', h.textContent.trim().slice(0, 80), () => h.scrollIntoView({behavior:'smooth', block:'start'}), 'titre aller'));
+  FX.filter(f => f.id !== 'none').forEach(f => add('Effets', 'Effet de texte : ' + f.n, () => inlineProps(f.p, f.id), 'wordart canva style texte effet'));
+  OBJ_ITEMS.forEach(o => add('Insérer', o.n, o.run, o.d + ' objet'));
+  Object.entries(LISTS).forEach(([k, l]) => add('Écrire', 'Liste ' + l.n, () => listStyle(k), 'liste puces numeros niveaux'));
+  [2, 3, 4].forEach(n => add('Page', 'Texte en ' + n + ' colonnes', () => textColumns(n), 'colonnes'));
+  SHAPES2.forEach(sh => add('Insérer', 'Forme : ' + sh[1], () => insertShape(sh[0]), 'forme figure dessin'));
   return A;
 }
 const SP_START = ['Titre 1', 'Titre 2', 'Image', 'Tableau 3 × 3', 'Lien', 'Rechercher', 'Exporter en PDF', 'Exporter en Word (.docx)', 'Historique des versions', 'Mode concentration'];
