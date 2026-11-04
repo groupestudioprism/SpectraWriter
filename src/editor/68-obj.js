@@ -87,6 +87,36 @@ function proObjInit(){
   bar.addEventListener('mousedown', e => e.preventDefault());
   bar.addEventListener('click', e => { const b = e.target.closest('[data-ob]'); const o = E.objSel; if (!b || !o) return; const k = b.dataset.ob;
     if (k === 'del') return objDelete(o); if (k === 'dup') return objDuplicate(o); if (k === 'edit') return objEdit(o); objOpen(k, b, o); });
+  const tb = $('#tblBar'); tb.insertAdjacentHTML('afterbegin', '<button type="button" class="tb tb-txt" data-t="cell">Cellule…</button><span class="fsep"></span>');
+  tb.addEventListener('click', e => { const b = e.target.closest('[data-t="cell"]'); if (b) tblPop(b); }, true);
   sheet().addEventListener('click', objClick);
   sheet().addEventListener('dblclick', e => { const o = e.target.closest('[data-sw-gfx]'); if (o && gfxOf(o) !== 'shape' && !E.ro) objEdit(o); });
+}
+
+/* ----- tableaux : fond de cellule, bordures, fusion, alignement ----- */
+function tblCells(){ const sel = getSelection(), c = curCell() || E.lastCell; if (!c) return []; const t = c.closest('table');
+  if (sel.rangeCount && !sel.isCollapsed){ const r = sel.getRangeAt(0), all = [...t.querySelectorAll('th,td')].filter(x => r.intersectsNode(x)); if (all.length) return all; } return [c]; }
+function tblPop(anchor){
+  const cells = tblCells(); if (!cells.length) return; const t = cells[0].closest('table');
+  openPop(anchor, `<p class="pop-h">Cellule${cells.length > 1 ? 's (' + cells.length + ')' : ''}</p>${swatches('bg', '', '<button type="button" data-c="" class="op-none" title="Sans fond">∅</button>')}
+    <p class="pop-h">Alignement</p><div class="op-seg">${[['left', 'Gauche'], ['center', 'Centre'], ['right', 'Droite']].map(([v, n]) => `<button type="button" data-set="ha" data-v="${v}">${n}</button>`).join('')}${[['top', 'Haut'], ['middle', 'Milieu'], ['bottom', 'Bas']].map(([v, n]) => `<button type="button" data-set="va" data-v="${v}">${n}</button>`).join('')}</div>
+    <p class="pop-h">Fusion</p><div class="op-seg"><button type="button" data-set="mg" data-v="right">Fusionner à droite</button><button type="button" data-set="mg" data-v="down">Fusionner en bas</button><button type="button" data-set="mg" data-v="split">Scinder</button></div>
+    <p class="pop-h">Bordures du tableau</p>${swatches('bc', '')}${rng('bw', 'Épaisseur', 0, 6, parseFloat(t.dataset.swBw) || 1, ' px')}<div class="op-seg"><button type="button" data-set="bs" data-v="all">Toutes</button><button type="button" data-set="bs" data-v="h">Horizontales</button><button type="button" data-set="bs" data-v="out">Extérieur</button><button type="button" data-set="bs" data-v="none">Aucune</button></div>`, p => {
+    let bc = '#CBD5E1', bw = parseFloat(t.dataset.swBw) || 1;
+    const applyB = mode => { const b = `${bw}px solid ${bc}`; t.dataset.swBw = bw; t.querySelectorAll('th,td').forEach(c => { ['top', 'right', 'bottom', 'left'].forEach(s => c.style.removeProperty('border-' + s)); });
+      const rows = [...t.rows]; t.querySelectorAll('th,td').forEach(c => { const set = (s, v) => c.style.setProperty('border-' + s, v);
+        if (mode === 'all'){ ['top', 'right', 'bottom', 'left'].forEach(s => set(s, b)); } else if (mode === 'h'){ set('top', b); set('bottom', b); set('left', '0 none'); set('right', '0 none'); }
+        else if (mode === 'out'){ const tr = c.parentElement, first = rows[0] === tr, last = rows[rows.length - 1] === tr, fc = tr.firstElementChild === c, lc = tr.lastElementChild === c; first && set('top', b); last && set('bottom', b); fc && set('left', b); lc && set('right', b); }
+        else ['top', 'right', 'bottom', 'left'].forEach(s => set(s, '0 none')); }); t.style.borderCollapse = 'collapse'; changed(); };
+    popWire(p, (k, v) => {
+      if (k === 'bg'){ cells.forEach(c => v ? c.style.setProperty('background-color', v) : c.style.removeProperty('background-color')); changed(); }
+      else if (k === 'ha'){ cells.forEach(c => c.style.textAlign = v); changed(); } else if (k === 'va'){ cells.forEach(c => c.style.verticalAlign = v); changed(); }
+      else if (k === 'bc'){ bc = v; } else if (k === 'bw'){ bw = v; } else if (k === 'bs') applyB(v);
+      else if (k === 'mg'){ const c = cells[0], tr = c.parentElement;
+        if (v === 'right'){ const n = c.nextElementSibling; if (n){ c.colSpan = (c.colSpan || 1) + (n.colSpan || 1); c.innerHTML = (c.textContent.trim() ? c.innerHTML + ' ' : '') + (n.textContent.trim() ? n.innerHTML : ''); n.remove(); } }
+        else if (v === 'down'){ const nr = tr.nextElementSibling; if (nr){ const i = [...tr.children].indexOf(c), n = nr.children[i]; if (n){ c.rowSpan = (c.rowSpan || 1) + (n.rowSpan || 1); n.remove(); } } }
+        else { const cs = c.colSpan || 1; c.colSpan = 1; c.rowSpan = 1; c.removeAttribute('colspan'); c.removeAttribute('rowspan'); for (let i = 1; i < cs; i++){ const n = document.createElement(c.tagName); n.innerHTML = '<br>'; c.after(n); } }
+        changed({record:true}); paginate(); }
+    });
+  }, 'objpop');
 }

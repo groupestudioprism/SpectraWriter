@@ -110,14 +110,14 @@ function eqHtml(src){
     const c = s[i++]; let h = '';
     if (c === '{'){ h = seq('}'); i++; }
     else if (c === '\\'){ let m = /^[a-zA-Z]+/.exec(s.slice(i)); let name = m ? m[0] : s[i]; i += name.length;
-      if (name === 'frac'){ const a = arg(), b = arg(); h = `<span class="eq-f"><span>${a}</span><span>${b}</span></span>`; }
+      if (name === 'frac'){ const a = arg(), b = arg(); h = `<span class="eq-f"><span class="eq-a">${a}</span><span class="eq-b">${b}</span></span>`; }
       else if (name === 'sqrt'){ let n = ''; if (s[i] === '['){ const j = s.indexOf(']', i); n = s.slice(i + 1, j); i = j + 1; } const a = arg(); h = `<span class="eq-r">${n ? `<sup class="eq-n">${escH(n)}</sup>` : ''}<svg class="eq-rs" viewBox="0 0 10 20" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg"><path d="M0 12L2 10.5L5 19L10 0.6" fill="none" stroke="currentColor" stroke-width="1.3" vector-effect="non-scaling-stroke"/></svg><span class="eq-rb">${a}</span></span>`; }
       else if (name === 'text' || name === 'mathrm' || name === 'mbox'){ const a = arg(); h = `<span class="eq-t">${a.replace(/<\/?i>/g, '')}</span>`; }
       else if (name === 'vec' || name === 'bar' || name === 'hat' || name === 'overline'){ const a = arg(); h = `<span class="eq-o eq-${name === 'overline' ? 'bar' : name}">${a}</span>`; }
       else if (name === 'sum' || name === 'prod' || name === 'int' || name === 'oint' || name === 'lim'){
         const sym = {sum:'∑', prod:'∏', int:'∫', oint:'∮', lim:'lim'}[name]; let lo = '', up = '';
         for (let k = 0; k < 2; k++){ if (s[i] === '_'){ i++; lo = arg(); } else if (s[i] === '^'){ i++; up = arg(); } }
-        h = name === 'lim' ? `<span class="eq-big eq-lim"><span>lim</span><span>${lo}</span></span>` : `<span class="eq-big${name === 'int' || name === 'oint' ? ' eq-int' : ''}"><span>${up}</span><span class="eq-sym">${sym}</span><span>${lo}</span></span>`; return h;
+        h = name === 'lim' ? `<span class="eq-big eq-lim"><span class="eq-u">lim</span><span class="eq-d">${lo}</span></span>` : `<span class="eq-big${name === 'int' || name === 'oint' ? ' eq-int' : ''}"><span class="eq-u">${up}</span><span class="eq-sym">${sym}</span><span class="eq-d">${lo}</span></span>`; return h;
       }
       else if (name === 'left' || name === 'right'){ h = s[i] === '.' ? (i++, '') : escH(s[i++] || ''); return h; }
       else if (name === 'quad'){ h = '<span class="eq-sp"></span>'; } else if (name === ',' || name === ';' || name === ' ') h = '&nbsp;';
@@ -328,7 +328,7 @@ DOC_CSS += `
 .swdoc .eq-rb{border-top:1.4px solid currentColor;padding:0 .15em 0 .05em;margin-top:.12em}.swdoc .eq-n{align-self:flex-start;margin-right:-.4em}
 .swdoc .eq-ss{display:inline-grid;grid-template-rows:auto auto;line-height:1}.swdoc .eq-ss sup,.swdoc .eq-ss sub{vertical-align:baseline;display:block}
 .swdoc .eq-big{display:inline-flex;flex-direction:column;align-items:center;vertical-align:middle;margin:0 .2em;font-size:.95em}.swdoc .eq-sym{font-size:1.9em;line-height:1}.swdoc .eq-big>span:not(.eq-sym){font-size:.62em;line-height:1.1}
-.swdoc .eq-int .eq-sym{font-size:2.1em}.swdoc .eq-lim>span:first-child{font-size:1em}
+.swdoc .eq-int .eq-sym{font-size:2.1em}.swdoc .eq-lim>.eq-u{font-size:1em!important}
 .swdoc .eq-t{font-style:normal}.swdoc .eq-sp{display:inline-block;width:1.5em}
 .swdoc .eq-bar,.swdoc .eq-vec,.swdoc .eq-hat{display:inline-block;position:relative}.swdoc .eq-bar{border-top:1.2px solid currentColor}.swdoc .eq-vec::before,.swdoc .eq-hat::before{position:absolute;top:-.55em;left:0;right:0;text-align:center;font-size:.8em;line-height:1}.swdoc .eq-vec::before{content:"→"}.swdoc .eq-hat::before{content:"^"}
 @media print{.swdoc .sw-cm{background:none!important;border:0!important}}

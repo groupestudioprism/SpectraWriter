@@ -3189,14 +3189,14 @@ function eqHtml(src){
     const c = s[i++]; let h = '';
     if (c === '{'){ h = seq('}'); i++; }
     else if (c === '\\'){ let m = /^[a-zA-Z]+/.exec(s.slice(i)); let name = m ? m[0] : s[i]; i += name.length;
-      if (name === 'frac'){ const a = arg(), b = arg(); h = `<span class="eq-f"><span>${a}</span><span>${b}</span></span>`; }
+      if (name === 'frac'){ const a = arg(), b = arg(); h = `<span class="eq-f"><span class="eq-a">${a}</span><span class="eq-b">${b}</span></span>`; }
       else if (name === 'sqrt'){ let n = ''; if (s[i] === '['){ const j = s.indexOf(']', i); n = s.slice(i + 1, j); i = j + 1; } const a = arg(); h = `<span class="eq-r">${n ? `<sup class="eq-n">${escH(n)}</sup>` : ''}<svg class="eq-rs" viewBox="0 0 10 20" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg"><path d="M0 12L2 10.5L5 19L10 0.6" fill="none" stroke="currentColor" stroke-width="1.3" vector-effect="non-scaling-stroke"/></svg><span class="eq-rb">${a}</span></span>`; }
       else if (name === 'text' || name === 'mathrm' || name === 'mbox'){ const a = arg(); h = `<span class="eq-t">${a.replace(/<\/?i>/g, '')}</span>`; }
       else if (name === 'vec' || name === 'bar' || name === 'hat' || name === 'overline'){ const a = arg(); h = `<span class="eq-o eq-${name === 'overline' ? 'bar' : name}">${a}</span>`; }
       else if (name === 'sum' || name === 'prod' || name === 'int' || name === 'oint' || name === 'lim'){
         const sym = {sum:'∑', prod:'∏', int:'∫', oint:'∮', lim:'lim'}[name]; let lo = '', up = '';
         for (let k = 0; k < 2; k++){ if (s[i] === '_'){ i++; lo = arg(); } else if (s[i] === '^'){ i++; up = arg(); } }
-        h = name === 'lim' ? `<span class="eq-big eq-lim"><span>lim</span><span>${lo}</span></span>` : `<span class="eq-big${name === 'int' || name === 'oint' ? ' eq-int' : ''}"><span>${up}</span><span class="eq-sym">${sym}</span><span>${lo}</span></span>`; return h;
+        h = name === 'lim' ? `<span class="eq-big eq-lim"><span class="eq-u">lim</span><span class="eq-d">${lo}</span></span>` : `<span class="eq-big${name === 'int' || name === 'oint' ? ' eq-int' : ''}"><span class="eq-u">${up}</span><span class="eq-sym">${sym}</span><span class="eq-d">${lo}</span></span>`; return h;
       }
       else if (name === 'left' || name === 'right'){ h = s[i] === '.' ? (i++, '') : escH(s[i++] || ''); return h; }
       else if (name === 'quad'){ h = '<span class="eq-sp"></span>'; } else if (name === ',' || name === ';' || name === ' ') h = '&nbsp;';
@@ -3407,7 +3407,7 @@ DOC_CSS += `
 .swdoc .eq-rb{border-top:1.4px solid currentColor;padding:0 .15em 0 .05em;margin-top:.12em}.swdoc .eq-n{align-self:flex-start;margin-right:-.4em}
 .swdoc .eq-ss{display:inline-grid;grid-template-rows:auto auto;line-height:1}.swdoc .eq-ss sup,.swdoc .eq-ss sub{vertical-align:baseline;display:block}
 .swdoc .eq-big{display:inline-flex;flex-direction:column;align-items:center;vertical-align:middle;margin:0 .2em;font-size:.95em}.swdoc .eq-sym{font-size:1.9em;line-height:1}.swdoc .eq-big>span:not(.eq-sym){font-size:.62em;line-height:1.1}
-.swdoc .eq-int .eq-sym{font-size:2.1em}.swdoc .eq-lim>span:first-child{font-size:1em}
+.swdoc .eq-int .eq-sym{font-size:2.1em}.swdoc .eq-lim>.eq-u{font-size:1em!important}
 .swdoc .eq-t{font-style:normal}.swdoc .eq-sp{display:inline-block;width:1.5em}
 .swdoc .eq-bar,.swdoc .eq-vec,.swdoc .eq-hat{display:inline-block;position:relative}.swdoc .eq-bar{border-top:1.2px solid currentColor}.swdoc .eq-vec::before,.swdoc .eq-hat::before{position:absolute;top:-.55em;left:0;right:0;text-align:center;font-size:.8em;line-height:1}.swdoc .eq-vec::before{content:"→"}.swdoc .eq-hat::before{content:"^"}
 @media print{.swdoc .sw-cm{background:none!important;border:0!important}}
@@ -3788,8 +3788,38 @@ function proObjInit(){
   bar.addEventListener('mousedown', e => e.preventDefault());
   bar.addEventListener('click', e => { const b = e.target.closest('[data-ob]'); const o = E.objSel; if (!b || !o) return; const k = b.dataset.ob;
     if (k === 'del') return objDelete(o); if (k === 'dup') return objDuplicate(o); if (k === 'edit') return objEdit(o); objOpen(k, b, o); });
+  const tb = $('#tblBar'); tb.insertAdjacentHTML('afterbegin', '<button type="button" class="tb tb-txt" data-t="cell">Cellule…</button><span class="fsep"></span>');
+  tb.addEventListener('click', e => { const b = e.target.closest('[data-t="cell"]'); if (b) tblPop(b); }, true);
   sheet().addEventListener('click', objClick);
   sheet().addEventListener('dblclick', e => { const o = e.target.closest('[data-sw-gfx]'); if (o && gfxOf(o) !== 'shape' && !E.ro) objEdit(o); });
+}
+
+/* ----- tableaux : fond de cellule, bordures, fusion, alignement ----- */
+function tblCells(){ const sel = getSelection(), c = curCell() || E.lastCell; if (!c) return []; const t = c.closest('table');
+  if (sel.rangeCount && !sel.isCollapsed){ const r = sel.getRangeAt(0), all = [...t.querySelectorAll('th,td')].filter(x => r.intersectsNode(x)); if (all.length) return all; } return [c]; }
+function tblPop(anchor){
+  const cells = tblCells(); if (!cells.length) return; const t = cells[0].closest('table');
+  openPop(anchor, `<p class="pop-h">Cellule${cells.length > 1 ? 's (' + cells.length + ')' : ''}</p>${swatches('bg', '', '<button type="button" data-c="" class="op-none" title="Sans fond">∅</button>')}
+    <p class="pop-h">Alignement</p><div class="op-seg">${[['left', 'Gauche'], ['center', 'Centre'], ['right', 'Droite']].map(([v, n]) => `<button type="button" data-set="ha" data-v="${v}">${n}</button>`).join('')}${[['top', 'Haut'], ['middle', 'Milieu'], ['bottom', 'Bas']].map(([v, n]) => `<button type="button" data-set="va" data-v="${v}">${n}</button>`).join('')}</div>
+    <p class="pop-h">Fusion</p><div class="op-seg"><button type="button" data-set="mg" data-v="right">Fusionner à droite</button><button type="button" data-set="mg" data-v="down">Fusionner en bas</button><button type="button" data-set="mg" data-v="split">Scinder</button></div>
+    <p class="pop-h">Bordures du tableau</p>${swatches('bc', '')}${rng('bw', 'Épaisseur', 0, 6, parseFloat(t.dataset.swBw) || 1, ' px')}<div class="op-seg"><button type="button" data-set="bs" data-v="all">Toutes</button><button type="button" data-set="bs" data-v="h">Horizontales</button><button type="button" data-set="bs" data-v="out">Extérieur</button><button type="button" data-set="bs" data-v="none">Aucune</button></div>`, p => {
+    let bc = '#CBD5E1', bw = parseFloat(t.dataset.swBw) || 1;
+    const applyB = mode => { const b = `${bw}px solid ${bc}`; t.dataset.swBw = bw; t.querySelectorAll('th,td').forEach(c => { ['top', 'right', 'bottom', 'left'].forEach(s => c.style.removeProperty('border-' + s)); });
+      const rows = [...t.rows]; t.querySelectorAll('th,td').forEach(c => { const set = (s, v) => c.style.setProperty('border-' + s, v);
+        if (mode === 'all'){ ['top', 'right', 'bottom', 'left'].forEach(s => set(s, b)); } else if (mode === 'h'){ set('top', b); set('bottom', b); set('left', '0 none'); set('right', '0 none'); }
+        else if (mode === 'out'){ const tr = c.parentElement, first = rows[0] === tr, last = rows[rows.length - 1] === tr, fc = tr.firstElementChild === c, lc = tr.lastElementChild === c; first && set('top', b); last && set('bottom', b); fc && set('left', b); lc && set('right', b); }
+        else ['top', 'right', 'bottom', 'left'].forEach(s => set(s, '0 none')); }); t.style.borderCollapse = 'collapse'; changed(); };
+    popWire(p, (k, v) => {
+      if (k === 'bg'){ cells.forEach(c => v ? c.style.setProperty('background-color', v) : c.style.removeProperty('background-color')); changed(); }
+      else if (k === 'ha'){ cells.forEach(c => c.style.textAlign = v); changed(); } else if (k === 'va'){ cells.forEach(c => c.style.verticalAlign = v); changed(); }
+      else if (k === 'bc'){ bc = v; } else if (k === 'bw'){ bw = v; } else if (k === 'bs') applyB(v);
+      else if (k === 'mg'){ const c = cells[0], tr = c.parentElement;
+        if (v === 'right'){ const n = c.nextElementSibling; if (n){ c.colSpan = (c.colSpan || 1) + (n.colSpan || 1); c.innerHTML = (c.textContent.trim() ? c.innerHTML + ' ' : '') + (n.textContent.trim() ? n.innerHTML : ''); n.remove(); } }
+        else if (v === 'down'){ const nr = tr.nextElementSibling; if (nr){ const i = [...tr.children].indexOf(c), n = nr.children[i]; if (n){ c.rowSpan = (c.rowSpan || 1) + (n.rowSpan || 1); n.remove(); } } }
+        else { const cs = c.colSpan || 1; c.colSpan = 1; c.rowSpan = 1; c.removeAttribute('colspan'); c.removeAttribute('rowspan'); for (let i = 1; i < cs; i++){ const n = document.createElement(c.tagName); n.innerHTML = '<br>'; c.after(n); } }
+        changed({record:true}); paginate(); }
+    });
+  }, 'objpop');
 }
 
 /* ==== 70-io.js ==== */
