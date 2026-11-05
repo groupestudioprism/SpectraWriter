@@ -20,10 +20,11 @@
 .sp-mark{position:relative;width:100%;height:100%;border-radius:calc(var(--m) * .2);overflow:hidden}
 .sp-mark svg{position:relative;width:100%;height:100%;display:block;animation:splight .6s 1.7s cubic-bezier(.22,.8,.2,1) both}
 @keyframes splight{from{opacity:0;transform:scale(.88);filter:saturate(.2) brightness(.65)}}
-.sp-st{stroke-dasharray:1;stroke-dashoffset:0}
-.sp-st1{animation:spdraw .5s 1.95s cubic-bezier(.65,0,.35,1) both}
-.sp-st2{animation:spdraw .32s 2.38s cubic-bezier(.22,.8,.2,1) both}
-@keyframes spdraw{from{stroke-dashoffset:1;opacity:0}3%{opacity:1}to{stroke-dashoffset:0;opacity:1}}
+.sp-ln{transform-box:fill-box;transform-origin:left center}
+.sp-ln1{animation:spln .4s 1.95s cubic-bezier(.65,0,.35,1) both}
+.sp-ln2{animation:spln .4s 2.15s cubic-bezier(.65,0,.35,1) both}
+.sp-ln3{animation:spln .3s 2.38s cubic-bezier(.22,.8,.2,1) both}
+@keyframes spln{from{transform:scaleX(0);opacity:0}8%{opacity:1}to{transform:scaleX(1);opacity:1}}
 .sp-shine{position:absolute;inset:-40%;background:linear-gradient(115deg,transparent 40%,rgb(255 255 255 / .7) 50%,transparent 60%);transform:translateX(-80%);animation:spshine 1s 2.05s ease-in-out both}
 @keyframes spshine{to{transform:translateX(80%)}}
 /* nom : chaque caractère (.sp-g) est révélé à son instant ; chaque caractère est suivi de son curseur (.sp-cr), en ligne et de largeur nulle */
